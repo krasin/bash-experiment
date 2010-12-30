@@ -55,7 +55,7 @@ CTAGS = ctags -tw
 CFLAGS = -g -O2
 LOCAL_CFLAGS = 
 CPPFLAGS = 
-LDFLAGS =  -L./lib/termcap
+LDFLAGS = 
 
 DEFS = -DHAVE_CONFIG_H
 LOCAL_DEFS = -DSHELL

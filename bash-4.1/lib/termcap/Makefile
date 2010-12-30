@@ -42,7 +42,7 @@ SHELL = /bin/sh
 
 CFLAGS = -g -O2
 CPPFLAGS = 
-LDFLAGS =  -L./lib/termcap
+LDFLAGS = 
 
 DEFS = -DHAVE_CONFIG_H
 

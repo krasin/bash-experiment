@@ -43,7 +43,7 @@ PROFILE_FLAGS =
 CFLAGS = -g -O2
 LOCAL_CFLAGS = 
 CPPFLAGS = 
-LDFLAGS =  -L./lib/termcap -rdynamic
+LDFLAGS =  -rdynamic
 
 DEFS = -DHAVE_CONFIG_H
 LOCAL_DEFS = -DSHELL

@@ -58,7 +58,7 @@ SHELL = /bin/sh
 CFLAGS = -g -O2
 LOCAL_CFLAGS =  ${DEBUG}
 CPPFLAGS = 
-LDFLAGS =  -L./lib/termcap -rdynamic
+LDFLAGS =  -rdynamic
 
 PROFILE_FLAGS = 
 
