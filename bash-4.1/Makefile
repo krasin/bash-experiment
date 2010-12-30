@@ -435,7 +435,7 @@ SOURCES	 = $(CSOURCES) $(HSOURCES) $(BUILTIN_DEFS)
 SIGNAMES_H = lsignames.h
 
 # object files chosen based on running of configure
-JOBS_O = jobs.o
+JOBS_O = nojobs.o
 SIGLIST_O = 
 SIGNAMES_O = 
 

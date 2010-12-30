@@ -26,7 +26,7 @@
 
 /* Define JOB_CONTROL if your operating system supports
    BSD-like job control. */
-#define JOB_CONTROL 1
+/* #undef JOB_CONTROL */
 
 /* Define ALIAS if you want the alias features. */
 #define ALIAS 1
