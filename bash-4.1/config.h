@@ -48,7 +48,7 @@
 
 /* Define BANG_HISTORY if you want to have Csh style "!" history expansion.
    This is unrelated to READLINE. */
-#define BANG_HISTORY 1
+/* #undef BANG_HISTORY */
 
 /* Define HISTORY if you want to have access to previously typed commands.
 
@@ -74,13 +74,13 @@
 
 /* Define HELP_BUILTIN if you want the `help' shell builtin and the long
    documentation strings compiled into the shell. */
-#define HELP_BUILTIN 1
+/* #undef HELP_BUILTIN */
 
 /* Define RESTRICTED_SHELL if you want the generated shell to have the
    ability to be a restricted one.  The shell thus generated can become
    restricted by being run with the name "rbash", or by setting the -r
    flag. */
-#define RESTRICTED_SHELL 1
+/* #undef RESTRICTED_SHELL */
 
 /* Define DISABLED_BUILTINS if you want "builtin foo" to always run the
    shell builtin "foo", even if it has been disabled with "enable -n foo". */
@@ -90,7 +90,7 @@
    substitution features "<(file)". */
 /* Right now, you cannot do this on machines without fully operational
    FIFO support.  This currently include NeXT and Alliant. */
-#define PROCESS_SUBSTITUTION 1
+/* #undef PROCESS_SUBSTITUTION */
 
 /* Define PROMPT_STRING_DECODE if you want the backslash-escaped special
    characters in PS1 and PS2 expanded.  Variable expansion will still be
@@ -130,7 +130,7 @@
 
 /* Define COPROCESS_SUPPORT if you want support for ksh-like coprocesses and
    the `coproc' reserved word */
-#define COPROCESS_SUPPORT 1
+#define COPROCESS_SUPPORT
 
 /* Define ARITH_FOR_COMMAND if you want the ksh93-style
 	for (( init; test; step )) do list; done
@@ -139,11 +139,11 @@
 
 /* Define NETWORK_REDIRECTIONS if you want /dev/(tcp|udp)/host/port to open
    socket connections when used in redirections */
-#define NETWORK_REDIRECTIONS 1
+/* #undef NETWORK_REDIRECTIONS */
 
 /* Define PROGRAMMABLE_COMPLETION for the programmable completion features
    and the complete builtin. */
-#define PROGRAMMABLE_COMPLETION 1
+/* #undef PROGRAMMABLE_COMPLETION */
 
 /* Define NO_MULTIBYTE_SUPPORT to not compile in support for multibyte
    characters, even if the OS supports them. */
@@ -151,7 +151,7 @@
 
 /* Define DEBUGGER if you want to compile in some features used only by the 
    bash debugger. */
-#define DEBUGGER 1
+/* #undef DEBUGGER */
 
 /* Define STRICT_POSIX if you want bash to be strictly posix.2 conformant by
    default (except for echo; that is controlled separately). */

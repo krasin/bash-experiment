@@ -279,10 +279,10 @@ HIST_LIBSRC = $(LIBSRC)/readline
 HIST_LIBDIR = $(dot)/$(LIBSUBDIR)/readline
 HIST_ABSSRC = ${topdir}/$(HIST_LIBDIR)
 
-HISTORY_LIB = -lhistory
+HISTORY_LIB = 
 HISTORY_LIBRARY = $(HIST_LIBDIR)/libhistory.a
 HISTORY_LDFLAGS = -L$(HIST_LIBDIR)
-HISTORY_DEP = $(HISTORY_LIBRARY)
+HISTORY_DEP = 
 
 # The source, object and documentation of the history library.
 HISTORY_SOURCE	= $(HIST_LIBSRC)/history.c $(HIST_LIBSRC)/histexpand.c \
