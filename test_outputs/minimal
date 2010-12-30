@@ -1,0 +1,930 @@
+Testing /home/krasin/bash-experiment/bash-4.1/bash
+version: 4.1.0(1)-release
+versinfo: 4 1 0 1 release x86_64-unknown-linux-gnu
+HOSTTYPE = x86_64
+OSTYPE = linux-gnu
+MACHTYPE = x86_64-unknown-linux-gnu
+Any output from any test, unless otherwise noted, indicates a possible anomaly
+run-alias
+run-appendop
+run-arith
+run-arith-for
+run-array
+warning: all of these tests will fail if arrays have not
+warning: been compiled into the shell
+warning: the BASH_ARGC and BASH_ARGV tests will fail if debugging support
+warning: has not been compiled into the shell
+8a9,10
+> declare -a BASH_ARGC='()'
+> declare -a BASH_ARGV='()'
+34a37,38
+> declare -a BASH_ARGC='()'
+> declare -a BASH_ARGV='()'
+55a60,61
+> declare -a BASH_ARGC='()'
+> declare -a BASH_ARGV='()'
+70a77,78
+> declare -a BASH_ARGC='()'
+> declare -a BASH_ARGV='()'
+run-array2
+warning: all of these tests will fail if arrays have not
+warning: been compiled into the shell
+run-assoc
+warning: all of these tests will fail if arrays have not
+warning: been compiled into the shell
+run-braces
+run-builtins
+warning: some of these tests may fail if process substitution has not
+warning: been compiled into the shell or if the OS does not provide
+warning: /dev/fd.
+114,115c114,119
+< ./source6.sub: line 18: syntax error near unexpected token `('
+< ./source6.sub: line 18: `. <(echo "echo two - OK")'
+---
+> two - OK
+> 0
+> three - OK
+> 0
+> four - OK
+> 0
+128,129c132,133
+< oops -- kill -l failure
+< oops -- kill -l 129 failure
+---
+> ok
+> ok
+run-case
+run-casemod
+run-comsub
+run-comsub-eof
+run-comsub-posix
+run-cond
+warning: all of these tests will fail if the conditional command has not
+warning: been compiled into the shell
+warning: some of these tests will fail if extended pattern matching has not
+warning: been compiled into the shell
+run-coproc
+warning: the process IDs printed will differ on every run
+warning: and generate diffs
+1c1
+< 17508
+---
+> 84575
+4c4
+< 17510
+---
+> 84577
+7c7,8
+< 17512
+---
+> ./coproc.tests: line 22: 84577 Terminated              coproc REFLECT { cat -; }
+> 84579
+run-cprint
+run-dbg-support
+1d0
+< ./dbg-support.tests: line 6: shopt: extdebug: invalid shell option name
+12c11
+< BASH_SOURCE[0]
+---
+> BASH_SOURCE[0] ./dbg-support.tests
+16,19c15
+< ./dbg-support.tests: line 22: caller: command not found
+< debug lineno: 22 fn1
+< debug lineno: 23 fn1
+< ./dbg-support.tests: line 23: caller: command not found
+---
+> debug lineno: 22 fn1 70 ./dbg-support.tests
+20a17
+> debug lineno: 23 fn1 70 main ./dbg-support.tests
+22d18
+< ./dbg-support.tests: line 24: caller: command not found
+25c21,22
+< ./dbg-support.tests: line 25: caller: command not found
+---
+> ./dbg-support.tests: line 25: caller: foo: invalid number
+> caller: usage: caller [expr]
+43c40
+< BASH_SOURCE[0]
+---
+> BASH_SOURCE[0] ./dbg-support.tests
+47,48c44
+< ./dbg-support.tests: line 22: caller: command not found
+< debug lineno: 22 fn1
+---
+> debug lineno: 22 fn1 30 ./dbg-support.tests
+50,53c46
+< ./dbg-support.tests: line 23: caller: command not found
+< debug lineno: 23 fn1
+< debug lineno: 24 fn1
+< ./dbg-support.tests: line 24: caller: command not found
+---
+> debug lineno: 23 fn1 30 fn2 ./dbg-support.tests
+54a48
+> debug lineno: 24 fn1 71 main ./dbg-support.tests
+56c50,51
+< ./dbg-support.tests: line 25: caller: command not found
+---
+> ./dbg-support.tests: line 25: caller: foo: invalid number
+> caller: usage: caller [expr]
+73c68
+< BASH_SOURCE[0]
+---
+> BASH_SOURCE[0] ./dbg-support.tests
+114c109
+< FUNCNAME[1]: source called from  at line 46
+---
+> FUNCNAME[1]: source called from ./dbg-support.tests at line 46
+192c187
+< BASH_SOURCE[0]
+---
+> BASH_SOURCE[0] ./dbg-support.tests
+194c189,190
+< ./dbg-support.tests: line 22: caller: command not found
+---
+> 79 ./dbg-support.tests
+> 79 main ./dbg-support.tests
+196,200c192,193
+< ./dbg-support.tests: line 23: caller: command not found
+< 
+< ./dbg-support.tests: line 24: caller: command not found
+< 
+< ./dbg-support.tests: line 25: caller: command not found
+---
+> ./dbg-support.tests: line 25: caller: foo: invalid number
+> caller: usage: caller [expr]
+206c199
+< BASH_SOURCE[0]
+---
+> BASH_SOURCE[0] ./dbg-support.tests
+208,214c201,205
+< ./dbg-support.tests: line 22: caller: command not found
+< 
+< ./dbg-support.tests: line 23: caller: command not found
+< 
+< ./dbg-support.tests: line 24: caller: command not found
+< 
+< ./dbg-support.tests: line 25: caller: command not found
+---
+> 30 ./dbg-support.tests
+> 30 fn2 ./dbg-support.tests
+> 80 main ./dbg-support.tests
+> ./dbg-support.tests: line 25: caller: foo: invalid number
+> caller: usage: caller [expr]
+218c209
+< BASH_SOURCE[0]
+---
+> BASH_SOURCE[0] ./dbg-support.tests
+225c216
+< FUNCNAME[1]: source called from  at line 46
+---
+> FUNCNAME[1]: source called from ./dbg-support.tests at line 46
+231,232c222,223
+< BASH_SOURCE[0]
+< fn3 called from file  `' at line 82
+---
+> BASH_SOURCE[0] ./dbg-support.tests
+> fn3 called from file  `./dbg-support.tests' at line 82
+239,240c230,231
+< FUNCNAME[1]: source called from  at line 46
+< FUNCNAME[2]: fn3 called from  at line 51
+---
+> FUNCNAME[1]: source called from ./dbg-support.tests at line 46
+> FUNCNAME[2]: fn3 called from ./dbg-support.tests at line 51
+364d354
+< ./dbg-support3.sub: line 1: shopt: extdebug: invalid shell option name
+369c359,365
+< deep 0
+---
+> deep 6
+> 0 z
+> 1 3
+> 2 y
+> 3 2
+> 4 x
+> 5 1
+371c367
+< ./dbg-support3.sub: line 19: caller: command not found
+---
+> 26 f2 ./dbg-support3.sub
+run-dbg-support2
+1d0
+< ./dbg-support2.tests: line 4: shopt: extdebug: invalid shell option name
+8c7
+< x is 2
+---
+> x is 1
+run-dirstack
+run-dollars
+run-errors
+94,95c94,95
+< ./errors.tests: line 242: bg: command not found
+< ./errors.tests: line 243: fg: command not found
+---
+> ./errors.tests: line 242: bg: no job control
+> ./errors.tests: line 243: fg: no job control
+run-execscript
+warning: the text of a system error message may vary between systems and
+warning: produce diff output.
+warning: if the text of the error messages concerning `notthere' or
+warning: `/tmp/bash-notthere' not being found or `/' being a directory
+warning: produce diff output, please do not consider this a test failure
+warning: if diff output differing only in the location of the bash
+warning: binary appears, please do not consider this a test failure
+54d53
+< bash: shopt: histappend: invalid shell option name
+run-exp-tests
+run-extglob
+run-extglob2
+run-extglob3
+run-func
+warning: if you have exported functions defined in your environment,
+warning: they may show up as diff output.
+warning: if so, please do not consider this a test failure
+run-getopts
+run-glob-test
+run-globstar
+run-heredoc
+run-herestr
+run-histexpand
+warning: all of these tests will fail if history has not been compiled
+warning: into the shell
+1,31c1,51
+< ./histexp.tests: line 10: history: command not found
+< ./histexp.tests: line 18: shopt: cmdhist: invalid shell option name
+< ./histexp.tests: line 19: set: history: invalid option name
+< ./histexp.tests: line 21: history: command not found
+< ./histexp.tests: line 24: history: command not found
+< ./histexp.tests: line 26: history: command not found
+< ./histexp.tests: line 29: history: command not found
+< ./histexp.tests: line 31: history: command not found
+< ./histexp.tests: line 33: history: command not found
+< ./histexp.tests: line 34: history: command not found
+< ./histexp.tests: line 35: history: command not found
+< ./histexp.tests: line 36: history: command not found
+< ./histexp.tests: line 38: set: -H: invalid option
+< set: usage: set [--abefhkmnptuvxBCHP] [-o option-name] [arg ...]
+< ./histexp.tests: line 39: !!: command not found
+< ./histexp.tests: line 40: !e: command not found
+< ./histexp.tests: line 42: history: command not found
+< a b c d e
+< ./histexp.tests: line 45: !?ch?: command not found
+< ./histexp.tests: line 46: !-2: command not found
+< ./histexp.tests: line 47: ^2^8: command not found
+< ./histexp.tests: line 49: !2: command not found
+< !-1:0:t
+< !-2:0:h
+< !?d?:5
+< a b c d e
+< !-1:2-$
+< !-2:2-4
+< !-2:3*
+< !!:*
+< !?a?:2-
+---
+> echo $BASH_VERSION
+> ./histexp.tests: line 24: history: !!:z: history expansion failed
+>     1  for i in one two three; do echo $i; done
+>     2  /bin/sh -c 'echo this is $0'
+>     3  ls
+>     4  echo $BASH_VERSION
+>     1  for i in one two three; do echo $i; done
+>     2  /bin/sh -c 'echo this is $0'
+>     3  ls
+>     4  echo $BASH_VERSION
+>     5  HISTFILE=/tmp/newhistory
+>     6  echo line 2 for history
+> echo line 2 for history
+> echo line 2 for history
+> set -H
+> echo line 2 for history
+> line 2 for history
+>     1  for i in one two three; do echo $i; done
+>     2  /bin/sh -c 'echo this is $0'
+>     3  ls
+>     4  echo $BASH_VERSION
+>     5  HISTFILE=/tmp/newhistory
+>     6  echo line 2 for history
+>     7  set -H
+>     8  echo line 2 for history
+> a b c d e
+> echo a b c d e
+> a b c d e
+> echo line 2 for history
+> line 2 for history
+> echo line 8 for history
+> line 8 for history
+> /bin/sh -c 'echo this is $0'
+> this is /bin/sh
+> echo sh
+> sh
+> echo /bin
+> /bin
+> echo e
+> e
+> a b c d e
+> echo b c d e
+> b c d e
+> echo b c d
+> b c d
+> echo d e
+> d e
+> echo d e
+> d e
+> echo b c d
+> b c d
+33,35c53,58
+< !!:$:r
+< !-2:$:e
+< !-3:$:r:q
+---
+> echo file
+> file
+> echo .c
+> .c
+> echo 'file'
+> file
+37,39c60,69
+< !!:$:r
+< !-2:^:e
+< !-3:$:r:q
+---
+> echo $file
+> bax
+> echo .c
+> .c
+> echo '$file'
+> $file
+> a b c d e
+> echo 'a' 'b' 'c' 'd' 'e'
+> a b c d e
+> echo 'a b c d e'
+41,42d70
+< !!:1-$:x
+< !-2:1-$:q
+44,55c72,122
+< ./histexp.tests: line 81: !!:s/foo/bar/: No such file or directory
+< ./histexp.tests: line 82: !-2:gs/foo/bar/: No such file or directory
+< ./histexp.tests: line 83: !!:gs/bar/x: No such file or directory
+< ./histexp.tests: line 83: /: is a directory
+< ./histexp.tests: line 84: !-2:g: command not found
+< ./histexp.tests: line 87: !!:gs+bar+whix+: command not found
+< ./histexp.tests: line 89: !!:p: command not found
+< !?.o?:%:r:q
+< ./histexp.tests: line 94: !!:0: command not found
+< ./histexp.tests: line 95: !!:-$: command not found
+< ./histexp.tests: line 96: !:-$: command not found
+< ./histexp.tests: line 98: history: command not found
+---
+> echo bar.c foo.o foo.html foo.h
+> bar.c foo.o foo.html foo.h
+> echo bar.c bar.o bar.html bar.h
+> bar.c bar.o bar.html bar.h
+> echo xbar.c xbar.o xbar.html xbar.h
+> xbar.c xbar.o xbar.html xbar.h
+> echo xbar.c xbar.o xbar.html xbar.h
+> xbar.c xbar.o xbar.html xbar.h
+> echo xwhix.c xwhix.o xwhix.html xwhix.h
+> xwhix.c xwhix.o xwhix.html xwhix.h
+> echo xwhix.c xwhix.o xwhix.html xwhix.h
+> echo 'xwhix'
+> xwhix
+> echo 'xwhix.h'
+> xwhix.h
+> echo 'xwhix.h'
+> xwhix.h
+> echo 'xwhix.h'
+> xwhix.h
+>     7  set -H
+>     8  echo line 2 for history
+>     9  echo a b c d e
+>    10  echo line 2 for history
+>    11  echo line 8 for history
+>    12  /bin/sh -c 'echo this is $0'
+>    13  echo sh
+>    14  echo /bin
+>    15  echo e
+>    16  echo a b c d e
+>    17  echo b c d e
+>    18  echo b c d
+>    19  echo d e
+>    20  echo b c d
+>    21  echo file.c
+>    22  echo file
+>    23  echo .c
+>    24  echo 'file'
+>    25  echo $file.c
+>    26  echo $file
+>    27  echo .c
+>    28  echo '$file'
+>    29  echo a b c d e
+>    30  echo 'a' 'b' 'c' 'd' 'e'
+>    31  echo 'a b c d e'
+>    32  echo foo.c foo.o foo.html foo.h
+>    33  echo bar.c foo.o foo.html foo.h
+>    34  echo bar.c bar.o bar.html bar.h
+>    35  echo xbar.c xbar.o xbar.html xbar.h
+>    36  echo xwhix.c xwhix.o xwhix.html xwhix.h
+>    37  echo 'xwhix'
+>    38  echo 'xwhix.h'
+58,59c125,126
+< !! !!:*
+< ./histexp.tests: line 109: history: command not found
+---
+> echo '!!' \!\!
+> !! !!
+63d129
+< rm: cannot remove `/tmp/newhistory': No such file or directory
+run-history
+warning: all of these tests will fail if history has not been compiled
+warning: into the shell
+1,19c1,36
+< ./history.tests: line 4: history: command not found
+< ./history.tests: line 6: history: command not found
+< ./history.tests: line 9: fc: command not found
+< ./history.tests: line 14: history: command not found
+< ./history.tests: line 15: history: command not found
+< ./history.tests: line 16: history: command not found
+< ./history.tests: line 17: history: command not found
+< ./history.tests: line 24: shopt: cmdhist: invalid shell option name
+< ./history.tests: line 25: set: history: invalid option name
+< ./history.tests: line 27: history: command not found
+< ./history.tests: line 29: fc: command not found
+< ./history.tests: line 30: fc: command not found
+< ./history.tests: line 32: fc: command not found
+< ./history.tests: line 33: fc: command not found
+< ./history.tests: line 35: history: command not found
+< ./history.tests: line 36: history: command not found
+< ./history.tests: line 38: history: command not found
+< ./history.tests: line 40: fc: command not found
+< ./history.tests: line 43: history: command not found
+---
+> ./history.tests: line 4: history: -x: invalid option
+> history: usage: history [-c] [-d offset] [n] or history -anrw [filename] or history -ps arg [arg...]
+> ./history.tests: line 6: history: cannot use more than one of -anrw
+> ./history.tests: line 9: fc: -v: invalid option
+> fc: usage: fc [-e ename] [-lnr] [first] [last] or fc -s [pat=rep] [command]
+>     1  for i in one two three; do echo $i; done
+>     2  /bin/sh -c 'echo this is $0'
+>     3  ls
+>     4  echo $BASH_VERSION
+> 1	 for i in one two three; do echo $i; done
+> 2	 /bin/sh -c 'echo this is $0'
+> 3	 ls
+> 4	 echo $BASH_VERSION
+> 	 for i in one two three; do echo $i; done
+> 	 /bin/sh -c 'echo this is $0'
+> 	 ls
+> 	 echo $BASH_VERSION
+> 4	 echo $BASH_VERSION
+> 3	 ls
+> 2	 /bin/sh -c 'echo this is $0'
+> 1	 for i in one two three; do echo $i; done
+> 	 echo $BASH_VERSION
+> 	 ls
+> 	 /bin/sh -c 'echo this is $0'
+> 	 for i in one two three; do echo $i; done
+>     1  for i in one two three; do echo $i; done
+>     2  /bin/sh -c 'echo this is $0'
+>     3  ls
+>     4  echo $BASH_VERSION
+>     5  echo line for history
+> echo line for history
+> 	 for i in one two three; do echo $i; done
+> 	 /bin/sh -c 'echo this is $0'
+> 	 ls
+> 	 echo $BASH_VERSION
+> 	 echo line for history
+21,38c38,104
+< cat: /tmp/newhistory: No such file or directory
+< ./history.tests: line 47: history: command not found
+< ./history.tests: line 48: history: command not found
+< cat: /tmp/newhistory: No such file or directory
+< ./history.tests: line 51: history: command not found
+< ./history.tests: line 52: history: command not found
+< ./history.tests: line 53: history: command not found
+< ./history.tests: line 54: history: command not found
+< ./history.tests: line 61: history: command not found
+< ./history.tests: line 65: set: -H: invalid option
+< set: usage: set [--abefhkmnptuvxBCHP] [-o option-name] [arg ...]
+< ./history.tests: line 66: !!: command not found
+< ./history.tests: line 67: !e: command not found
+< ./history.tests: line 72: fc: command not found
+< ./history.tests: line 73: fc: command not found
+< ./history.tests: line 75: fc: command not found
+< ./history.tests: line 77: history: command not found
+< ./history.tests: line 79: shopt: history: invalid option name
+---
+> echo line for history
+> HISTFILE=/tmp/newhistory
+>     1  for i in one two three; do echo $i; done
+>     2  /bin/sh -c 'echo this is $0'
+>     3  ls
+>     4  echo $BASH_VERSION
+>     5  echo line for history
+>     6  HISTFILE=/tmp/newhistory
+>     7  echo displaying \$HISTFILE after history -a
+>     8  cat $HISTFILE
+> for i in one two three; do echo $i; done
+> /bin/sh -c 'echo this is $0'
+> ls
+> echo $BASH_VERSION
+> echo line for history
+> HISTFILE=/tmp/newhistory
+> echo displaying \$HISTFILE after history -a
+> cat $HISTFILE
+>     1  for i in one two three; do echo $i; done
+>     2  /bin/sh -c 'echo this is $0'
+>     3  ls
+>     4  echo $BASH_VERSION
+>     5  echo line for history
+>     6  HISTFILE=/tmp/newhistory
+>     7  echo displaying \$HISTFILE after history -a
+>     8  cat $HISTFILE
+>     9  echo line 2 for history
+> echo line 2 for history
+> echo line 2 for history
+>     1  for i in one two three; do echo $i; done
+>     2  /bin/sh -c 'echo this is $0'
+>     3  ls
+>     4  echo $BASH_VERSION
+>     5  echo line for history
+>     6  HISTFILE=/tmp/newhistory
+>     7  echo displaying \$HISTFILE after history -a
+>     8  cat $HISTFILE
+>     9  echo line 2 for history
+>    10  # this should show up as one history entry
+>    11  for x in one two three; do 	:; done
+> set -H
+> echo line 2 for history
+> line 2 for history
+> 4	 echo $BASH_VERSION
+> 5	 echo line for history
+> 6	 HISTFILE=/tmp/newhistory
+> 7	 echo displaying \$HISTFILE after history -a
+> 8	 cat $HISTFILE
+> 9	 echo line 2 for history
+> 10	 # this should show up as one history entry
+> 11	 for x in one two three; do 	:; done
+> 12	 # just a basic test.  a full test suite for history expansion should be
+> 13	 # created
+> 14	 set -H
+> 15	 echo line 2 for history
+> 16	 unset HISTSIZE
+> 17	 unset HISTFILE
+> 4	 echo $BASH_VERSION
+> 5	 echo line for history
+> 6	 HISTFILE=/tmp/newhistory
+> 7	 echo displaying \$HISTFILE after history -a
+> 8	 cat $HISTFILE
+> ./history.tests: line 75: fc: history specification out of range
+>    14  set -H
+>    15  echo line 2 for history
+>    16  unset HISTSIZE
+>    17  unset HISTFILE
+40,42c106,110
+< ./history.tests: line 86: fc: command not found
+< ./history.tests: line 87: fc: command not found
+< ./history.tests: line 90: fc: command not found
+---
+> echo xx xb xc
+> xx xb xc
+> echo 44 48 4c
+> 44 48 4c
+> ./history.tests: line 90: fc: no command found
+46c114,116
+< ./history.tests: line 99: fc: command not found
+---
+> echo cc
+> echo cc
+> cc
+50,52c120,122
+< ./history.tests: line 104: fc: command not found
+< ./history.tests: line 106: set: history: invalid option name
+< ./history.tests: line 108: shopt: history: invalid option name
+---
+> echo cc
+> echo cc
+> cc
+54,55d123
+< ./history1.sub: line 3: set: history: invalid option name
+< ./history1.sub: line 5: history: command not found
+59,63c127,138
+< ./history1.sub: line 12: history: command not found
+< ./history1.sub: line 13: fc: command not found
+< ./history2.sub: line 1: set: history: invalid option name
+< 4.1
+< ./history2.sub: line 7: fc: command not found
+---
+>     1  cat <<!
+> one
+> two
+> three
+> !
+> 
+>     2  history
+> cat <<!
+> one
+> two
+> three
+> !
+64a140,144
+> one
+> two
+> three
+> 4.1
+> echo ${BASH_VERSION%\.*}
+66,67c146
+< ./history2.sub: line 10: fc: command not found
+< rm: cannot remove `/tmp/newhistory': No such file or directory
+---
+> 	 echo ${BASH_VERSION%\.*}
+run-ifs
+run-ifs-posix
+run-input-test
+run-intl
+warning: some of these tests will fail if you do not have UTF-8
+warning: locales installed on your system.
+warning: please ignore any differences consisting only of white space
+9c9
+< 0000000 141 303 251 142
+---
+> 0000000   141 303 251 142                                                
+run-invert
+run-iquote
+run-jobs
+warning: some of these tests may fail if job control has not been compiled
+warning: into the shell
+warning: there may be a message regarding a cat process dying due to a
+warning: SIGHUP.  Please disregard.
+run-jobs test is DISABLED!
+run-mapfile
+run-more-exp
+run-new-exp
+warning: two of these tests will fail if your OS does not support
+warning: named pipes or the /dev/fd filesystem.  If the tests of the
+warning: process substitution mechanism fail, please do not consider
+warning: this a test failure
+warning: if you have exported variables beginning with the string _Q,
+warning: diff output may be generated.  If so, please do not consider
+warning: this a test failure
+163,164c163,164
+< ./new-exp1.sub: line 7: syntax error near unexpected token `('
+< ./new-exp1.sub: line 7: `cat <(echo this is a test of proc subst)'
+---
+> this is a test of proc subst
+> this is test 2
+525,526c525,539
+< ./new-exp7.sub: line 3: syntax error near unexpected token `<'
+< ./new-exp7.sub: line 3: `	echo < <(cat x1)'
+---
+> foo is a function
+> foo () 
+> { 
+>     echo < <(cat x1)
+> }
+> foo () 
+> { 
+>     echo < <(cat x1)
+> }
+> bar () { echo < <(cat x1) }
+> bar is a function
+> bar () 
+> { 
+>     echo < <(cat x1)
+> }
+run-nquote
+38,40d37
+< ./nquote1.sub: line 1: set: history: invalid option name
+< ./nquote1.sub: line 2: set: -H: invalid option
+< set: usage: set [--abefhkmnptuvxBCHP] [-o option-name] [arg ...]
+run-nquote1
+warning: several of these tests will fail if arrays have not
+warning: been compiled into the shell.
+run-nquote2
+warning: several of these tests will fail if arrays have not
+warning: been compiled into the shell.
+run-nquote3
+warning: several of these tests will fail if arrays have not
+warning: been compiled into the shell.
+run-nquote4
+warning: some of these tests will fail if you do not have UTF-8
+warning: locales installed on your system
+run-nquote5
+run-posix2
+run-posixpat
+run-precedence
+run-printf
+run-quote
+run-read
+warning: please do not consider output differing only in the amount of
+warning: white space to be an error.
+62c62
+<       0       0       0
+---
+>        0       0       0
+run-redir
+warning: the text of a system error message may vary between systems and
+warning: produce diff output.
+warning: if the text of an error message concerning `redir1.*' not being
+warning: found or messages concerning bad file descriptors produce diff
+warning: output, please do not consider it a test failure
+35,36c35,36
+< 0 -- 0
+< 0 -- 0
+---
+> 0 -- 3 0
+> 0 -- 4 0
+92d91
+< ./redir6.sub: line 3: help: command not found
+run-rhs-exp
+run-rsh
+1,7c1,8
+< ./rsh.tests: line 7: set: -r: invalid option
+< set: usage: set [--abefhkmnptuvxBCHP] [-o option-name] [arg ...]
+< /bin/sh executed
+< ./rsh.tests: line 14: ./source.sub3: No such file or directory
+< oops 1 -- output
+< oops 2 -- append
+< Thu Dec 30 21:43:29 UTC 2010
+---
+> ./rsh.tests: line 9: cd: restricted
+> ./rsh.tests: line 10: PATH: readonly variable
+> ./rsh.tests: line 11: SHELL: readonly variable
+> ./rsh.tests: line 12: /bin/sh: restricted: cannot specify `/' in command names
+> ./rsh.tests: line 14: .: ./source.sub3: restricted
+> ./rsh.tests: line 17: /tmp/restricted: restricted: cannot redirect output
+> ./rsh.tests: line 21: /tmp/restricted: restricted: cannot redirect output
+> ./rsh.tests: line 26: command: -p: restricted
+11c12,13
+< Thu Dec 30 21:43:29 UTC 2010
+---
+> ./rsh.tests: line 31: exec: restricted
+> ./rsh.tests: after exec
+run-set-e
+run-set-x
+run-shopt
+3,8d2
+< ./shopt.tests: line 9: shopt: cmdhist: invalid shell option name
+< ./shopt.tests: line 14: shopt: histreedit: invalid shell option name
+< ./shopt.tests: line 15: shopt: histappend: invalid shell option name
+< ./shopt.tests: line 16: shopt: histverify: invalid shell option name
+< ./shopt.tests: line 17: shopt: hostcomplete: invalid shell option name
+< ./shopt.tests: line 20: shopt: lithist: invalid shell option name
+13a8
+> shopt -u checkjobs
+14a10
+> shopt -s cmdhist
+17a14
+> shopt -u dirspell
+20a18
+> shopt -u extdebug
+23a22
+> shopt -s force_fignore
+25a25,28
+> shopt -u histappend
+> shopt -u histreedit
+> shopt -u histverify
+> shopt -s hostcomplete
+27a31
+> shopt -u lithist
+29a34
+> shopt -u no_empty_cmd_completion
+32a38
+> shopt -s progcomp
+33a40
+> shopt -u restricted_shell
+42a50
+> shopt -s cmdhist
+44a53,54
+> shopt -s force_fignore
+> shopt -s hostcomplete
+45a56
+> shopt -s progcomp
+51a63
+> shopt -u checkjobs
+55a68
+> shopt -u dirspell
+57a71
+> shopt -u extdebug
+61a76,78
+> shopt -u histappend
+> shopt -u histreedit
+> shopt -u histverify
+62a80
+> shopt -u lithist
+64a83
+> shopt -u no_empty_cmd_completion
+67a87
+> shopt -u restricted_shell
+73a94
+> checkjobs      	off
+77a99
+> dirspell       	off
+79a102
+> extdebug       	off
+83a107,109
+> histappend     	off
+> histreedit     	off
+> histverify     	off
+84a111
+> lithist        	off
+86a114
+> no_empty_cmd_completion	off
+89a118
+> restricted_shell	off
+92,97d120
+< ./shopt.tests: line 50: set: histexpand: invalid option name
+< ./shopt.tests: line 52: set: monitor: invalid option name
+< ./shopt.tests: line 56: set: notify: invalid option name
+< ./shopt.tests: line 63: set: history: invalid option name
+< ./shopt.tests: line 67: set: emacs: invalid option name
+< ./shopt.tests: line 68: set: vi: invalid option name
+100a124
+> set -o emacs
+104a129,130
+> set -o histexpand
+> set -o history
+108c134
+< set +o monitor
+---
+> set -o monitor
+111a138,139
+> set +o nolog
+> set +o notify
+118a147
+> set +o vi
+122a152
+> emacs          	on
+126a157,158
+> histexpand     	on
+> history        	on
+130c162
+< monitor        	off
+---
+> monitor        	on
+133a166,167
+> nolog          	off
+> notify         	off
+140a175
+> vi             	off
+144a180
+> set -o emacs
+148a185,186
+> set -o histexpand
+> set -o history
+152c190
+< set +o monitor
+---
+> set -o monitor
+155a194,195
+> set +o nolog
+> set +o notify
+162a203
+> set +o vi
+165c206
+< ./shopt.tests: line 81: shopt: history: invalid option name
+---
+> set -o history
+168a210
+> set -o emacs
+169a212,213
+> set -o histexpand
+> set -o history
+170a215
+> set -o monitor
+179d223
+< set +o monitor
+182a227,228
+> set +o nolog
+> set +o notify
+188a235
+> set +o vi
+197d243
+< monitor        	off
+200a247,248
+> nolog          	off
+> notify         	off
+206a255
+> vi             	off
+run-strip
+run-test
+run-tilde
+run-tilde2
+run-trap
+warning: UNIX versions number signals and schedule processes differently.
+warning: If output differing only in line numbers is produced, please
+warning: do not consider this a test failure.
+77c77,79
+< ./trap.tests: line 74: set: monitor: invalid option name
+---
+> caught a child death
+> caught a child death
+> caught a child death
+81d82
+< trap -- '' SIGUSR2
+82a84
+> trap -- '' SIGUSR2
+run-type
+run-varenv
+./varenv.sh: line 178: set: monitor: invalid option name
+run-vredir
