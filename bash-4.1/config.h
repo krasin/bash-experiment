@@ -58,7 +58,7 @@
 
    If only HISTORY is defined, the `fc' and `history' builtins are
    available. */
-#define HISTORY 1
+/* #undef HISTORY */
 
 /* Define this if you want completion that puts all alternatives into
    a brace expansion shell expression. */
