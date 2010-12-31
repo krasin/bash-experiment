@@ -498,13 +498,6 @@ BUILTINS_LIB = -lbuiltins
 BUILTINS_LDFLAGS = -L$(DEFDIR)
 BUILTINS_DEP = $(BUILTINS_LIBRARY)
 
-# Documentation for the shell.
-#DOCSRC = $(srcdir)/doc
-#DOCDIR = $(dot)/doc
-
-# Translations and other i18n support files
-#PO_SRC = $(srcdir)/po/
-#PO_DIR = $(dot)/po/
 
 SIGNAMES_SUPPORT = $(SUPPORT_SRC)mksignames.c
 
@@ -720,11 +713,6 @@ reconfig: force
 #	mv -f newversion.h version.h
 #	$(MAKE) -f $(srcdir)/Makefile $(MFLAGS) srcdir=$(srcdir)
 
-#doc documentation:  force
-#	@(cd $(DOCDIR) ; $(MAKE) $(MFLAGS) )
-
-#info dvi ps: force
-#	@(cd $(DOCDIR) ; $(MAKE) $(MFLAGS) CFLAGS='$(CCFLAGS)' $@ )
 
 force:
 
@@ -745,12 +733,7 @@ installdirs:
 install:	.made installdirs
 	$(INSTALL_PROGRAM) $(INSTALLMODE) $(Program) $(DESTDIR)$(bindir)/$(Program)
 	$(INSTALL_SCRIPT) $(INSTALLMODE2) bashbug $(DESTDIR)$(bindir)/bashbug
-#	-( cd $(DOCDIR) ; $(MAKE) $(MFLAGS) \
-		man1dir=$(man1dir) man1ext=$(man1ext) \
-		man3dir=$(man3dir) man3ext=$(man3ext) \
-		infodir=$(infodir) htmldir=$(htmldir) DESTDIR=$(DESTDIR) $@ )
 	-( cd $(DEFDIR) ; $(MAKE) $(MFLAGS) DESTDIR=$(DESTDIR) $@ )
-#	-( cd $(PO_DIR) ; $(MAKE) $(MFLAGS) DESTDIR=$(DESTDIR) $@ )
 
 install-strip:
 	$(MAKE) $(MFLAGS) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' \
@@ -759,11 +742,6 @@ install-strip:
 
 uninstall:	.made
 	$(RM) $(DESTDIR)$(bindir)/$(Program) $(DESTDIR)$(bindir)/bashbug
-#	-( cd $(DOCDIR) ; $(MAKE) $(MFLAGS) \
-		man1dir=$(man1dir) man1ext=$(man1ext) \
-		man3dir=$(man3dir) man3ext=$(man3ext) \
-		infodir=$(infodir) htmldir=$(htmldir) DESTDIR=$(DESTDIR) $@ )
-#	-( cd $(PO_DIR) ; $(MAKE) $(MFLAGS) DESTDIR=$(DESTDIR) $@ )
 
 .PHONY: basic-clean clean realclean maintainer-clean distclean mostlyclean maybe-clean
 
@@ -775,32 +753,26 @@ basic-clean:
 	$(RM) .build .made version.h 
 
 clean:	basic-clean
-#	( cd $(DOCDIR) && $(MAKE) $(MFLAGS) $@ )
 	( cd builtins && $(MAKE) $(MFLAGS) $@ )
 	-( cd $(SDIR) && $(MAKE) $(MFLAGS) $@ )
 	-for libdir in ${LIB_SUBDIRS}; do \
 		(cd $$libdir && test -f Makefile && $(MAKE) $(MFLAGS) $@) ;\
 	done
-#	-( cd $(PO_DIR) ; $(MAKE) $(MFLAGS) DESTDIR=$(DESTDIR) $@ )
 	$(RM) $(CREATED_SUPPORT)
 
 mostlyclean: basic-clean
-#	( cd $(DOCDIR) && $(MAKE) $(MFLAGS) $@ )
 	( cd builtins && $(MAKE) $(MFLAGS) $@ )
 	-( cd $(SDIR) && $(MAKE) $(MFLAGS) $@ )
 	-for libdir in ${LIB_SUBDIRS}; do \
 		(cd $$libdir && test -f Makefile && $(MAKE) $(MFLAGS) $@) ;\
 	done
-#	-( cd $(PO_DIR) ; $(MAKE) $(MFLAGS) DESTDIR=$(DESTDIR) $@ )
 
 distclean:	basic-clean maybe-clean
-#	( cd $(DOCDIR) && $(MAKE) $(MFLAGS) $@ )
 	( cd builtins && $(MAKE) $(MFLAGS) $@ )
 	-( cd $(SDIR) && $(MAKE) $(MFLAGS) $@ )
 	-for libdir in ${LIB_SUBDIRS}; do \
 		(cd $$libdir && test -f Makefile && $(MAKE) $(MFLAGS) $@) ;\
 	done
-#	-( cd $(PO_DIR) ; $(MAKE) $(MFLAGS) DESTDIR=$(DESTDIR) $@ )
 	$(RM) $(CREATED_CONFIGURE) tags TAGS 
 	$(RM) $(CREATED_SUPPORT) Makefile $(CREATED_MAKEFILES) pathnames.h
 
@@ -808,13 +780,11 @@ maintainer-clean:	basic-clean
 	@echo This command is intended for maintainers to use.
 	@echo It deletes files that may require special tools to rebuild.
 	$(RM) y.tab.c y.tab.h parser-built tags TAGS
-#	( cd $(DOCDIR) && $(MAKE) $(MFLAGS) $@ )
 	( cd builtins && $(MAKE) $(MFLAGS) $@ )
 	( cd $(SDIR) && $(MAKE) $(MFLAGS) $@ )
 	-for libdir in ${LIB_SUBDIRS}; do \
 		(cd $$libdir && test -f Makefile && $(MAKE) $(MFLAGS) $@) ;\
 	done
-#	-( cd $(PO_DIR) ; $(MAKE) $(MFLAGS) DESTDIR=$(DESTDIR) $@ )
 	$(RM) $(CREATED_CONFIGURE) $(CREATED_MAKEFILES)
 	$(RM) $(CREATED_SUPPORT) Makefile pathnames.h
 
