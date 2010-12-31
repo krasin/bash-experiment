@@ -222,76 +222,7 @@ SHLIB_LIBRARY = ${SH_LIBDIR}/${SHLIB_LIBNAME}
 SHLIB_LDFLAGS = -L${SH_LIBDIR}
 SHLIB_DEP = ${SHLIB_LIBRARY}
 
-# we assume for now that readline source is being shipped with bash
-RL_LIBSRC = $(LIBSRC)/readline
-RL_LIBDOC = $(RL_LIBSRC)/doc
-RL_LIBDIR = $(dot)/$(LIBSUBDIR)/readline
-RL_ABSSRC = ${topdir}/$(RL_LIBDIR)
-
 RL_INCLUDEDIR = 
-
-READLINE_LIB = 
-READLINE_LIBRARY = $(RL_LIBDIR)/libreadline.a
-READLINE_LDFLAGS = -L${RL_LIBDIR}
-READLINE_DEP = 
-
-# The source, object and documentation of the GNU Readline library.
-READLINE_SOURCE	= $(RL_LIBSRC)/rldefs.h $(RL_LIBSRC)/rlconf.h \
-		  $(RL_LIBSRC)/readline.h $(RL_LIBSRC)/tcap.h \
-		  $(RL_LIBSRC)/chardefs.h $(RL_LIBSRC)/keymaps.h \
-		  $(RL_LIBSRC)/history.h $(RL_LIBSRC)/histlib.h \
-		  $(RL_LIBSRC)/posixstat.h $(RL_LIBSRC)/tilde.h \
-		  $(RL_LIBSRC)/rlstdc.h ${RL_LIBSRC}/xmalloc.h \
-		  $(RL_LIBSRC)/rlshell.h ${RL_LIBSRC}/rlprivate.h \
-		  $(RL_LIBSRC)/funmap.c $(RL_LIBSRC)/emacs_keymap.c \
-		  $(RL_LIBSRC)/search.c $(RL_LIBSRC)/vi_keymap.c \
-		  $(RL_LIBSRC)/keymaps.c $(RL_LIBSRC)/parens.c \
-		  $(RL_LIBSRC)/vi_mode.c $(RL_LIBSRC)/callback.c \
-		  $(RL_LIBSRC)/readline.c $(RL_LIBSRC)/tilde.c \
-		  $(RL_LIBSRC)/rltty.c $(RL_LIBSRC)/complete.c \
-		  $(RL_LIBSRC)/bind.c $(RL_LIBSRC)/isearch.c \
-		  $(RL_LIBSRC)/display.c $(RL_LIBSRC)/signals.c \
-		  $(RL_LIBSRC)/util.c $(RL_LIBSRC)/kill.c $(RL_LIBSRC)/text.c \
-		  $(RL_LIBSRC)/undo.c $(RL_LIBSRC)/macro.c \
-		  $(RL_LIBSRC)/terminal.c $(RL_LIBSRC)/nls.c \
-		  $(RL_LIBSRC)/input.c $(RL_LIBSRC)/xmalloc.c \
-		  $(RL_LIBSRC)/shell.c $(RL_LIBSRC)/savestring.c \
-		  $(RL_LIBSRC)/misc.c $(RL_LIBSRC)/mbutil.c $(RL_LIBSRC)/compat.c \
-		  $(RL_LIBSRC)/histexpand.c $(RL_LIBSRC)/history.c \
-		  $(RL_LIBSRC)/histsearch.c $(RL_LIBSRC)/histfile.c
-
-READLINE_OBJ	= $(RL_LIBDIR)/readline.o $(RL_LIBDIR)/funmap.o \
-		  $(RL_LIBDIR)/parens.o $(RL_LIBDIR)/search.o \
-		  $(RL_LIBDIR)/keymaps.o $(RL_LIBDIR)/xmalloc.o \
-		  $(RL_LIBDIR)/rltty.o $(RL_LIBDIR)/complete.o \
-		  $(RL_LIBDIR)/bind.o $(RL_LIBDIR)/isearch.o \
-		  $(RL_LIBDIR)/display.o $(RL_LIBDIR)/signals.o \
-		  $(RL_LIBDIR)/tilde.o $(RL_LIBDIR)/util.o \
-		  $(RL_LIBDIR)/kill.o $(RL_LIBDIR)/undo.o $(RL_LIBDIR)/nls.o \
-		  $(RL_LIBDIR)/macro.o $(RL_LIBDIR)/input.o \
-		  $(RL_LIBDIR)/terminal.o $(RL_LIBDIR)/callback.o \
-		  $(RL_LIBDIR)/shell.o $(RL_LIBDIR)/savestring.o \
-		  $(RL_LIBDIR)/mbutil.o $(RL_LIBDIR)/compat.o \
-		  $(RL_LIBDIR)/history.o $(RL_LIBDIR)/histexpand.o \
-		  $(RL_LIBDIR)/histsearch.o $(RL_LIBDIR)/histfile.o
-
-HIST_LIBSRC = $(LIBSRC)/readline
-HIST_LIBDIR = $(dot)/$(LIBSUBDIR)/readline
-HIST_ABSSRC = ${topdir}/$(HIST_LIBDIR)
-
-HISTORY_LIB = 
-HISTORY_LIBRARY = $(HIST_LIBDIR)/libhistory.a
-HISTORY_LDFLAGS = -L$(HIST_LIBDIR)
-HISTORY_DEP = 
-
-# The source, object and documentation of the history library.
-HISTORY_SOURCE	= $(HIST_LIBSRC)/history.c $(HIST_LIBSRC)/histexpand.c \
-		  $(HIST_LIBSRC)/histsearch.c $(HIST_LIBSRC)/histfile.c \
-		  $(HIST_LIBSRC)/shell.c \
-		  $(HIST_LIBSRC)/history.h $(HIST_LIBSRC)/histlib.h
-HISTORY_OBJ	= $(HIST_LIBDIR)/history.o $(HIST_LIBDIR)/histexpand.o \
-		  $(HIST_LIBDIR)/histsearch.o $(HIST_LIBDIR)/histfile.o \
-		  $(HIST_LIBDIR)/shell.o
 
 # You only need termcap (or curses) if you are linking with GNU Readline.
 TERM_LIBSRC = $(LIBSRC)/termcap
@@ -397,13 +328,13 @@ BASHINCFILES =	 $(BASHINCDIR)/posixstat.h $(BASHINCDIR)/ansi_stdlib.h \
 		 $(BASHINCDIR)/shtty.h $(BASHINCDIR)/typemax.h \
 		 $(BASHINCDIR)/ocache.h
 
-LIBRARIES = $(GLOB_LIB) $(SHLIB_LIB) $(READLINE_LIB) $(HISTORY_LIB) $(TERMCAP_LIB) \
+LIBRARIES = $(GLOB_LIB) $(SHLIB_LIB) $(TERMCAP_LIB) \
 	    $(TILDE_LIB) $(MALLOC_LIB) $(INTL_LIB) $(LIBICONV) $(LOCAL_LIBS)
 
-LIBDEP = $(GLOB_DEP) $(SHLIB_DEP) $(INTL_DEP) $(READLINE_DEP) $(HISTORY_DEP) $(TERMCAP_DEP) \
+LIBDEP = $(GLOB_DEP) $(SHLIB_DEP) $(INTL_DEP) $(TERMCAP_DEP) \
 	 $(TILDE_DEP) $(MALLOC_DEP)
 
-LIBRARY_LDFLAGS = $(READLINE_LDFLAGS) $(HISTORY_LDFLAGS) $(GLOB_LDFLAGS) \
+LIBRARY_LDFLAGS = $(GLOB_LDFLAGS) \
 		  $(TILDE_LDFLAGS) $(MALLOC_LDFLAGS) $(SHLIB_LDFLAGS)
 
 #
@@ -587,16 +518,6 @@ y.tab.c y.tab.h: parse.y
 #	$(YACC) -d $(srcdir)/parse.y
 #	-if cmp -s old-y.tab.h y.tab.h; then mv old-y.tab.h y.tab.h; fi
 
-$(READLINE_LIBRARY): config.h $(READLINE_SOURCE)
-	@echo making $@ in ${RL_LIBDIR}
-	@( { test "${RL_LIBDIR}" = "${libdir}" && exit 0; } || \
-		cd ${RL_LIBDIR} && $(MAKE) $(MFLAGS) libreadline.a) || exit 1
-
-$(HISTORY_LIBRARY): config.h $(HISTORY_SOURCE) $(READLINE_DEP)
-	@echo making $@ in ${HIST_LIBDIR}
-	@( { test "${HIST_LIBDIR}" = "${libdir}" && exit 0; } || \
-		cd ${HIST_LIBDIR} && $(MAKE) $(MFLAGS) libhistory.a) || exit 1
-
 $(GLOB_LIBRARY): config.h $(GLOB_SOURCE)
 	@echo making $@ in ${GLOB_LIBDIR}
 	@(cd ${GLOB_LIBDIR} && \
@@ -745,7 +666,7 @@ uninstall:	.made
 
 .PHONY: basic-clean clean realclean maintainer-clean distclean mostlyclean maybe-clean
 
-LIB_SUBDIRS = ${RL_LIBDIR}  ${HIST_LIBDIR} ${TERM_LIBDIR} ${GLOB_LIBDIR} \
+LIB_SUBDIRS = ${RL_LIBDIR} ${TERM_LIBDIR} ${GLOB_LIBDIR} \
 		${INTL_LIBDIR} ${TILDE_LIBDIR} ${ALLOC_LIBDIR} ${SH_LIBDIR}
 
 basic-clean:
@@ -1116,22 +1037,6 @@ bracecomp.o: make_cmd.h subst.h sig.h pathnames.h externs.h
 
 # library dependencies
 
-bashline.o: $(RL_LIBSRC)/rlconf.h
-bashline.o: $(RL_LIBSRC)/keymaps.h $(RL_LIBSRC)/rlstdc.h
-bashline.o: $(RL_LIBSRC)/chardefs.h $(RL_LIBSRC)/readline.h
-bracecomp.o: $(RL_LIBSRC)/keymaps.h $(RL_LIBSRC)/chardefs.h
-bracecomp.o: $(RL_LIBSRC)/readline.h $(RL_LIBSRC)/rlstdc.h
-y.tab.o: $(RL_LIBSRC)/keymaps.h $(RL_LIBSRC)/chardefs.h
-y.tab.o: $(RL_LIBSRC)/readline.h $(RL_LIBSRC)/rlstdc.h
-subst.o: $(RL_LIBSRC)/keymaps.h $(RL_LIBSRC)/chardefs.h
-subst.o: $(RL_LIBSRC)/readline.h $(RL_LIBSRC)/rlstdc.h
-
-shell.o: $(HIST_LIBSRC)/history.h $(HIST_LIBSRC)/rlstdc.h
-subst.o: $(HIST_LIBSRC)/history.h $(HIST_LIBSRC)/rlstdc.h
-bashline.o: $(HIST_LIBSRC)/history.h $(HIST_LIBSRC)/rlstdc.h
-bashhist.o: $(HIST_LIBSRC)/history.h $(HIST_LIBSRC)/rlstdc.h
-y.tab.o: $(HIST_LIBSRC)/history.h $(HIST_LIBSRC)/rlstdc.h
-
 execute_cmd.o: $(TILDE_LIBSRC)/tilde.h
 general.o: $(TILDE_LIBSRC)/tilde.h
 mailcheck.o: $(TILDE_LIBSRC)/tilde.h
@@ -1444,10 +1349,6 @@ builtins/umask.o: ${topdir}/bashintl.h ${LIBINTL_H} $(BASHINCDIR)/gettext.h
 builtins/bind.o: $(RL_LIBSRC)/chardefs.h $(RL_LIBSRC)/readline.h
 builtins/bind.o: $(RL_LIBSRC)/keymaps.h $(RL_LIBSRC)/rlstdc.h
 
-builtins/bind.o: $(HIST_LIBSRC)/history.h $(RL_LIBSRC)/rlstdc.h
-builtins/fc.o: $(HIST_LIBSRC)/history.h $(RL_LIBSRC)/rlstdc.h
-builtins/history.o: $(HIST_LIBSRC)/history.h $(RL_LIBSRC)/rlstdc.h
-
 builtins/common.o: $(TILDE_LIBSRC)/tilde.h
 builtins/cd.o: $(TILDE_LIBSRC)/tilde.h 
 
@@ -1471,7 +1372,6 @@ builtins/fg_bg.o: $(DEFSRC)/fg_bg.def
 builtins/getopts.o: $(DEFSRC)/getopts.def
 builtins/hash.o: $(DEFSRC)/hash.def
 builtins/help.o: $(DEFSRC)/help.def
-builtins/history.o: $(DEFSRC)/history.def
 builtins/inlib.o: $(DEFSRC)/inlib.def
 builtins/jobs.o: $(DEFSRC)/jobs.def
 builtins/kill.o: $(DEFSRC)/kill.def
