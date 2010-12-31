@@ -496,14 +496,6 @@ set_shellopts_after_change (option_name, mode)
 }
 
 static int
-shopt_enable_hostname_completion (option_name, mode)
-     char *option_name;
-     int mode;
-{
-  return (enable_hostname_completion (mode));
-}
-
-static int
 set_compatibility_level (option_name, mode)
      char *option_name;
      int mode;
