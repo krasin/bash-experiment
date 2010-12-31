@@ -499,8 +499,8 @@ BUILTINS_LDFLAGS = -L$(DEFDIR)
 BUILTINS_DEP = $(BUILTINS_LIBRARY)
 
 # Documentation for the shell.
-DOCSRC = $(srcdir)/doc
-DOCDIR = $(dot)/doc
+#DOCSRC = $(srcdir)/doc
+#DOCDIR = $(dot)/doc
 
 # Translations and other i18n support files
 #PO_SRC = $(srcdir)/po/
@@ -520,7 +520,7 @@ CREATED_SUPPORT = signames.h recho$(EXEEXT) zecho$(EXEEXT) printenv$(EXEEXT) \
 		  buildversion.o mksignames.o signames.o buildsignames.o
 CREATED_CONFIGURE = config.h config.cache config.status config.log \
 		    stamp-h #po/POTFILES
-CREATED_MAKEFILES = Makefile builtins/Makefile doc/Makefile \
+CREATED_MAKEFILES = Makefile builtins/Makefile \
 		    lib/readline/Makefile lib/glob/Makefile \
 		    lib/sh/Makefile lib/tilde/Makefile lib/malloc/Makefile \
 		    lib/termcap/Makefile examples/loadables/Makefile \
@@ -720,11 +720,11 @@ reconfig: force
 #	mv -f newversion.h version.h
 #	$(MAKE) -f $(srcdir)/Makefile $(MFLAGS) srcdir=$(srcdir)
 
-doc documentation:  force
-	@(cd $(DOCDIR) ; $(MAKE) $(MFLAGS) )
+#doc documentation:  force
+#	@(cd $(DOCDIR) ; $(MAKE) $(MFLAGS) )
 
-info dvi ps: force
-	@(cd $(DOCDIR) ; $(MAKE) $(MFLAGS) CFLAGS='$(CCFLAGS)' $@ )
+#info dvi ps: force
+#	@(cd $(DOCDIR) ; $(MAKE) $(MFLAGS) CFLAGS='$(CCFLAGS)' $@ )
 
 force:
 
@@ -745,7 +745,7 @@ installdirs:
 install:	.made installdirs
 	$(INSTALL_PROGRAM) $(INSTALLMODE) $(Program) $(DESTDIR)$(bindir)/$(Program)
 	$(INSTALL_SCRIPT) $(INSTALLMODE2) bashbug $(DESTDIR)$(bindir)/bashbug
-	-( cd $(DOCDIR) ; $(MAKE) $(MFLAGS) \
+#	-( cd $(DOCDIR) ; $(MAKE) $(MFLAGS) \
 		man1dir=$(man1dir) man1ext=$(man1ext) \
 		man3dir=$(man3dir) man3ext=$(man3ext) \
 		infodir=$(infodir) htmldir=$(htmldir) DESTDIR=$(DESTDIR) $@ )
@@ -759,7 +759,7 @@ install-strip:
 
 uninstall:	.made
 	$(RM) $(DESTDIR)$(bindir)/$(Program) $(DESTDIR)$(bindir)/bashbug
-	-( cd $(DOCDIR) ; $(MAKE) $(MFLAGS) \
+#	-( cd $(DOCDIR) ; $(MAKE) $(MFLAGS) \
 		man1dir=$(man1dir) man1ext=$(man1ext) \
 		man3dir=$(man3dir) man3ext=$(man3ext) \
 		infodir=$(infodir) htmldir=$(htmldir) DESTDIR=$(DESTDIR) $@ )
@@ -775,7 +775,7 @@ basic-clean:
 	$(RM) .build .made version.h 
 
 clean:	basic-clean
-	( cd $(DOCDIR) && $(MAKE) $(MFLAGS) $@ )
+#	( cd $(DOCDIR) && $(MAKE) $(MFLAGS) $@ )
 	( cd builtins && $(MAKE) $(MFLAGS) $@ )
 	-( cd $(SDIR) && $(MAKE) $(MFLAGS) $@ )
 	-for libdir in ${LIB_SUBDIRS}; do \
@@ -785,7 +785,7 @@ clean:	basic-clean
 	$(RM) $(CREATED_SUPPORT)
 
 mostlyclean: basic-clean
-	( cd $(DOCDIR) && $(MAKE) $(MFLAGS) $@ )
+#	( cd $(DOCDIR) && $(MAKE) $(MFLAGS) $@ )
 	( cd builtins && $(MAKE) $(MFLAGS) $@ )
 	-( cd $(SDIR) && $(MAKE) $(MFLAGS) $@ )
 	-for libdir in ${LIB_SUBDIRS}; do \
@@ -794,7 +794,7 @@ mostlyclean: basic-clean
 #	-( cd $(PO_DIR) ; $(MAKE) $(MFLAGS) DESTDIR=$(DESTDIR) $@ )
 
 distclean:	basic-clean maybe-clean
-	( cd $(DOCDIR) && $(MAKE) $(MFLAGS) $@ )
+#	( cd $(DOCDIR) && $(MAKE) $(MFLAGS) $@ )
 	( cd builtins && $(MAKE) $(MFLAGS) $@ )
 	-( cd $(SDIR) && $(MAKE) $(MFLAGS) $@ )
 	-for libdir in ${LIB_SUBDIRS}; do \
@@ -808,7 +808,7 @@ maintainer-clean:	basic-clean
 	@echo This command is intended for maintainers to use.
 	@echo It deletes files that may require special tools to rebuild.
 	$(RM) y.tab.c y.tab.h parser-built tags TAGS
-	( cd $(DOCDIR) && $(MAKE) $(MFLAGS) $@ )
+#	( cd $(DOCDIR) && $(MAKE) $(MFLAGS) $@ )
 	( cd builtins && $(MAKE) $(MFLAGS) $@ )
 	( cd $(SDIR) && $(MAKE) $(MFLAGS) $@ )
 	-for libdir in ${LIB_SUBDIRS}; do \
