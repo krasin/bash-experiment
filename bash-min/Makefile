@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -I../bash-4.1 -I../bash-4.1/include -I../bash-4.1/lib \
+CFLAGS = -I../bash-4.1 -I. -I../bash-4.1/include -I../bash-4.1/lib \
 	-DPROGRAM='"bash"' -DCONF_HOSTTYPE='"x86_64"' \
 	-DCONF_OSTYPE='"linux-gnu"' \
 	-DCONF_MACHTYPE='"x86_64-unknown-linux-gnu"' \
@@ -10,9 +10,13 @@ all: bash-min
 
 main.o: main.c
 y.tab.o: y.tab.c
+xmalloc.o: xmalloc.c
 
-bash-min:	main.o y.tab.o
-	$(CC) -o bash-min main.o y.tab.o
+bash-min:	main.o y.tab.o xmalloc.o
+	$(CC) -o bash-min \
+	main.o \
+	y.tab.o \
+	xmalloc.o \
 
 clean:
 	rm -rf *.o bash-min
