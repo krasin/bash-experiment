@@ -4800,16 +4800,6 @@ yylex ()
 {
   if (interactive && (current_token == 0 || current_token == '\n'))
     {
-      /* Before we print a prompt, we might have to check mailboxes.
-	 We do this only if it is time to do so. Notice that only here
-	 is the mail alarm reset; nothing takes place in check_mail ()
-	 except the checking of mail.  Please don't change this. */
-      if (prompt_is_ps1 && time_to_check_mail ())
-	{
-	  check_mail ();
-	  reset_mail_timer ();
-	}
-
       /* Avoid printing a prompt if we're not going to read anything, e.g.
 	 after resetting the parser with read_token (RESET). */
       if (token_to_read == 0 && SHOULD_PROMPT ())
