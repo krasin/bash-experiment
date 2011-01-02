@@ -1,3 +1,4 @@
+CC = gcc
 CFLAGS = -I../bash-4.1 -I../bash-4.1/include -I../bash-4.1/lib \
 	-DPROGRAM='"bash"' -DCONF_HOSTTYPE='"x86_64"' \
 	-DCONF_OSTYPE='"linux-gnu"' \
@@ -8,9 +9,10 @@ CFLAGS = -I../bash-4.1 -I../bash-4.1/include -I../bash-4.1/lib \
 all: bash-min
 
 main.o: main.c
+y.tab.o: y.tab.c
 
-bash-min:	main.o
-	$(CC) -o bash-min main.o
+bash-min:	main.o y.tab.o
+	$(CC) -o bash-min main.o y.tab.o
 
 clean:
 	rm -rf *.o bash-min
