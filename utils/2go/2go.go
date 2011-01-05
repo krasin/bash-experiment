@@ -32,8 +32,8 @@ func enhance(line string) {
 		indent := groups[1]
 		typ := groups[3]
 		name := groups[4]
-		comment := strings.TrimSpace(groups[5])
-		fmt.Printf("%s%s %s %s\n", indent, name, typ, comment)
+		comment := " " + strings.TrimSpace(groups[5])
+		fmt.Printf("%s%s %s%s\n", indent, name, typ, comment)
 		return
 	}
 	if (pointerDefine.MatchString(line)) {
@@ -41,8 +41,8 @@ func enhance(line string) {
 		indent := groups[1]
 		typ := groups[3]
 		name := groups[4]
-		comment := strings.TrimSpace(groups[5])
-		fmt.Printf("%s%s *%s %s\n", indent, name, typ, comment)
+		comment := " " + strings.TrimSpace(groups[5])
+		fmt.Printf("%s%s *%s%s\n", indent, name, typ, comment)
 		return
 	}
 	fmt.Printf(line)
