@@ -138,9 +138,7 @@ const NO_EXPANSION = -100
 // extern int patch_level;
 // extern int dump_translatable_strings, dump_po_strings;
 // extern sh_builtin_func_t *last_shell_builtin, *this_shell_builtin;
-// #if defined (BUFFERED_INPUT)
 // extern int bash_input_fd_changed;
-// #endif
 // 
 // extern int errno;
 
@@ -2778,7 +2776,6 @@ yy_ungetc (c)
   return (*(bash_input.ungetter)) (c);
 }
 
-#if defined (BUFFERED_INPUT)
 #ifdef INCLUDE_UNUSED
 int
 input_file_descriptor ()
@@ -2795,7 +2792,6 @@ input_file_descriptor ()
     }
 }
 #endif
-#endif /* BUFFERED_INPUT */
 
 void
 with_input_from_stdin ()
@@ -2921,9 +2917,7 @@ typedef struct stream_saver {
   struct stream_saver *next;
   BASH_INPUT bash_input;
   int line;
-#if defined (BUFFERED_INPUT)
   BUFFERED_STREAM *bstream;
-#endif /* BUFFERED_INPUT */
 } STREAM_SAVER;
 
 /* The globally known line number. */
@@ -2942,13 +2936,11 @@ push_stream (reset_lineno)
 
   xbcopy ((char *)&bash_input, (char *)&(saver->bash_input), sizeof (BASH_INPUT));
 
-#if defined (BUFFERED_INPUT)
   saver->bstream = (BUFFERED_STREAM *)NULL;
   /* If we have a buffered stream, clear out buffers[fd]. */
   if (bash_input.type == st_bstream && bash_input.location.buffered_fd >= 0)
     saver->bstream = set_buffered_stream (bash_input.location.buffered_fd,
     					  (BUFFERED_STREAM *)NULL);
-#endif /* BUFFERED_INPUT */
 
   saver->line = line_number;
   bash_input.name = (char *)NULL;
@@ -2977,7 +2969,6 @@ pop_stream ()
 		  saver->bash_input.name,
 		  saver->bash_input.location);
 
-#if defined (BUFFERED_INPUT)
       /* If we have a buffered stream, restore buffers[fd]. */
       /* If the input file descriptor was changed while this was on the
 	 save stack, update the buffered fd to the new file descriptor and
@@ -2997,7 +2988,6 @@ pop_stream ()
 	  /* XXX could free buffered stream returned as result here. */
 	  set_buffered_stream (bash_input.location.buffered_fd, saver->bstream);
 	}
-#endif /* BUFFERED_INPUT */
 
       line_number = saver->line;
 
