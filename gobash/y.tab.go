@@ -674,6 +674,15 @@ const YYINITDEPTH = 200
 
 const YYMAXDEPTH = 10000
 
+type yyparseState int
+
+const (
+	yynewstate yyparseState = 0
+	yysetstate yyparseState = iota
+	yybackup yyparseState = iota
+
+
+)
 
 /*----------.
 | yyparse.  |
@@ -720,47 +729,37 @@ func (s *ParserState) Yyparse () {
   yynerrs = 0;
   yychar = YYEMPTY;		/* Cause a token to be read.  */
 
-  /* Initialize stack pointers.
-     Waste one element of value and location stack
-     so that they stay on the same level as the state stack.
-     The wasted elements are never initialized.  */
+	yyparseState := yysetstate
 
-  yyssp = yyss;
-  yyvsp = yyvs;
-
-  goto yysetstate;
-
-#define YYACCEPT	goto yyacceptlab
-#define YYABORT		goto yyabortlab
-#define YYERROR		goto yyerrorlab
-
-
+for {
+	switch yyparseState {
 
 /*------------------------------------------------------------.
 | yynewstate -- Push a new state, which is found in yystate.  |
 `------------------------------------------------------------*/
- yynewstate:
+case yynewstate:
   /* In all cases, when you get here, the value and location stacks
      have just been pushed.  So pushing a state here evens the stacks.  */
-  yyssp++;
+	fallthrough // I'm not sure that it's a correct translation
 
- yysetstate:
-  yyssp.Push(yystate)
-
-  goto yybackup;
+case yysetstate:
+	yyss.Push(yystate)
+	yyparseState = yybackup
 
 /*-----------.
 | yybackup.  |
 `-----------*/
-yybackup:
+case yybackup:
 
   /* Do appropriate processing given the current state.  Read a
      look-ahead token if we need one and don't already have one.  */
 
   /* First try to decide what to do without reference to look-ahead token.  */
   yyn = yypact[yystate];
-  if (yyn == YYPACT_NINF)
-    goto yydefault;
+  if (yyn == YYPACT_NINF) {
+    yyparseState = yydefault;
+	continue
+  }
 
   /* Not known => get a look-ahead token if don't already have one.  */
 
@@ -782,19 +781,24 @@ yybackup:
   /* If the proper action on seeing token YYTOKEN is to reduce or to
      detect an error, take that action.  */
   yyn += yytoken;
-  if (yyn < 0 || YYLAST < yyn || yycheck[yyn] != yytoken)
-    goto yydefault;
+	if (yyn < 0 || YYLAST < yyn || yycheck[yyn] != yytoken) {
+		yyparseState = yydefault
+		continue
+	}
   yyn = yytable[yyn];
   if (yyn <= 0)
     {
-      if (yyn == 0 || yyn == YYTABLE_NINF)
-	goto yyerrlab;
+      if (yyn == 0 || yyn == YYTABLE_NINF) {
+		yyparseState = yyerrlab
+		continue
+	}
       yyn = -yyn;
-      goto yyreduce;
+      yyparseState = yyreduce;
+	continue
     }
 
   if (yyn == YYFINAL)
-    YYACCEPT;
+    yyparseState = yyacceptlab; continue;
 
   /* Count tokens shifted since error; after three, turn off error
      status.  */
@@ -851,7 +855,7 @@ yyreduce:
 			  /* discard_parser_constructs (0); */
 			  if (parser_state & PST_CMDSUBST)
 			    parser_state |= PST_EOFTOKEN;
-			  YYACCEPT;
+			  yyparseState = yyacceptlab; continue;
 			}
     break;
 
@@ -863,7 +867,7 @@ yyreduce:
 			  global_command = (COMMAND *)NULL;
 			  if (parser_state & PST_CMDSUBST)
 			    parser_state |= PST_EOFTOKEN;
-			  YYACCEPT;
+			  yyparseState = yyacceptlab; continue;
 			}
     break;
 
@@ -874,7 +878,7 @@ yyreduce:
 			  global_command = (COMMAND *)NULL;
 			  eof_encountered = 0;
 			  /* discard_parser_constructs (1); */
-			  YYABORT;
+			  yyparseState = yyabortlab; continue;
 			}
     break;
 
@@ -885,7 +889,7 @@ yyreduce:
 			     not. */
 			  global_command = (COMMAND *)NULL;
 			  handle_eof_input_unit ();
-			  YYACCEPT;
+			  yyparseState = yyacceptlab; continue;
 			}
     break;
 
@@ -1928,7 +1932,7 @@ yyreduce:
 			      global_command = (yyvsp[(1) - (1)].command);
 			      eof_encountered = 0;
 			      rewind_input_string ();
-			      YYACCEPT;
+			      yyparseState = yyacceptlab; continue;
 			    }
 			}
     break;
@@ -1947,7 +1951,7 @@ yyreduce:
 			      global_command = (yyvsp[(1) - (2)].command);
 			      eof_encountered = 0;
 			      rewind_input_string ();
-			      YYACCEPT;
+			      yyparseState = yyacceptlab; continue;
 			    }
 			}
     break;
@@ -1963,7 +1967,7 @@ yyreduce:
 			      global_command = (yyvsp[(1) - (2)].command);
 			      eof_encountered = 0;
 			      rewind_input_string ();
-			      YYACCEPT;
+			      yyparseState = yyacceptlab; continue;
 			    }
 			}
     break;
@@ -2154,7 +2158,7 @@ yyerrlab:
 	{
 	  /* Return failure if at end of input.  */
 	  if (yychar == YYEOF)
-	    YYABORT;
+	    yyparseState = yyabortlab; continue;
 	}
       else
 	{
@@ -2210,7 +2214,7 @@ yyerrlab1:
 
       /* Pop the current state because it cannot handle the error token.  */
       if (yyssp == yyss)
-	YYABORT;
+	yyparseState = yyabortlab; continue;
 
 
       yydestruct ("Error: popping",
@@ -2220,7 +2224,7 @@ yyerrlab1:
     }
 
   if (yyn == YYFINAL)
-    YYACCEPT;
+    yyparseState = yyacceptlab; continue;
 
   *++yyvsp = yylval;
 
