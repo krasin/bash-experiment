@@ -111,10 +111,13 @@ const BAR_AND = 302
 const yacc_EOF = 303
 
 
-//#define NEED_STRFTIME_DECL	/* used in externs.h */
-
 const RE_READ_TOKEN = -99
 const NO_EXPANSION = -100
+
+/* The line number in a script where the word in a `case WORD', `select WORD'
+   or `for WORD' begins.  This is a nested command maximum, since the array
+   index is decremented after a case, select, or for command is parsed. */
+const MAX_CASE_NEST = 128
 
 // #  define last_shell_getc_is_singlebyte \
 // 	((shell_input_line_index > 1) \
@@ -125,7 +128,6 @@ const NO_EXPANSION = -100
 // extern int extended_glob;
 // 
 // extern int eof_encountered;
-// extern int no_line_editing, running_under_emacs;
 // extern int current_command_number;
 // extern int sourcelevel, parse_and_execute_level;
 // extern int posixly_correct;
@@ -138,82 +140,86 @@ const NO_EXPANSION = -100
 // extern sh_builtin_func_t *last_shell_builtin, *this_shell_builtin;
 // extern int bash_input_fd_changed;
 // 
-// extern int errno;
 
-// extern int yyerror __P((const char *));
+type ParserState struct {
 
 /* Non-zero means we expand aliases in commands. */
-int expand_aliases = 0;
+expand_aliases int
 
 /* If non-zero, $'...' and $"..." are expanded when they appear within
    a ${...} expansion, even when the expansion appears within double
    quotes. */
-int extended_quote = 1;
+extended_quote int
 
 /* The number of lines read from input while creating the current command. */
-int current_command_line_count;
+current_command_line_count int
 
 /* The token that currently denotes the end of parse. */
-int shell_eof_token;
+shell_eof_token int
 
 /* The token currently being read. */
-int current_token;
+current_token int
 
 /* The current parser state. */
-int parser_state;
+parser_state int
 
 /* Variables to manage the task of reading here documents, because we need to
    defer the reading until after a complete command has been collected. */
-static REDIRECT *redir_stack[10];
-int need_here_doc;
+redir_stack [10]*REDIRECT
+need_here_doc int
 
 /* Where shell input comes from.  History expansion is performed on each
    line when the shell is interactive. */
-static char *shell_input_line = (char *)NULL;
-static int shell_input_line_index;
-static int shell_input_line_size;	/* Amount allocated for shell_input_line. */
-static int shell_input_line_len;	/* strlen (shell_input_line) */
+shell_input_line []byte
+shell_input_line_index int
+shell_input_line_size int	/* Amount allocated for shell_input_line. */
+shell_input_line_len int	/* strlen (shell_input_line) */
 
 /* Either zero or EOF. */
-static int shell_input_line_terminator;
+shell_input_line_terminator int
 
 /* The line number in a script on which a function definition starts. */
-static int function_dstart;
+function_dstart int
 
 /* The line number in a script on which a function body starts. */
-static int function_bstart;
+function_bstart int
 
 /* The line number in a script at which an arithmetic for command starts. */
-static int arith_for_lineno;
+arith_for_lineno int
 
 /* The last read token, or NULL.  read_token () uses this for context
    checking. */
-static int last_read_token;
+last_read_token int
 
 /* The token read prior to last_read_token. */
-static int token_before_that;
+token_before_that int
 
 /* The token read prior to token_before_that. */
-static int two_tokens_ago;
+two_tokens_ago int
 
-static int global_extglob;
+global_extglob int
 
-/* The line number in a script where the word in a `case WORD', `select WORD'
-   or `for WORD' begins.  This is a nested command maximum, since the array
-   index is decremented after a case, select, or for command is parsed. */
-#define MAX_CASE_NEST	128
-static int word_lineno[MAX_CASE_NEST];
-static int word_top = -1;
+word_lineno [MAX_CASE_NEST]int
+word_top int
 
 /* If non-zero, it is the token that we want read_token to return
    regardless of what text is (or isn't) present to be read.  This
    is reset by read_token.  If token_to_read == WORD or
    ASSIGNMENT_WORD, yylval.word should be set to word_desc_to_read. */
-static int token_to_read;
-static WORD_DESC *word_desc_to_read;
+token_to_read int
+word_desc_to_read WORD_DESC
 
-static REDIRECTEE source;
-static REDIRECTEE redir;
+source REDIRECTEE
+redir REDIRECTEE
+
+} // ParserState
+
+func NewParserState() *ParserState {
+	state := new(ParserState)
+	state.extended_quote = 1
+	state.word_top = -1
+	return
+}
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
