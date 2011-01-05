@@ -680,11 +680,11 @@ const YYMAXDEPTH = 10000
 `----------*/
 
 func (s *ParserState) Yyparse () {
-  int yystate;
-  int yyn;
-  int yyresult;
+  yystate int
+  yyn int
+  yyresult int
   /* Number of tokens to shift before error messages enabled.  */
-  int yyerrstatus;
+  yyerrstatus int
   /* Look-ahead token as an internal (translated) token number.  */
   int yytoken = 0;
   /* Three stacks and their tools:
