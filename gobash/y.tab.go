@@ -680,50 +680,40 @@ const YYMAXDEPTH = 10000
 `----------*/
 
 func (s *ParserState) Yyparse () {
-  yystate int
-  yyn int
-  yyresult int
+  var yystate int
+  var yyn int
+  var yyresult int
   /* Number of tokens to shift before error messages enabled.  */
-  yyerrstatus int
+  var yyerrstatus int
   /* Look-ahead token as an internal (translated) token number.  */
-  int yytoken = 0;
-  /* Three stacks and their tools:
+  var yytoken int = 0
+  /* Two stacks and their tools:
      `yyss': related to states,
      `yyvs': related to semantic values,
-     `yyls': related to locations.
 
      Refer to the stacks thru separate pointers, to allow yyoverflow
      to reallocate them elsewhere.  */
 
-#define YYACCEPT	goto yyacceptlab
-#define YYABORT		goto yyabortlab
-#define YYERROR		goto yyerrorlab
-
-
   /* The state stack.  */
-  int16 yyssa[YYINITDEPTH];
-  int16 *yyss = yyssa;
-  int16 *yyssp;
+	yyss := newInt16Stack()
 
   /* The semantic value stack.  */
-  YYSTYPE yyvsa[YYINITDEPTH];
-  YYSTYPE *yyvs = yyvsa;
-  YYSTYPE *yyvsp;
+	yyvs := newYYSTYPEStack()
 
+	popStack := func(n int) {
+		yyss.PopMany(n)
+		yyvs.PopMany(n)
+	}
 
-
-#define YYPOPSTACK(N)   (yyvsp -= (N), yyssp -= (N))
-
-  uint64 yystacksize = YYINITDEPTH;
 
   /* The variables used to return semantic value and location from the
      action routines.  */
-  YYSTYPE yyval;
+  var yyval YYSTYPE
 
 
   /* The number of symbols on the RHS of the reduced rule.
-     Keep to zero when no symbol should be popped.  */
-  int yylen = 0;
+     Keep to zero when no symbol should be popped. */
+  var yylen int = 0
 
   yystate = 0;
   yyerrstatus = 0;
@@ -740,6 +730,12 @@ func (s *ParserState) Yyparse () {
 
   goto yysetstate;
 
+#define YYACCEPT	goto yyacceptlab
+#define YYABORT		goto yyabortlab
+#define YYERROR		goto yyerrorlab
+
+
+
 /*------------------------------------------------------------.
 | yynewstate -- Push a new state, which is found in yystate.  |
 `------------------------------------------------------------*/
@@ -749,68 +745,7 @@ func (s *ParserState) Yyparse () {
   yyssp++;
 
  yysetstate:
-  *yyssp = yystate;
-
-  if (yyss + yystacksize - 1 <= yyssp)
-    {
-      /* Get the current used size of the three stacks, in elements.  */
-      uint64 yysize = yyssp - yyss + 1;
-
-#ifdef yyoverflow
-      {
-	/* Give user a chance to reallocate the stack.  Use copies of
-	   these so that the &'s don't force the real ones into
-	   memory.  */
-	YYSTYPE *yyvs1 = yyvs;
-	int16 *yyss1 = yyss;
-
-
-	/* Each stack pointer address is followed by the size of the
-	   data in use in that stack, in bytes.  This used to be a
-	   conditional around just the two extra args, but that might
-	   be undefined if yyoverflow is a macro.  */
-	yyoverflow (("memory exhausted"),
-		    &yyss1, yysize * sizeof (*yyssp),
-		    &yyvs1, yysize * sizeof (*yyvsp),
-
-		    &yystacksize);
-
-	yyss = yyss1;
-	yyvs = yyvs1;
-      }
-#else /* no yyoverflow */
-# ifndef YYSTACK_RELOCATE
-      goto yyexhaustedlab;
-# else
-      /* Extend the stack our own way.  */
-      if (YYMAXDEPTH <= yystacksize)
-	goto yyexhaustedlab;
-      yystacksize *= 2;
-      if (YYMAXDEPTH < yystacksize)
-	yystacksize = YYMAXDEPTH;
-
-      {
-	int16 *yyss1 = yyss;
-	union yyalloc *yyptr =
-	  (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
-	if (! yyptr)
-	  goto yyexhaustedlab;
-	YYSTACK_RELOCATE (yyss);
-	YYSTACK_RELOCATE (yyvs);
-
-#  undef YYSTACK_RELOCATE
-	if (yyss1 != yyssa)
-	  YYSTACK_FREE (yyss1);
-      }
-# endif
-#endif /* no yyoverflow */
-
-      yyssp = yyss + yysize - 1;
-      yyvsp = yyvs + yysize - 1;
-
-      if (yyss + yystacksize - 1 <= yyssp)
-	YYABORT;
-    }
+  yyssp.Push(yystate)
 
   goto yybackup;
 
