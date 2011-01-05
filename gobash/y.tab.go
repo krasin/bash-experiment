@@ -3214,8 +3214,8 @@ read_a_line (remove_quoted_newline)
     }
 }
 
-/* Return a line as in read_a_line (), but insure that the prompt is
-   the secondary prompt.  This is used to read the lines of a here
+/* Return a line as in read_a_line ().
+   This is used to read the lines of a here
    document.  REMOVE_QUOTED_NEWLINE is non-zero if we should remove
    newlines quoted with backslashes while reading the line.  It is
    non-zero unless the delimiter of the here document was quoted. */
@@ -3224,8 +3224,6 @@ read_secondary_line (remove_quoted_newline)
      int remove_quoted_newline;
 {
   char *ret;
-  int n, c;
-
   ret = read_a_line (remove_quoted_newline);
   return ret;
 }
@@ -3313,11 +3311,6 @@ STRING_INT_ALIST other_token_alist[] = {
 
 /* The primary delimiter stack. */
 struct dstack dstack = {  (char *)NULL, 0, 0 };
-
-/* A temporary delimiter stack to be used when decoding prompt strings.
-   This is needed because command substitutions in prompt strings (e.g., PS2)
-   can screw up the parser's quoting state. */
-static struct dstack temp_dstack = { (char *)NULL, 0, 0 };
 
 /* Macro for accessing the top delimiter on the stack.  Returns the
    delimiter or zero if none. */
