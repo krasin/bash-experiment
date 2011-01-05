@@ -9,14 +9,25 @@ import (
 )
 
 // #define LALA 13 -> const lala = 13
-var constDefine = regexp.MustCompile("^[\t ]*#[\t ]*define[\t ]+([A-Za-z_]+[A-Za-z0-9_]*)[\t ]+(.*)$")
+var constDefine = regexp.MustCompile("^([\t ]*)#[\t ]*define[\t ]+([A-Za-z_]+[A-Za-z0-9_]*)[\t ]+(.*)$")
+
+// int lala; -> lala int
+var intVarDefine = regexp.MustCompile("^([\t ]*)int[\t ]+([A-Za-z_]+[A-Za-z0-9_]*)[\t ]*;[\n\t ]*$")
 
 func enhance(line string) {
 	if (constDefine.MatchString(line)) {
 		groups := constDefine.FindStringSubmatch(line)
-		name := groups[1]
-		value := strings.TrimSpace(groups[2])
-		fmt.Printf("const %s = %s\n", name, value)
+		indent := groups[1]
+		name := groups[2]
+		value := strings.TrimSpace(groups[3])
+		fmt.Printf("%sconst %s = %s\n", indent, name, value)
+		return
+	}
+	if (intVarDefine.MatchString(line)) {
+		groups := intVarDefine.FindStringSubmatch(line)
+		indent := groups[1]
+		name := groups[2]
+		fmt.Printf("%s%s int\n", indent, name)
 		return
 	}
 	fmt.Printf(line)
