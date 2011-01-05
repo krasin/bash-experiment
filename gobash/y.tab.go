@@ -242,25 +242,30 @@ type YYSTYPE struct {
 const YYSIZE_MAXIMUM = ((uint64) -1)
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  113
+const YYFINAL = 113
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   760
+const YYLAST = 760
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  60
+const YYNTOKENS = 60
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  38
+const YYNNTS = 38
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  167
+const YYNRULES = 167
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  344
+const YYNSTATES = 344
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
-#define YYUNDEFTOK  2
-#define YYMAXUTOK   303
+const YYUNDEFTOK = 2
+const YYMAXUTOK = 303
 
-#define YYTRANSLATE(YYX)						\
-  ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
+func YYTRANSLATE(yyx int) uint8 {
+	if (yyx <= YYMAXUTOK) {
+		return yytranslate[yyx]
+	} else {
+		return YYUNDEFTOK
+	}
+}
 
 /* YYTRANSLATE[YYLEX] -- Bison symbol number corresponding to YYLEX.  */
 static const uint8 yytranslate[] =
