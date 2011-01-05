@@ -3384,10 +3384,6 @@ yyreturn:
 #define TOKEN_DEFAULT_INITIAL_SIZE 496
 #define TOKEN_DEFAULT_GROW_SIZE 512
 
-/* Should we call prompt_again? */
-#define SHOULD_PROMPT() \
-  (interactive && (bash_input.type == st_stdin || bash_input.type == st_stream))
-
 #if defined (ALIAS)
 #  define expanding_alias() (pushed_string_list && pushed_string_list->expander)
 #else
@@ -3919,9 +3915,6 @@ read_a_line (remove_quoted_newline)
   static int buffer_size = 0;
   int indx, c, peekc, pass_next;
 
-  if (SHOULD_PROMPT ())
-    print_prompt ();
-
   pass_next = indx = 0;
   while (1)
     {
@@ -4002,8 +3995,6 @@ read_secondary_line (remove_quoted_newline)
   int n, c;
 
   prompt_string_pointer = &ps2_prompt;
-  if (SHOULD_PROMPT())
-    prompt_again ();
   ret = read_a_line (remove_quoted_newline);
   return ret;
 }
@@ -4182,13 +4173,10 @@ shell_getc (remove_quoted_newline)
          (interactive_shell && interactive == 0), we don't want to print
          notifies or cleanup the jobs -- we want to defer it until we do
          print the next prompt. */
-      if (interactive_shell == 0 || SHOULD_PROMPT())
+      if (interactive_shell == 0)
 	{
 	  cleanup_dead_jobs ();
 	}
-
-      if (SHOULD_PROMPT())
-	print_prompt ();
 
       if (bash_input.type == st_stream)
 	clearerr (stdin);
@@ -4249,8 +4237,6 @@ shell_getc (remove_quoted_newline)
 	{
 	  shell_input_line_size = 0;
 	  prompt_string_pointer = &current_prompt_string;
-	  if (SHOULD_PROMPT ())
-	    prompt_again ();
 	  goto restart_read;
 	}
 
@@ -4292,8 +4278,6 @@ pop_alias:
 
   if MBTEST(uc == '\\' && remove_quoted_newline && shell_input_line[shell_input_line_index] == '\n')
     {
-	if (SHOULD_PROMPT ())
-	  prompt_again ();
 	line_number++;
 	/* XXX - what do we do here if we're expanding an alias whose definition
 	   ends with a newline?  Recall that we inhibit the appending of a
@@ -4399,8 +4383,6 @@ yylex ()
     {
       /* Avoid printing a prompt if we're not going to read anything, e.g.
 	 after resetting the parser with read_token (RESET). */
-      if (token_to_read == 0 && SHOULD_PROMPT ())
-	prompt_again ();
     }
 
   two_tokens_ago = token_before_that;
@@ -5050,10 +5032,6 @@ parse_matched_pair (qc, open, close, lenp, flags)
 	  return (&matched_pair_error);
 	}
 
-      /* Possible reprompting. */
-      if (ch == '\n' && SHOULD_PROMPT ())
-	prompt_again ();
-
       /* Don't bother counting parens or doing anything else if in a comment
 	 or part of a case statement */
       if (tflags & LEX_INCOMMENT)
@@ -5317,10 +5295,6 @@ eof_error:
 		lex_firstind = retind + 1;
 	    }
 	}
-
-      /* Possible reprompting. */
-      if (ch == '\n' && SHOULD_PROMPT ())
-	prompt_again ();
 
       /* XXX -- possibly allow here doc to be delimited by ending right
 	 paren. */
@@ -5915,8 +5889,6 @@ cond_skip_newlines ()
 {
   while ((cond_token = read_token (READ)) == '\n')
     {
-      if (SHOULD_PROMPT ())
-	prompt_again ();
     }
   return (cond_token);
 }
@@ -6475,9 +6447,6 @@ read_token_word (character)
 			      TOKEN_DEFAULT_GROW_SIZE);
 
     next_character:
-      if (character == '\n' && SHOULD_PROMPT ())
-	prompt_again ();
-
       /* We want to remove quoted newlines (that is, a \<newline> pair)
 	 unless we are within single quotes or pass_next_character is
 	 set (the shell equivalent of literal-next). */
@@ -7460,8 +7429,6 @@ parse_compound_assignment (retlenp)
     {
       if (tok == '\n')			/* Allow newlines in compound assignments */
 	{
-	  if (SHOULD_PROMPT ())
-	    prompt_again ();
 	  continue;
 	}
       if (tok != WORD && tok != ASSIGNMENT_WORD)
