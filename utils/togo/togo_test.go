@@ -18,6 +18,7 @@ var enhanceLineTests = []*enhanceLineTest {
 	&enhanceLineTest{ "Lala b;", "b Lala" },
 	&enhanceLineTest{ "int b;\n", "b int" },
 	&enhanceLineTest{ "  int c;\r\n", "  c int" },
+	&enhanceLineTest{ " /* some comment */", " /* some comment */" },
 }
 
 func TestEnhanceLine(t *testing.T) {
