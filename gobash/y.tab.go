@@ -5607,7 +5607,6 @@ parse_dparen (c)
   char *wval;
   WORD_DESC *wd;
 
-#if defined (ARITH_FOR_COMMAND)
   if (last_read_token == FOR)
     {
       arith_for_lineno = line_number;
@@ -5622,7 +5621,6 @@ parse_dparen (c)
       else
 	return -1;		/* ERROR */
     }
-#endif
 
   if (reserved_word_acceptable (last_read_token))
     {
