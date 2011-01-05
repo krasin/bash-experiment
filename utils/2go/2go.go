@@ -12,7 +12,7 @@ import (
 var constDefine = regexp.MustCompile("^([\t ]*)#[\t ]*define[\t ]+([A-Za-z_]+[A-Za-z0-9_]*)[\t ]+(.*)$")
 
 // int lala; -> lala int
-var intVarDefine = regexp.MustCompile("^([\t ]*)int[\t ]+([A-Za-z_]+[A-Za-z0-9_]*)[\t ]*;[\n\t ]*$")
+var intVarDefine = regexp.MustCompile("^([\t ]*)(static[\t ]+|)int[\t ]+([A-Za-z_]+[A-Za-z0-9_]*)[\t ]*;[\n\t ]*$")
 
 func enhance(line string) {
 	if (constDefine.MatchString(line)) {
@@ -26,7 +26,7 @@ func enhance(line string) {
 	if (intVarDefine.MatchString(line)) {
 		groups := intVarDefine.FindStringSubmatch(line)
 		indent := groups[1]
-		name := groups[2]
+		name := groups[3]
 		fmt.Printf("%s%s int\n", indent, name)
 		return
 	}
