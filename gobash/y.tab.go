@@ -4010,9 +4010,6 @@ STRING_INT_ALIST word_token_alist[] = {
   { "[[", COND_START },
   { "]]", COND_END },
 #endif
-#if defined (COPROCESS_SUPPORT)
-  { "coproc", COPROC },
-#endif
   { (char *)NULL, 0}
 };
 
@@ -6560,10 +6557,6 @@ reserved_word_acceptable (toksym)
     case 0:
       return 1;
     default:
-#if defined (COPROCESS_SUPPORT)
-      if (last_read_token == WORD && token_before_that == COPROC)
-	return 1;
-#endif
       return 0;
     }
 }
