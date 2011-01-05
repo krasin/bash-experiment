@@ -63,52 +63,52 @@ const YYLSP_NEEDED = 0
 
 
 /* Tokens.  */
-#define IF 258
-#define THEN 259
-#define ELSE 260
-#define ELIF 261
-#define FI 262
-#define CASE 263
-#define ESAC 264
-#define FOR 265
-#define SELECT 266
-#define WHILE 267
-#define UNTIL 268
-#define DO 269
-#define DONE 270
-#define FUNCTION 271
-#define COPROC 272
-#define COND_START 273
-#define COND_END 274
-#define COND_ERROR 275
-#define IN 276
-#define BANG 277
-#define TIME 278
-#define TIMEOPT 279
-#define WORD 280
-#define ASSIGNMENT_WORD 281
-#define REDIR_WORD 282
-#define NUMBER 283
-#define ARITH_CMD 284
-#define ARITH_FOR_EXPRS 285
-#define COND_CMD 286
-#define AND_AND 287
-#define OR_OR 288
-#define GREATER_GREATER 289
-#define LESS_LESS 290
-#define LESS_AND 291
-#define LESS_LESS_LESS 292
-#define GREATER_AND 293
-#define SEMI_SEMI 294
-#define SEMI_AND 295
-#define SEMI_SEMI_AND 296
-#define LESS_LESS_MINUS 297
-#define AND_GREATER 298
-#define AND_GREATER_GREATER 299
-#define LESS_GREATER 300
-#define GREATER_BAR 301
-#define BAR_AND 302
-#define yacc_EOF 303
+const IF = 258
+const THEN = 259
+const ELSE = 260
+const ELIF = 261
+const FI = 262
+const CASE = 263
+const ESAC = 264
+const FOR = 265
+const SELECT = 266
+const WHILE = 267
+const UNTIL = 268
+const DO = 269
+const DONE = 270
+const FUNCTION = 271
+const COPROC = 272
+const COND_START = 273
+const COND_END = 274
+const COND_ERROR = 275
+const IN = 276
+const BANG = 277
+const TIME = 278
+const TIMEOPT = 279
+const WORD = 280
+const ASSIGNMENT_WORD = 281
+const REDIR_WORD = 282
+const NUMBER = 283
+const ARITH_CMD = 284
+const ARITH_FOR_EXPRS = 285
+const COND_CMD = 286
+const AND_AND = 287
+const OR_OR = 288
+const GREATER_GREATER = 289
+const LESS_LESS = 290
+const LESS_AND = 291
+const LESS_LESS_LESS = 292
+const GREATER_AND = 293
+const SEMI_SEMI = 294
+const SEMI_AND = 295
+const SEMI_SEMI_AND = 296
+const LESS_LESS_MINUS = 297
+const AND_GREATER = 298
+const AND_GREATER_GREATER = 299
+const LESS_GREATER = 300
+const GREATER_BAR = 301
+const BAR_AND = 302
+const yacc_EOF = 303
 
 
 
