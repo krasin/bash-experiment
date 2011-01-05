@@ -5134,13 +5134,11 @@ cond_term ()
 	  else if (op->word[0] == '!' && op->word[1] == '=' && op->word[2] == '\0')
 	    parser_state |= PST_EXTPAT;
 	}
-#if defined (COND_REGEXP)
       else if (tok == WORD && STREQ (yylval.word->word, "=~"))
 	{
 	  op = yylval.word;
 	  parser_state |= PST_REGEXP;
 	}
-#endif
       else if (tok == '<' || tok == '>')
 	op = make_word_from_token (tok);  /* ( */
       /* There should be a check before blindly accepting the `)' that we have
@@ -5359,7 +5357,6 @@ read_token_word (character)
 	  goto next_character;
 	}
 
-#ifdef COND_REGEXP
       /* When parsing a regexp as a single word inside a conditional command,
 	 we need to special-case characters special to both the shell and
 	 regular expressions.  Right now, that is only '(' and '|'. */ /*)*/
@@ -5382,7 +5379,6 @@ read_token_word (character)
 	  dollar_present = all_digit_token = 0;
 	  goto next_character;
 	}
-#endif /* COND_REGEXP */
 
       /* Parse a ksh-style extended pattern matching specification. */
       if MBTEST(extended_glob && PATTERN_CHAR (character))
