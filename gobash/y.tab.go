@@ -3623,10 +3623,8 @@ typedef struct stream_saver {
 /* The globally known line number. */
 int line_number = 0;
 
-#if defined (COND_COMMAND)
 static int cond_lineno;
 static int cond_token;
-#endif
 
 STREAM_SAVER *stream_list = (STREAM_SAVER *)NULL;
 
@@ -4006,10 +4004,8 @@ STRING_INT_ALIST word_token_alist[] = {
   { "{", '{' },
   { "}", '}' },
   { "!", BANG },
-#if defined (COND_COMMAND)
   { "[[", COND_START },
   { "]]", COND_END },
-#endif
   { (char *)NULL, 0}
 };
 
@@ -4621,10 +4617,8 @@ special_case_tokens (tokstr)
 #endif /* COMMAND_TIMING */
 #endif
 
-#if defined (COND_COMMAND) /* [[ */
   if ((parser_state & PST_CONDEXPR) && tokstr[0] == ']' && tokstr[1] == ']' && tokstr[2] == '\0')
     return (COND_END);
-#endif
 
   return (-1);
 }
@@ -4693,7 +4687,6 @@ read_token (command)
       return (result);
     }
 
-#if defined (COND_COMMAND)
   if ((parser_state & (PST_CONDCMD|PST_CONDEXPR)) == PST_CONDCMD)
     {
       cond_lineno = line_number;
@@ -4708,7 +4701,6 @@ read_token (command)
       parser_state &= ~(PST_CONDEXPR|PST_CONDCMD);
       return (COND_CMD);
     }
-#endif
 
 #if defined (ALIAS)
   /* This is a place to jump back to once we have successfully expanded a
@@ -5779,7 +5771,6 @@ parse_arith_cmd (ep, adddq)
 }
 #endif /* DPAREN_ARITHMETIC || ARITH_FOR_COMMAND */
 
-#if defined (COND_COMMAND)
 static void
 cond_error ()
 {
@@ -6018,7 +6009,6 @@ parse_cond_command ()
   cexp = cond_expr ();
   return (make_cond_command (cexp));
 }
-#endif
 
 #if defined (ARRAY_VARS)
 /* When this is called, it's guaranteed that we don't care about anything
