@@ -1,3 +1,5 @@
+package gobash
+
 /* A Bison parser, made by GNU Bison 2.3.  */
 
 /* Skeleton implementation for Bison's Yacc-like parsers in C
@@ -44,76 +46,22 @@
    USER NAME SPACE" below.  */
 
 /* Identify Bison output.  */
-#define YYBISON 1
+const YYBISON = 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.3"
+const YYBISON_VERSION = "2.3"
 
 /* Skeleton name.  */
-#define YYSKELETON_NAME "yacc.c"
+const YYSKELETON_NAME = "yacc.c"
 
 /* Pure parsers.  */
-#define YYPURE 0
+const YYPURE = 0
 
 /* Using locations.  */
-#define YYLSP_NEEDED 0
+const YYLSP_NEEDED = 0
 
 
 
-/* Tokens.  */
-#ifndef YYTOKENTYPE
-# define YYTOKENTYPE
-   /* Put the tokens into the symbol table, so that GDB and other debuggers
-      know about them.  */
-   enum yytokentype {
-     IF = 258,
-     THEN = 259,
-     ELSE = 260,
-     ELIF = 261,
-     FI = 262,
-     CASE = 263,
-     ESAC = 264,
-     FOR = 265,
-     SELECT = 266,
-     WHILE = 267,
-     UNTIL = 268,
-     DO = 269,
-     DONE = 270,
-     FUNCTION = 271,
-     COPROC = 272,
-     COND_START = 273,
-     COND_END = 274,
-     COND_ERROR = 275,
-     IN = 276,
-     BANG = 277,
-     TIME = 278,
-     TIMEOPT = 279,
-     WORD = 280,
-     ASSIGNMENT_WORD = 281,
-     REDIR_WORD = 282,
-     NUMBER = 283,
-     ARITH_CMD = 284,
-     ARITH_FOR_EXPRS = 285,
-     COND_CMD = 286,
-     AND_AND = 287,
-     OR_OR = 288,
-     GREATER_GREATER = 289,
-     LESS_LESS = 290,
-     LESS_AND = 291,
-     LESS_LESS_LESS = 292,
-     GREATER_AND = 293,
-     SEMI_SEMI = 294,
-     SEMI_AND = 295,
-     SEMI_SEMI_AND = 296,
-     LESS_LESS_MINUS = 297,
-     AND_GREATER = 298,
-     AND_GREATER_GREATER = 299,
-     LESS_GREATER = 300,
-     GREATER_BAR = 301,
-     BAR_AND = 302,
-     yacc_EOF = 303
-   };
-#endif
 /* Tokens.  */
 #define IF 258
 #define THEN 259
