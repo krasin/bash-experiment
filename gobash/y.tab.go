@@ -272,12 +272,6 @@ typedef union YYSTYPE
 # undef short
 #endif
 
-#ifdef YYTYPE_UINT16
-typedef YYTYPE_UINT16 yytype_uint16;
-#else
-typedef unsigned short int yytype_uint16;
-#endif
-
 #ifdef YYTYPE_INT16
 typedef YYTYPE_INT16 yytype_int16;
 #else
@@ -669,7 +663,7 @@ static const yytype_int16 yypgoto[] =
    number is the opposite.  If zero, do what YYDEFACT says.
    If YYTABLE_NINF, syntax error.  */
 #define YYTABLE_NINF -1
-static const yytype_uint16 yytable[] =
+static const uint16 yytable[] =
 {
       64,    65,    53,   116,    69,    52,   258,   151,   199,   273,
       56,   141,   138,   140,   250,   145,   253,   143,   149,   125,
