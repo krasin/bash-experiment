@@ -268,8 +268,7 @@ func YYTRANSLATE(yyx int) uint8 {
 }
 
 /* YYTRANSLATE[YYLEX] -- Bison symbol number corresponding to YYLEX.  */
-static const uint8 yytranslate[] =
-{
+const yytranslate = []uint8 {
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
       50,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -300,12 +299,11 @@ static const uint8 yytranslate[] =
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
       35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
-      45,    46,    47,    51
-};
+      45,    46,    47,    51,
+}
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
-static const uint8 yyr1[] =
-{
+const yyr1 = []uint8 {
        0,    60,    61,    61,    61,    61,    62,    62,    63,    63,
       63,    63,    63,    63,    63,    63,    63,    63,    63,    63,
       63,    63,    63,    63,    63,    63,    63,    63,    63,    63,
@@ -322,12 +320,11 @@ static const uint8 yyr1[] =
       86,    87,    87,    88,    88,    88,    89,    89,    89,    89,
       89,    89,    90,    90,    91,    91,    91,    92,    92,    93,
       93,    93,    94,    94,    94,    94,    94,    95,    95,    95,
-      95,    95,    95,    96,    96,    96,    97,    97
-};
+      95,    95,    95,    96,    96,    96,    97,    97,
+}
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
-static const uint8 yyr2[] =
-{
+const yyr2 = []uint8 {
        0,     2,     2,     1,     2,     1,     1,     2,     2,     2,
        3,     3,     3,     3,     2,     3,     3,     2,     3,     3,
        2,     3,     3,     2,     3,     3,     2,     3,     3,     2,
@@ -344,14 +341,13 @@ static const uint8 yyr2[] =
        2,     1,     2,     3,     3,     3,     4,     4,     4,     4,
        4,     1,     1,     1,     1,     1,     1,     0,     2,     1,
        2,     2,     4,     4,     3,     3,     1,     1,     2,     2,
-       3,     3,     2,     4,     4,     1,     1,     2
-};
+       3,     3,     2,     4,     4,     1,     1,     2,
+}
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
    STATE-NUM when YYTABLE doesn't specify something else to do.  Zero
    means the default is an error.  */
-static const uint8 yydefact[] =
-{
+const yydefact = []uint8 {
        0,     0,   147,     0,     0,     0,   147,   147,     0,     0,
        0,     0,   166,    52,    53,     0,     0,   111,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     3,     5,
@@ -386,23 +382,21 @@ static const uint8 yydefact[] =
       83,    84,    89,    90,     0,   113,     0,     0,     0,   147,
      129,   118,   119,   147,   147,     0,     0,   147,   147,   147,
      115,   120,   121,     0,     0,    81,    82,     0,     0,   114,
-      79,    80,    91,    92
-};
+      79,    80,    91,    92,
+}
 
 /* YYDEFGOTO[NTERM-NUM].  */
-static const int16 yydefgoto[] =
-{
+const yydefgoto = []int16 {
       -1,    34,   241,    35,    36,   117,    37,    38,    39,    40,
       41,    42,    43,    44,   215,    45,    46,    47,    48,    49,
       50,   227,   233,   234,   235,   276,    57,    58,   135,   136,
-     120,   131,    59,    51,   188,   137,    54,    55
-};
+     120,   131,    59,    51,   188,   137,    54,    55,
+}
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -212
-static const int16 yypact[] =
-{
+const YYPACT_NINF = -212
+const yypact = []int16 {
      318,   -40,  -212,    11,    10,    32,  -212,  -212,    34,   661,
       39,   514,    52,    21,  -212,   255,   706,  -212,    65,    79,
       47,    98,    55,   133,   134,   139,   151,   152,  -212,  -212,
@@ -437,25 +431,23 @@ static const int16 yypact[] =
     -212,  -212,  -212,  -212,   161,   115,   416,   416,   416,  -212,
     -212,  -212,   416,  -212,  -212,   327,   291,  -212,  -212,  -212,
     -212,  -212,   416,   334,   293,  -212,  -212,   336,   301,  -212,
-    -212,  -212,  -212,  -212
-};
+    -212,  -212,  -212,  -212,
+}
 
 /* YYPGOTO[NTERM-NUM].  */
-static const int16 yypgoto[] =
-{
+const yypgoto = []int16 {
     -212,  -212,   148,   -36,     1,   -62,   350,  -212,    -5,  -212,
     -212,  -212,  -212,  -212,  -211,  -212,  -212,  -212,  -212,  -212,
     -212,    50,  -212,   131,  -212,    92,  -194,    -6,  -212,  -200,
-    -212,   -45,   -48,  -212,     5,     2,    12,   362
-};
+    -212,   -45,   -48,  -212,     5,     2,    12,   362,
+}
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
    positive, shift that token.  If negative, reduce the rule which
    number is the opposite.  If zero, do what YYDEFACT says.
    If YYTABLE_NINF, syntax error.  */
-#define YYTABLE_NINF -1
-static const uint16 yytable[] =
-{
+const YYTABLE_NINF = -1
+const yytable = []uint16 {
       64,    65,    53,   116,    69,    52,   258,   151,   199,   273,
       56,   141,   138,   140,   250,   145,   253,   143,   149,   125,
      224,   225,   226,    71,   126,   274,   111,   112,   262,   263,
@@ -532,11 +524,10 @@ static const uint16 yytable[] =
       21,    22,     0,     0,     0,    23,    24,    25,    26,    27,
       85,    86,    87,    88,    89,     0,    30,    31,    90,     0,
        0,    91,    92,     0,     0,     0,     0,     0,     0,    93,
-      94
-};
+      94,
+}
 
-static const int16 yycheck[] =
-{
+const yycheck = []int16 {
        6,     7,     0,    39,     9,     0,   217,    69,    21,     9,
       50,    14,    60,    61,   208,    63,   210,    62,    66,    47,
        5,     6,     7,    11,    52,    25,    32,    33,   228,   229,
@@ -613,13 +604,12 @@ static const int16 yycheck[] =
       37,    38,    -1,    -1,    -1,    42,    43,    44,    45,    46,
       34,    35,    36,    37,    38,    -1,    53,    54,    42,    -1,
       -1,    45,    46,    -1,    -1,    -1,    -1,    -1,    -1,    53,
-      54
-};
+      54,
+}
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
-static const uint8 yystos[] =
-{
+const yystos = []uint8 {
        0,     1,     3,     8,    10,    11,    12,    13,    16,    17,
       18,    22,    23,    25,    26,    27,    28,    29,    34,    35,
       36,    37,    38,    42,    43,    44,    45,    46,    50,    51,
@@ -654,8 +644,8 @@ static const uint8 yystos[] =
       15,    57,    15,    57,    92,    87,    92,    92,    92,    59,
       25,    87,    92,    14,    56,    87,    87,    14,    56,     5,
       81,    87,    92,    87,    87,    15,    57,    86,    86,    87,
-      15,    57,    15,    57
-};
+      15,    57,    15,    57,
+}
 
 #define yyerrok		(yyerrstatus = 0)
 #define yyclearin	(yychar = YYEMPTY)
