@@ -113,47 +113,44 @@ const yacc_EOF = 303
 
 //#define NEED_STRFTIME_DECL	/* used in externs.h */
 
-#define RE_READ_TOKEN	-99
-#define NO_EXPANSION	-100
+const RE_READ_TOKEN = -99
+const NO_EXPANSION = -100
 
-#ifdef DEBUG
-#  define YYDEBUG 1
-#else
-#  define YYDEBUG 0
-#endif
+const YYDEBUG = 0
 
-#if defined (HANDLE_MULTIBYTE)
-#  define last_shell_getc_is_singlebyte \
-	((shell_input_line_index > 1) \
-		? shell_input_line_property[shell_input_line_index - 1] \
-		: 1)
-#  define MBTEST(x)	((x) && last_shell_getc_is_singlebyte)
-#else
-#  define last_shell_getc_is_singlebyte	1
-#  define MBTEST(x)	((x))
-#endif
+// #if defined (HANDLE_MULTIBYTE)
+// #  define last_shell_getc_is_singlebyte \
+// 	((shell_input_line_index > 1) \
+// 		? shell_input_line_property[shell_input_line_index - 1] \
+// 		: 1)
+// #  define MBTEST(x)	((x) && last_shell_getc_is_singlebyte)
+// #else
+// #  define last_shell_getc_is_singlebyte	1
+// #  define MBTEST(x)	((x))
+// #endif
+// 
+// #if defined (EXTENDED_GLOB)
+// extern int extended_glob;
+// #endif
+// 
+// extern int eof_encountered;
+// extern int no_line_editing, running_under_emacs;
+// extern int current_command_number;
+// extern int sourcelevel, parse_and_execute_level;
+// extern int posixly_correct;
+// extern int last_command_exit_value;
+// extern pid_t last_command_subst_pid;
+// extern char *shell_name, *current_host_name;
+// extern char *dist_version;
+// extern int patch_level;
+// extern int dump_translatable_strings, dump_po_strings;
+// extern sh_builtin_func_t *last_shell_builtin, *this_shell_builtin;
+// #if defined (BUFFERED_INPUT)
+// extern int bash_input_fd_changed;
+// #endif
+// 
+// extern int errno;
 
-#if defined (EXTENDED_GLOB)
-extern int extended_glob;
-#endif
-
-extern int eof_encountered;
-extern int no_line_editing, running_under_emacs;
-extern int current_command_number;
-extern int sourcelevel, parse_and_execute_level;
-extern int posixly_correct;
-extern int last_command_exit_value;
-extern pid_t last_command_subst_pid;
-extern char *shell_name, *current_host_name;
-extern char *dist_version;
-extern int patch_level;
-extern int dump_translatable_strings, dump_po_strings;
-extern sh_builtin_func_t *last_shell_builtin, *this_shell_builtin;
-#if defined (BUFFERED_INPUT)
-extern int bash_input_fd_changed;
-#endif
-
-extern int errno;
 /* **************************************************************** */
 /*								    */
 /*		    "Forward" declarations			    */
