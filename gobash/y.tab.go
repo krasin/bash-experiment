@@ -272,12 +272,6 @@ typedef union YYSTYPE
 # undef short
 #endif
 
-#ifdef YYTYPE_INT16
-typedef YYTYPE_INT16 yytype_int16;
-#else
-typedef short int yytype_int16;
-#endif
-
 #ifndef YYSIZE_T
 # ifdef __SIZE_TYPE__
 #  define YYSIZE_T __SIZE_TYPE__
@@ -406,7 +400,7 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
 {
-  yytype_int16 yyss;
+  int16 yyss;
   YYSTYPE yyvs;
   };
 
@@ -416,7 +410,7 @@ union yyalloc
 /* The size of an array large to enough to hold all stacks, each with
    N elements.  */
 # define YYSTACK_BYTES(N) \
-     ((N) * (sizeof (yytype_int16) + sizeof (YYSTYPE)) \
+     ((N) * (sizeof (int16) + sizeof (YYSTYPE)) \
       + YYSTACK_GAP_MAXIMUM)
 
 /* Copy COUNT objects from FROM to TO.  The source and destination do
@@ -599,7 +593,7 @@ static const uint8 yydefact[] =
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
-static const yytype_int16 yydefgoto[] =
+static const int16 yydefgoto[] =
 {
       -1,    34,   241,    35,    36,   117,    37,    38,    39,    40,
       41,    42,    43,    44,   215,    45,    46,    47,    48,    49,
@@ -610,7 +604,7 @@ static const yytype_int16 yydefgoto[] =
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
 #define YYPACT_NINF -212
-static const yytype_int16 yypact[] =
+static const int16 yypact[] =
 {
      318,   -40,  -212,    11,    10,    32,  -212,  -212,    34,   661,
       39,   514,    52,    21,  -212,   255,   706,  -212,    65,    79,
@@ -650,7 +644,7 @@ static const yytype_int16 yypact[] =
 };
 
 /* YYPGOTO[NTERM-NUM].  */
-static const yytype_int16 yypgoto[] =
+static const int16 yypgoto[] =
 {
     -212,  -212,   148,   -36,     1,   -62,   350,  -212,    -5,  -212,
     -212,  -212,  -212,  -212,  -211,  -212,  -212,  -212,  -212,  -212,
@@ -744,7 +738,7 @@ static const uint16 yytable[] =
       94
 };
 
-static const yytype_int16 yycheck[] =
+static const int16 yycheck[] =
 {
        6,     7,     0,    39,     9,     0,   217,    69,    21,     9,
       50,    14,    60,    61,   208,    63,   210,    62,    66,    47,
@@ -1080,9 +1074,9 @@ yyparse ()
      to reallocate them elsewhere.  */
 
   /* The state stack.  */
-  yytype_int16 yyssa[YYINITDEPTH];
-  yytype_int16 *yyss = yyssa;
-  yytype_int16 *yyssp;
+  int16 yyssa[YYINITDEPTH];
+  int16 *yyss = yyssa;
+  int16 *yyssp;
 
   /* The semantic value stack.  */
   YYSTYPE yyvsa[YYINITDEPTH];
@@ -1143,7 +1137,7 @@ yyparse ()
 	   these so that the &'s don't force the real ones into
 	   memory.  */
 	YYSTYPE *yyvs1 = yyvs;
-	yytype_int16 *yyss1 = yyss;
+	int16 *yyss1 = yyss;
 
 
 	/* Each stack pointer address is followed by the size of the
@@ -1171,7 +1165,7 @@ yyparse ()
 	yystacksize = YYMAXDEPTH;
 
       {
-	yytype_int16 *yyss1 = yyss;
+	int16 *yyss1 = yyss;
 	union yyalloc *yyptr =
 	  (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
 	if (! yyptr)
