@@ -4,7 +4,7 @@
 
 include $(GOROOT)/src/Make.inc
 
-TARG=cm
+TARG=$(GOBIN)/cm
 GOFILES=\
 	cm.go\
 
