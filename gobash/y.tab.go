@@ -3445,11 +3445,7 @@ init_yy_io (get, unget, type, name, location)
   bash_input.name = name ? savestring (name) : (char *)NULL;
 
   /* XXX */
-#if defined (CRAY)
-  memcpy((char *)&bash_input.location.string, (char *)&location.string, sizeof(location));
-#else
   bash_input.location = location;
-#endif
   bash_input.getter = get;
   bash_input.ungetter = unget;
 }
