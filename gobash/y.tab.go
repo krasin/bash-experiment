@@ -1922,14 +1922,7 @@ yyreduce:
 			  global_command = (COMMAND *)NULL;
 			  eof_encountered = 0;
 			  /* discard_parser_constructs (1); */
-			  if (interactive && parse_and_execute_level == 0)
-			    {
-			      YYACCEPT;
-			    }
-			  else
-			    {
-			      YYABORT;
-			    }
+			  YYABORT;
 			}
     break;
 
@@ -3599,17 +3592,7 @@ yy_stream_get ()
   result = EOF;
   if (bash_input.location.file)
     {
-      if (interactive)
-	{
-	  interrupt_immediately++;
-	  terminate_immediately++;
-	}
       result = getc_with_restart (bash_input.location.file);
-      if (interactive)
-	{
-	  interrupt_immediately--;
-	  terminate_immediately--;
-	}
     }
   return (result);
 }
@@ -3935,8 +3918,6 @@ read_a_line (remove_quoted_newline)
       /* If there is no more input, then we return NULL. */
       if (c == EOF)
 	{
-	  if (interactive && bash_input.type == st_stream)
-	    clearerr (stdin);
 	  if (indx == 0)
 	    return ((char *)NULL);
 	  c = '\n';
@@ -4169,14 +4150,7 @@ shell_getc (remove_quoted_newline)
       i = 0;
       shell_input_line_terminator = 0;
 
-      /* If the shell is interatctive, but not currently printing a prompt
-         (interactive_shell && interactive == 0), we don't want to print
-         notifies or cleanup the jobs -- we want to defer it until we do
-         print the next prompt. */
-      if (interactive_shell == 0)
-	{
-	  cleanup_dead_jobs ();
-	}
+      cleanup_dead_jobs ();
 
       if (bash_input.type == st_stream)
 	clearerr (stdin);
@@ -4379,12 +4353,6 @@ static int token_buffer_size;
 static int
 yylex ()
 {
-  if (interactive && (current_token == 0 || current_token == '\n'))
-    {
-      /* Avoid printing a prompt if we're not going to read anything, e.g.
-	 after resetting the parser with read_token (RESET). */
-    }
-
   two_tokens_ago = token_before_that;
   token_before_that = last_read_token;
   last_read_token = current_token;
@@ -4775,7 +4743,7 @@ read_token (command)
       return (yacc_EOF);
     }
 
-  if MBTEST(character == '#' && (!interactive || interactive_comments))
+  if MBTEST(character == '#')
     {
       /* A comment.  Discard until EOL or EOF, and then return a newline. */
       discard_until ('\n');
@@ -5234,7 +5202,7 @@ parse_comsub (qc, open, close, lenp, flags)
 
   if ((flags & P_COMMAND) && qc != '\'' && qc != '"' && (flags & P_DQUOTE) == 0)
     tflags |= LEX_CKCASE;
-  if ((tflags & LEX_CKCASE) && (interactive == 0 || interactive_comments))
+  if (tflags & LEX_CKCASE)
     tflags |= LEX_CKCOMMENT;
 
   /* RFLAGS is the set of flags we want to pass to recursive calls. */
@@ -5676,8 +5644,6 @@ xparse_dolparen (base, string, indp, flags)
 
   restore_parser_state (&ps);
   reset_parser ();
-  if (interactive)
-    token_to_read = 0;
 
   /* Need to find how many characters parse_and_execute consumed, update
      *indp, if flags != 0, copy the portion of the string parsed into RET
@@ -6629,39 +6595,6 @@ find_reserved_word (tokstr)
   return -1;
 }
 
-/* Issue a prompt, or prepare to issue a prompt when the next character
-   is read. */
-static void
-prompt_again ()
-{
-  char *temp_prompt;
-
-  if (interactive == 0 || expanding_alias ())	/* XXX */
-    return;
-
-  ps1_prompt = get_string_value ("PS1");
-  ps2_prompt = get_string_value ("PS2");
-
-  if (!prompt_string_pointer)
-    prompt_string_pointer = &ps1_prompt;
-
-  temp_prompt = *prompt_string_pointer
-			? decode_prompt_string (*prompt_string_pointer)
-			: (char *)NULL;
-
-  if (temp_prompt == 0)
-    {
-      temp_prompt = (char *)xmalloc (1);
-      temp_prompt[0] = '\0';
-    }
-
-  current_prompt_string = *prompt_string_pointer;
-  prompt_string_pointer = &ps2_prompt;
-
-  FREE (current_decoded_prompt);
-  current_decoded_prompt = temp_prompt;
-}
-
 int
 get_current_prompt_level ()
 {
@@ -7192,8 +7125,6 @@ report_syntax_error (message)
   if (message)
     {
       parser_error (line_number, "%s", message);
-      if (interactive && EOF_Reached)
-	EOF_Reached = 0;
       last_command_exit_value = parse_and_execute_level ? EX_BADSYNTAX : EX_BADUSAGE;
       return;
     }
@@ -7206,8 +7137,7 @@ report_syntax_error (message)
       parser_error (line_number, _("syntax error near unexpected token `%s'"), msg);
       free (msg);
 
-      if (interactive == 0)
-	print_offending_line ();
+      print_offending_line ();
 
       last_command_exit_value = parse_and_execute_level ? EX_BADSYNTAX : EX_BADUSAGE;
       return;
@@ -7225,19 +7155,12 @@ report_syntax_error (message)
 	  free (msg);
 	}
 
-      /* If not interactive, print the line containing the error. */
-      if (interactive == 0)
-        print_offending_line ();
+      print_offending_line ();
     }
   else
     {
       msg = EOF_Reached ? _("syntax error: unexpected end of file") : _("syntax error");
       parser_error (line_number, "%s", msg);
-      /* When the shell is interactive, this file uses EOF_Reached
-	 only for error reporting.  Other mechanisms are used to
-	 decide whether or not to exit. */
-      if (interactive && EOF_Reached)
-	EOF_Reached = 0;
     }
 
   last_command_exit_value = parse_and_execute_level ? EX_BADSYNTAX : EX_BADUSAGE;
@@ -7280,40 +7203,8 @@ int eof_encountered_limit = 10;
 static void
 handle_eof_input_unit ()
 {
-  if (interactive)
-    {
-      /* shell.c may use this to decide whether or not to write out the
-	 history, among other things.  We use it only for error reporting
-	 in this file. */
-      if (EOF_Reached)
-	EOF_Reached = 0;
-
-      /* If the user wants to "ignore" eof, then let her do so, kind of. */
-      if (ignoreeof)
-	{
-	  if (eof_encountered < eof_encountered_limit)
-	    {
-	      fprintf (stderr, _("Use \"%s\" to leave the shell.\n"),
-		       login_shell ? "logout" : "exit");
-	      eof_encountered++;
-	      /* Reset the parsing state. */
-	      last_read_token = current_token = '\n';
-	      /* Reset the prompt string to be $PS1. */
-	      prompt_string_pointer = (char **)NULL;
-	      prompt_again ();
-	      return;
-	    }
-	}
-
-      /* In this case EOF should exit the shell.  Do it now. */
-      reset_parser ();
-      exit_builtin ((WORD_LIST *)NULL);
-    }
-  else
-    {
-      /* We don't write history files, etc., for non-interactive shells. */
-      EOF_Reached = 1;
-    }
+  /* We don't write history files, etc., for non-interactive shells. */
+  EOF_Reached = 1;
 }
 
 /************************************************
@@ -7393,7 +7284,7 @@ parse_string_to_word_list (s, flags, whom)
   if (wl == &parse_string_error)
     {
       last_command_exit_value = EXECUTION_FAILURE;
-      if (interactive_shell == 0 && posixly_correct)
+      if (posixly_correct)
 	jump_to_top_level (FORCE_EOF);
       else
 	jump_to_top_level (DISCARD);
@@ -7456,7 +7347,7 @@ parse_compound_assignment (retlenp)
     {
       last_command_exit_value = EXECUTION_FAILURE;
       last_read_token = '\n';	/* XXX */
-      if (interactive_shell == 0 && posixly_correct)
+      if (posixly_correct)
 	jump_to_top_level (FORCE_EOF);
       else
 	jump_to_top_level (DISCARD);
