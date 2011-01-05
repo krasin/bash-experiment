@@ -3506,111 +3506,11 @@ input_file_descriptor ()
 #endif
 #endif /* BUFFERED_INPUT */
 
-/* **************************************************************** */
-/*								    */
-/*		  Let input be read from readline ().		    */
-/*								    */
-/* **************************************************************** */
-
-#if defined (READLINE)
-char *current_readline_prompt = (char *)NULL;
-char *current_readline_line = (char *)NULL;
-int current_readline_line_index = 0;
-
-static int
-yy_readline_get ()
-{
-  SigHandler *old_sigint;
-  int line_len;
-  unsigned char c;
-
-  if (!current_readline_line)
-    {
-      if (!bash_readline_initialized)
-	initialize_readline ();
-
-#if defined (JOB_CONTROL)
-      if (job_control)
-	give_terminal_to (shell_pgrp, 0);
-#endif /* JOB_CONTROL */
-
-      old_sigint = (SigHandler *)NULL;
-      if (signal_is_ignored (SIGINT) == 0)
-	{
-	  old_sigint = (SigHandler *)set_signal_handler (SIGINT, sigint_sighandler);
-	  interrupt_immediately++;
-	}
-      terminate_immediately = 1;
-
-      current_readline_line = readline (current_readline_prompt ?
-      					  current_readline_prompt : "");
-
-      terminate_immediately = 0;
-      if (signal_is_ignored (SIGINT) == 0 && old_sigint)
-	{
-	  interrupt_immediately--;
-	  set_signal_handler (SIGINT, old_sigint);
-	}
-
-#if 0
-      /* Reset the prompt to the decoded value of prompt_string_pointer. */
-      reset_readline_prompt ();
-#endif
-
-      if (current_readline_line == 0)
-	return (EOF);
-
-      current_readline_line_index = 0;
-      line_len = strlen (current_readline_line);
-
-      current_readline_line = (char *)xrealloc (current_readline_line, 2 + line_len);
-      current_readline_line[line_len++] = '\n';
-      current_readline_line[line_len] = '\0';
-    }
-
-  if (current_readline_line[current_readline_line_index] == 0)
-    {
-      free (current_readline_line);
-      current_readline_line = (char *)NULL;
-      return (yy_readline_get ());
-    }
-  else
-    {
-      c = current_readline_line[current_readline_line_index++];
-      return (c);
-    }
-}
-
-static int
-yy_readline_unget (c)
-     int c;
-{
-  if (current_readline_line_index && current_readline_line)
-    current_readline_line[--current_readline_line_index] = c;
-  return (c);
-}
-
-void
-with_input_from_stdin ()
-{
-  INPUT_STREAM location;
-
-  if (bash_input.type != st_stdin && stream_on_stack (st_stdin) == 0)
-    {
-      location.string = current_readline_line;
-      init_yy_io (yy_readline_get, yy_readline_unget,
-		  st_stdin, "readline stdin", location);
-    }
-}
-
-#else  /* !READLINE */
-
 void
 with_input_from_stdin ()
 {
   with_input_from_stream (stdin, "stdin");
 }
-#endif	/* !READLINE */
 
 /* **************************************************************** */
 /*								    */
@@ -4019,11 +3919,7 @@ read_a_line (remove_quoted_newline)
   static int buffer_size = 0;
   int indx, c, peekc, pass_next;
 
-#if defined (READLINE)
-  if (no_line_editing && SHOULD_PROMPT ())
-#else
   if (SHOULD_PROMPT ())
-#endif
     print_prompt ();
 
   pass_next = indx = 0;
@@ -4312,11 +4208,7 @@ shell_getc (remove_quoted_newline)
 #endif /* !JOB_CONTROL */
 	}
 
-#if defined (READLINE)
-      if (no_line_editing && SHOULD_PROMPT())
-#else
       if (SHOULD_PROMPT())
-#endif
 	print_prompt ();
 
       if (bash_input.type == st_stream)
@@ -6846,35 +6738,6 @@ find_reserved_word (tokstr)
   return -1;
 }
 
-#if 0
-#if defined (READLINE)
-/* Called after each time readline is called.  This insures that whatever
-   the new prompt string is gets propagated to readline's local prompt
-   variable. */
-static void
-reset_readline_prompt ()
-{
-  char *temp_prompt;
-
-  if (prompt_string_pointer)
-    {
-      temp_prompt = (*prompt_string_pointer)
-			? decode_prompt_string (*prompt_string_pointer)
-			: (char *)NULL;
-
-      if (temp_prompt == 0)
-	{
-	  temp_prompt = (char *)xmalloc (1);
-	  temp_prompt[0] = '\0';
-	}
-
-      FREE (current_readline_prompt);
-      current_readline_prompt = temp_prompt;
-    }
-}
-#endif /* READLINE */
-#endif /* 0 */
-
 #if defined (HISTORY)
 /* A list of tokens which can be followed by newlines, but not by
    semi-colons.  When concatenating multiple lines of history, the
@@ -6977,18 +6840,8 @@ prompt_again ()
   current_prompt_string = *prompt_string_pointer;
   prompt_string_pointer = &ps2_prompt;
 
-#if defined (READLINE)
-  if (!no_line_editing)
-    {
-      FREE (current_readline_prompt);
-      current_readline_prompt = temp_prompt;
-    }
-  else
-#endif	/* READLINE */
-    {
-      FREE (current_decoded_prompt);
-      current_decoded_prompt = temp_prompt;
-    }
+  FREE (current_decoded_prompt);
+  current_decoded_prompt = temp_prompt;
 }
 
 int
@@ -7325,23 +7178,6 @@ decode_prompt_string (string)
 #endif /* !HAVE_TTYNAME */
 	      goto add_string;
 
-#if defined (READLINE)
-	    case '[':
-	    case ']':
-	      if (no_line_editing)
-		{
-		  string++;
-		  break;
-		}
-	      temp = (char *)xmalloc (3);
-	      n = (c == '[') ? RL_PROMPT_START_IGNORE : RL_PROMPT_END_IGNORE;
-	      i = 0;
-	      if (n == CTLESC || n == CTLNUL)
-		temp[i++] = CTLESC;
-	      temp[i++] = n;
-	      temp[i] = '\0';
-	      goto add_string;
-#endif /* READLINE */
 
 	    case '\\':
 	    case 'a':
