@@ -4746,14 +4746,12 @@ read_token (command)
 	    case '|':
 	      return (OR_OR);
 
-#if defined (DPAREN_ARITHMETIC) || defined (ARITH_FOR_COMMAND)
 	    case '(':		/* ) */
 	      result = parse_dparen (character);
 	      if (result == -2)
 	        break;
 	      else
 	        return result;
-#endif
 	    }
 	}
       else if MBTEST(character == '<' && peek_char == '&')
@@ -5597,7 +5595,6 @@ xparse_dolparen (base, string, indp, flags)
   return ret;
 }
 
-#if defined (DPAREN_ARITHMETIC) || defined (ARITH_FOR_COMMAND)
 /* Parse a double-paren construct.  It can be either an arithmetic
    command, an arithmetic `for' command, or a nested subshell.  Returns
    the parsed token, -1 on error, or -2 if we didn't do anything and
@@ -5627,7 +5624,6 @@ parse_dparen (c)
     }
 #endif
 
-#if defined (DPAREN_ARITHMETIC)
   if (reserved_word_acceptable (last_read_token))
     {
       sline = line_number;
@@ -5651,7 +5647,6 @@ parse_dparen (c)
       else			/* ERROR */
 	return -1;
     }
-#endif
 
   return -2;			/* XXX */
 }
@@ -5709,7 +5704,6 @@ parse_arith_cmd (ep, adddq)
   FREE (ttok);
   return rval;
 }
-#endif /* DPAREN_ARITHMETIC || ARITH_FOR_COMMAND */
 
 static void
 cond_error ()
