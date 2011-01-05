@@ -118,16 +118,11 @@ const NO_EXPANSION = -100
 
 const YYDEBUG = 0
 
-// #if defined (HANDLE_MULTIBYTE)
 // #  define last_shell_getc_is_singlebyte \
 // 	((shell_input_line_index > 1) \
 // 		? shell_input_line_property[shell_input_line_index - 1] \
 // 		: 1)
 // #  define MBTEST(x)	((x) && last_shell_getc_is_singlebyte)
-// #else
-// #  define last_shell_getc_is_singlebyte	1
-// #  define MBTEST(x)	((x))
-// #endif
 // 
 // #if defined (EXTENDED_GLOB)
 // extern int extended_glob;
@@ -7342,7 +7337,6 @@ restore_parser_state (ps)
  *						*
  ************************************************/
 
-#if defined (HANDLE_MULTIBYTE)
 static void
 set_line_mbstate ()
 {
@@ -7396,5 +7390,4 @@ set_line_mbstate ()
       shell_input_line_property[i] = mbclen;
     }
 }
-#endif /* HANDLE_MULTIBYTE */
 
