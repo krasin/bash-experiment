@@ -268,10 +268,6 @@ typedef union YYSTYPE
 /* Line 216 of yacc.c.  */
 #line 514 "y.tab.c"
 
-#ifdef short
-# undef short
-#endif
-
 #ifndef YYSIZE_T
 # ifdef __SIZE_TYPE__
 #  define YYSIZE_T __SIZE_TYPE__
