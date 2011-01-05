@@ -3998,9 +3998,7 @@ STRING_INT_ALIST word_token_alist[] = {
   { "done", DONE },
   { "in", IN },
   { "function", FUNCTION },
-#if defined (COMMAND_TIMING)
   { "time", TIME },
-#endif
   { "{", '{' },
   { "}", '}' },
   { "!", BANG },
@@ -4491,7 +4489,6 @@ alias_expand_token (tokstr)
 static int
 time_command_acceptable ()
 {
-#if defined (COMMAND_TIMING)
   switch (last_read_token)
     {
     case 0:
@@ -4509,9 +4506,6 @@ time_command_acceptable ()
     default:
       return 0;
     }
-#else
-  return 0;
-#endif /* COMMAND_TIMING */
 }
 
 /* Handle special cases of token recognition:
@@ -4604,18 +4598,9 @@ special_case_tokens (tokstr)
       return ('}');
     }
 
-#if defined (COMMAND_TIMING)
   /* Handle -p after `time'. */
   if (last_read_token == TIME && tokstr[0] == '-' && tokstr[1] == 'p' && !tokstr[2])
     return (TIMEOPT);
-#endif
-
-#if 0
-#if defined (COMMAND_TIMING)
-  if (STREQ (token, "time") && ((parser_state & PST_CASEPAT) == 0) && time_command_acceptable ())
-    return (TIME);
-#endif /* COMMAND_TIMING */
-#endif
 
   if ((parser_state & PST_CONDEXPR) && tokstr[0] == ']' && tokstr[1] == ']' && tokstr[2] == '\0')
     return (COND_END);
