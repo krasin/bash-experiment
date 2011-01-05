@@ -268,21 +268,7 @@ typedef union YYSTYPE
 /* Line 216 of yacc.c.  */
 #line 514 "y.tab.c"
 
-#ifndef YYSIZE_T
-# ifdef __SIZE_TYPE__
-#  define YYSIZE_T __SIZE_TYPE__
-# elif defined size_t
-#  define YYSIZE_T size_t
-# elif ! defined YYSIZE_T && (defined __STDC__ || defined __C99__FUNC__ \
-     || defined __cplusplus || defined _MSC_VER)
-#  include <stddef.h> /* INFRINGES ON USER NAME SPACE */
-#  define YYSIZE_T size_t
-# else
-#  define YYSIZE_T unsigned int
-# endif
-#endif
-
-#define YYSIZE_MAXIMUM ((YYSIZE_T) -1)
+#define YYSIZE_MAXIMUM ((uint64) -1)
 
 #ifndef YY_
 # if YYENABLE_NLS
@@ -377,7 +363,7 @@ YYID (i)
 #   define YYMALLOC malloc
 #   if ! defined malloc && ! defined _STDLIB_H && (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
-void *malloc (YYSIZE_T); /* INFRINGES ON USER NAME SPACE */
+void *malloc (uint64); /* INFRINGES ON USER NAME SPACE */
 #   endif
 #  endif
 #  ifndef YYFREE
@@ -419,7 +405,7 @@ union yyalloc
 #   define YYCOPY(To, From, Count)		\
       do					\
 	{					\
-	  YYSIZE_T yyi;				\
+	  uint64 yyi;				\
 	  for (yyi = 0; yyi < (Count); yyi++)	\
 	    (To)[yyi] = (From)[yyi];		\
 	}					\
@@ -435,7 +421,7 @@ union yyalloc
 # define YYSTACK_RELOCATE(Stack)					\
     do									\
       {									\
-	YYSIZE_T yynewbytes;						\
+	uint64 yynewbytes;						\
 	YYCOPY (&yyptr->Stack, Stack, yysize);				\
 	Stack = &yyptr->Stack;						\
 	yynewbytes = yystacksize * sizeof (*Stack) + YYSTACK_GAP_MAXIMUM; \
@@ -1083,7 +1069,7 @@ yyparse ()
 
 #define YYPOPSTACK(N)   (yyvsp -= (N), yyssp -= (N))
 
-  YYSIZE_T yystacksize = YYINITDEPTH;
+  uint64 yystacksize = YYINITDEPTH;
 
   /* The variables used to return semantic value and location from the
      action routines.  */
@@ -1125,7 +1111,7 @@ yyparse ()
   if (yyss + yystacksize - 1 <= yyssp)
     {
       /* Get the current used size of the three stacks, in elements.  */
-      YYSIZE_T yysize = yyssp - yyss + 1;
+      uint64 yysize = yyssp - yyss + 1;
 
 #ifdef yyoverflow
       {
