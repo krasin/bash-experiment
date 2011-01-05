@@ -3377,11 +3377,7 @@ yyreturn:
 #define TOKEN_DEFAULT_INITIAL_SIZE 496
 #define TOKEN_DEFAULT_GROW_SIZE 512
 
-#if defined (ALIAS)
-#  define expanding_alias() (pushed_string_list && pushed_string_list->expander)
-#else
-#  define expanding_alias() 0
-#endif
+#define expanding_alias() (pushed_string_list && pushed_string_list->expander)
 
 /* Global var is non-zero when end of file has been reached. */
 int EOF_Reached = 0;
@@ -3748,7 +3744,6 @@ restore_token_state (ts)
  *	everything between a `;;' and the next `)' or `esac'
  */
 
-#if defined (ALIAS) || defined (DPAREN_ARITHMETIC)
 
 #define END_OF_ALIAS 0
 
@@ -3765,9 +3760,7 @@ typedef struct string_saver {
   struct string_saver *next;
   int expand_alias;  /* Value to set expand_alias to when string is popped. */
   char *saved_line;
-#if defined (ALIAS)
   alias_t *expander;   /* alias that caused this line to be pushed. */
-#endif
   int saved_line_size, saved_line_index, saved_line_terminator;
 } STRING_SAVER;
 
@@ -3794,24 +3787,17 @@ push_string (s, expand, ap)
   temp->saved_line_size = shell_input_line_size;
   temp->saved_line_index = shell_input_line_index;
   temp->saved_line_terminator = shell_input_line_terminator;
-#if defined (ALIAS)
   temp->expander = ap;
-#endif
   temp->next = pushed_string_list;
   pushed_string_list = temp;
 
-#if defined (ALIAS)
   if (ap)
     ap->flags |= AL_BEINGEXPANDED;
-#endif
 
   shell_input_line = s;
   shell_input_line_size = strlen (s);
   shell_input_line_index = 0;
   shell_input_line_terminator = '\0';
-#if 0
-  parser_state &= ~PST_ALEXPNEXT;	/* XXX */
-#endif
 
   set_line_mbstate ();
 }
@@ -3841,10 +3827,8 @@ pop_string ()
   t = pushed_string_list;
   pushed_string_list = pushed_string_list->next;
 
-#if defined (ALIAS)
   if (t->expander)
     t->expander->flags &= ~AL_BEINGEXPANDED;
-#endif
 
   free ((char *)t);
 
@@ -3860,24 +3844,19 @@ free_string_list ()
     {
       t1 = t->next;
       FREE (t->saved_line);
-#if defined (ALIAS)
       if (t->expander)
 	t->expander->flags &= ~AL_BEINGEXPANDED;
-#endif
       free ((char *)t);
       t = t1;
     }
   pushed_string_list = (STRING_SAVER *)NULL;
 }
 
-#endif /* ALIAS || DPAREN_ARITHMETIC */
 
 void
 free_pushed_string_input ()
 {
-#if defined (ALIAS) || defined (DPAREN_ARITHMETIC)
   free_string_list ();
-#endif
 }
 
 /* Return a line of text, taken from wherever yylex () reads input.
@@ -4114,16 +4093,12 @@ shell_getc (remove_quoted_newline)
       return (c);
     }
 
-#if defined (ALIAS) || defined (DPAREN_ARITHMETIC)
   /* If shell_input_line[shell_input_line_index] == 0, but there is
      something on the pushed list of strings, then we don't want to go
      off and get another line.  We let the code down below handle it. */
 
   if (!shell_input_line || ((!shell_input_line[shell_input_line_index]) &&
 			    (pushed_string_list == (STRING_SAVER *)NULL)))
-#else /* !ALIAS && !DPAREN_ARITHMETIC */
-  if (!shell_input_line || !shell_input_line[shell_input_line_index])
-#endif /* !ALIAS && !DPAREN_ARITHMETIC */
     {
       line_number++;
 
@@ -4219,7 +4194,6 @@ shell_getc (remove_quoted_newline)
   if (uc)
     shell_input_line_index++;
 
-#if defined (ALIAS) || defined (DPAREN_ARITHMETIC)
   /* If UC is NULL, we have reached the end of the current input string.  If
      pushed_string_list is non-empty, it's time to pop to the previous string
      because we have fully consumed the result of the last alias expansion.
@@ -4233,7 +4207,6 @@ pop_alias:
       if (uc)
 	shell_input_line_index++;
     }
-#endif /* ALIAS || DPAREN_ARITHMETIC */
 
   if MBTEST(uc == '\\' && remove_quoted_newline && shell_input_line[shell_input_line_index] == '\n')
     {
@@ -4416,7 +4389,6 @@ static int open_brace_count;
       } \
   } while (0)
 
-#if defined (ALIAS)
 
     /* OK, we have a token.  Let's try to alias expand it, if (and only if)
        it's eligible.
@@ -4484,7 +4456,6 @@ alias_expand_token (tokstr)
     }
   return (NO_EXPANSION);
 }
-#endif /* ALIAS */
 
 static int
 time_command_acceptable ()
@@ -4624,10 +4595,8 @@ reset_parser ()
 
   parser_state = 0;
 
-#if defined (ALIAS) || defined (DPAREN_ARITHMETIC)
   if (pushed_string_list)
     free_string_list ();
-#endif /* ALIAS || DPAREN_ARITHMETIC */
 
   if (shell_input_line)
     {
@@ -4687,11 +4656,9 @@ read_token (command)
       return (COND_CMD);
     }
 
-#if defined (ALIAS)
   /* This is a place to jump back to once we have successfully expanded a
      token with an alias and pushed the string with push_string () */
  re_read_token:
-#endif /* ALIAS */
 
   /* Read a single word from input.  Start by skipping blanks. */
   while ((character = shell_getc (1)) != EOF && shellblank (character))
@@ -4718,9 +4685,7 @@ read_token (command)
       if (need_here_doc)
 	gather_here_documents ();
 
-#if defined (ALIAS)
       parser_state &= ~PST_ALEXPNEXT;
-#endif /* ALIAS */
 
       parser_state &= ~PST_ASSIGNOK;
 
@@ -4733,12 +4698,10 @@ read_token (command)
   /* Shell meta-characters. */
   if MBTEST(shellmeta (character) && ((parser_state & PST_DBLPAREN) == 0))
     {
-#if defined (ALIAS)
       /* Turn off alias tokenization iff this character sequence would
 	 not leave us ready to read a command. */
       if (character == '<' || character == '>')
 	parser_state &= ~PST_ALEXPNEXT;
-#endif /* ALIAS */
 
       parser_state &= ~PST_ASSIGNOK;
 
@@ -4766,9 +4729,7 @@ read_token (command)
 
 	    case ';':
 	      parser_state |= PST_CASEPAT;
-#if defined (ALIAS)
 	      parser_state &= ~PST_ALEXPNEXT;
-#endif /* ALIAS */
 
 	      peek_char = shell_getc (1);
 	      if MBTEST(peek_char == '&')
@@ -4819,9 +4780,7 @@ read_token (command)
       else if MBTEST(character == ';' && peek_char == '&')
 	{
 	  parser_state |= PST_CASEPAT;
-#if defined (ALIAS)
 	  parser_state &= ~PST_ALEXPNEXT;
-#endif /* ALIAS */
 	  return (SEMI_AND);
 	}
 
@@ -4833,9 +4792,7 @@ read_token (command)
       if MBTEST(character == ')' && last_read_token == '(' && token_before_that == WORD)
 	{
 	  parser_state |= PST_ALLOWOPNBRC;
-#if defined (ALIAS)
 	  parser_state &= ~PST_ALEXPNEXT;
-#endif /* ALIAS */
 	  function_dstart = line_number;
 	}
 
@@ -4867,10 +4824,8 @@ tokword:
   /* Okay, if we got this far, we have to read a word.  Read one,
      and then check it against the known ones. */
   result = read_token_word (character);
-#if defined (ALIAS)
   if (result == RE_READ_TOKEN)
     goto re_read_token;
-#endif
   return result;
 }
 
@@ -6402,7 +6357,6 @@ got_token:
   if (result >= 0)
     return result;
 
-#if defined (ALIAS)
   /* Posix.2 does not allow reserved words to be aliased, so check for all
      of them, including special cases, before expanding the current token
      as an alias. */
@@ -6423,7 +6377,6 @@ got_token:
   /* If not in Posix.2 mode, check for reserved words after alias
      expansion. */
   if MBTEST(posixly_correct == 0)
-#endif
     CHECK_FOR_RESERVED_WORD (token);
 
   the_word = (WORD_DESC *)xmalloc (sizeof (WORD_DESC));
