@@ -3993,9 +3993,7 @@ STRING_INT_ALIST word_token_alist[] = {
   { "case", CASE },
   { "esac", ESAC },
   { "for", FOR },
-#if defined (SELECT_COMMAND)
   { "select", SELECT },
-#endif
   { "while", WHILE },
   { "until", UNTIL },
   { "do", DO },
@@ -4553,11 +4551,7 @@ special_case_tokens (tokstr)
      char *tokstr;
 {
   if ((last_read_token == WORD) &&
-#if defined (SELECT_COMMAND)
       ((token_before_that == FOR) || (token_before_that == CASE) || (token_before_that == SELECT)) &&
-#else
-      ((token_before_that == FOR) || (token_before_that == CASE)) &&
-#endif
       (tokstr[0] == 'i' && tokstr[1] == 'n' && tokstr[2] == 0))
     {
       if (token_before_that == CASE)
@@ -4569,11 +4563,7 @@ special_case_tokens (tokstr)
     }
 
   if (last_read_token == WORD &&
-#if defined (SELECT_COMMAND)
       (token_before_that == FOR || token_before_that == SELECT) &&
-#else
-      (token_before_that == FOR) &&
-#endif
       (tokstr[0] == 'd' && tokstr[1] == 'o' && tokstr[2] == '\0'))
     return (DO);
 
