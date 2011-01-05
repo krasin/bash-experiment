@@ -681,7 +681,12 @@ const (
 	yysetstate yyparseState = iota
 	yybackup yyparseState = iota
 	yydefault yyparseState = iota
-
+	yyreduce yyparseState = iota
+	yyerrlab yyparseState = iota
+	yyerrlab1 yyparseState = iota
+	yyacceptlab yyparseState = iota
+	yyabortlab yyparseState = iota
+	yyreturn yyparseState = iota
 )
 
 /*----------.
@@ -826,7 +831,7 @@ case yydefault:
   if (yyn == 0) {
     yyparseState = yyerrlab; continue
   }
-  goto yyreduce;
+  yyparseState = yyreduce; continue;
 
 
 /*-----------------------------.
@@ -2137,7 +2142,7 @@ yyreduce:
   else
     yystate = yydefgoto[yyn - YYNTOKENS];
 
-  goto yynewstate;
+  yyparseState = yynewState; continue;
 
 
 /*------------------------------------.
@@ -2174,7 +2179,7 @@ yyerrlab:
 
   /* Else will try to reuse look-ahead token after shifting the error
      token.  */
-  goto yyerrlab1;
+  yyparseState = yyerrlab1; continue;
 
 
 /*---------------------------------------------------.
@@ -2182,18 +2187,12 @@ yyerrlab:
 `---------------------------------------------------*/
 yyerrorlab:
 
-  /* Pacify compilers like GCC when the user code never invokes
-     YYERROR and the label yyerrorlab therefore never appears in user
-     code.  */
-  if (/*CONSTCOND*/ 0)
-     goto yyerrorlab;
-
   /* Do not reclaim the symbols of the rule which action triggered
      this YYERROR.  */
   YYPOPSTACK (yylen);
   yylen = 0;
   yystate = *yyssp;
-  goto yyerrlab1;
+  yyparseState = yyerrlab1; continue;
 
 
 /*-------------------------------------------------------------.
@@ -2234,7 +2233,7 @@ yyerrlab1:
 
 
   yystate = yyn;
-  goto yynewstate;
+  yyparseState = yynewState; continue;
 
 
 /*-------------------------------------.
@@ -2242,14 +2241,14 @@ yyerrlab1:
 `-------------------------------------*/
 yyacceptlab:
   yyresult = 0;
-  goto yyreturn;
+  yyparseState = yyreturn; continue;
 
 /*-----------------------------------.
 | yyabortlab -- YYABORT comes here.  |
 `-----------------------------------*/
 yyabortlab:
   yyresult = 1;
-  goto yyreturn;
+  yyparseState = yyreturn; continue;
 
 #ifndef yyoverflow
 /*-------------------------------------------------.
