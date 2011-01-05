@@ -20,6 +20,11 @@ var enhanceLineTests = []*enhanceLineTest {
 	&enhanceLineTest{ "  int c;\r\n", "  c int" },
 	&enhanceLineTest{ " /* some comment */", " /* some comment */" },
 	&enhanceLineTest{ " /* some comment */\n", " /* some comment */" },
+	&enhanceLineTest{ "int a = 0;", "var a int = 0" },
+	&enhanceLineTest{ "int a = b;", "var a int = b" },
+	&enhanceLineTest{ "int a = 3.4;", "var a int = 3.4" },
+	&enhanceLineTest{ "int a = -5;", "var a int = -5" },
+	&enhanceLineTest{ "int a = 5 5;", "int a = 5 5;" },
 }
 
 func TestEnhanceLine(t *testing.T) {
