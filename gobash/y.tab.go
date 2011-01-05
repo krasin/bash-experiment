@@ -4806,10 +4806,7 @@ read_token (command)
       else if MBTEST((parser_state & PST_SUBSHELL) && character == ')')
 	parser_state &= ~PST_SUBSHELL;
 
-      /* Check for the constructs which introduce process substitution.
-	 Shells running in `posix mode' don't do process substitution. */
-      if MBTEST(posixly_correct || ((character != '>' && character != '<') || peek_char != '(')) /*)*/
-	return (character);
+      return (character);
     }
 
   /* Hack <&- (close stdin) case.  Also <&N- (dup and close). */
