@@ -862,8 +862,9 @@ yyreduce:
 			  global_command = (yyvsp[(1) - (2)].command);
 			  eof_encountered = 0;
 			  /* discard_parser_constructs (0); */
-			  if (parser_state & PST_CMDSUBST)
+			  if (parser_state & PST_CMDSUBST) {
 			    parser_state |= PST_EOFTOKEN;
+			  }
 			  yyparseState = yyacceptlab; continue;
 			}
     break;
@@ -874,8 +875,9 @@ yyreduce:
 			  /* Case of regular command, but not a very
 			     interesting one.  Return a NULL command. */
 			  global_command = (COMMAND *)NULL;
-			  if (parser_state & PST_CMDSUBST)
+			  if (parser_state & PST_CMDSUBST) {
 			    parser_state |= PST_EOFTOKEN;
+			  }
 			  yyparseState = yyacceptlab; continue;
 			}
     break;
