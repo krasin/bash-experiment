@@ -212,6 +212,15 @@ word_desc_to_read WORD_DESC
 source REDIRECTEE
 redir REDIRECTEE
 
+/* The look-ahead symbol.  */
+yychar int
+
+/* The semantic value of the look-ahead symbol.  */
+yylval YYSTYPE
+
+/* Number of syntax errors so far.  */
+yynerrs int
+
 } // ParserState
 
 func NewParserState() *ParserState {
@@ -653,11 +662,6 @@ const YYEOF = 0
 const YYTERROR = 1
 const YYERRCODE = 256
 
-# define YYDPRINTF(Args)
-# define YY_SYMBOL_PRINT(Title, Type, Value, Location)
-# define YY_STACK_PRINT(Bottom, Top)
-# define YY_REDUCE_PRINT(Rule)
-
 /* YYINITDEPTH -- initial size of the parser's stacks.  */
 const YYINITDEPTH = 200
 
@@ -670,57 +674,12 @@ const YYINITDEPTH = 200
 
 const YYMAXDEPTH = 10000
 
-func yydestruct (yymsg string, yytype int, yyvaluep *YYSTYPE) {
-	if yymsg == "" {
-		yymsg = "Deleting"
-	}
-	YY_SYMBOL_PRINT (yymsg, yytype, yyvaluep, yylocationp);
-}
-
-#define YYACCEPT	goto yyacceptlab
-#define YYABORT		goto yyabortlab
-#define YYERROR		goto yyerrorlab
-
-
-
-/* The look-ahead symbol.  */
-int yychar;
-
-/* The semantic value of the look-ahead symbol.  */
-YYSTYPE yylval;
-
-/* Number of syntax errors so far.  */
-int yynerrs;
-
-
 
 /*----------.
 | yyparse.  |
 `----------*/
 
-#ifdef YYPARSE_PARAM
-#if (defined __STDC__ || defined __C99__FUNC__ \
-     || defined __cplusplus || defined _MSC_VER)
-int
-yyparse (void *YYPARSE_PARAM)
-#else
-int
-yyparse (YYPARSE_PARAM)
-    void *YYPARSE_PARAM;
-#endif
-#else /* ! YYPARSE_PARAM */
-#if (defined __STDC__ || defined __C99__FUNC__ \
-     || defined __cplusplus || defined _MSC_VER)
-int
-yyparse (void)
-#else
-int
-yyparse ()
-
-#endif
-#endif
-{
-  
+func (s *ParserState) Yyparse () {
   int yystate;
   int yyn;
   int yyresult;
@@ -735,6 +694,11 @@ yyparse ()
 
      Refer to the stacks thru separate pointers, to allow yyoverflow
      to reallocate them elsewhere.  */
+
+#define YYACCEPT	goto yyacceptlab
+#define YYABORT		goto yyabortlab
+#define YYERROR		goto yyerrorlab
+
 
   /* The state stack.  */
   int16 yyssa[YYINITDEPTH];
@@ -760,8 +724,6 @@ yyparse ()
   /* The number of symbols on the RHS of the reduced rule.
      Keep to zero when no symbol should be popped.  */
   int yylen = 0;
-
-  YYDPRINTF ((stderr, "Starting parse\n"));
 
   yystate = 0;
   yyerrstatus = 0;
@@ -846,15 +808,9 @@ yyparse ()
       yyssp = yyss + yysize - 1;
       yyvsp = yyvs + yysize - 1;
 
-
-      YYDPRINTF ((stderr, "Stack size increased to %lu\n",
-		  (unsigned long int) yystacksize));
-
       if (yyss + yystacksize - 1 <= yyssp)
 	YYABORT;
     }
-
-  YYDPRINTF ((stderr, "Entering state %d\n", yystate));
 
   goto yybackup;
 
@@ -876,19 +832,16 @@ yybackup:
   /* YYCHAR is either YYEMPTY or YYEOF or a valid look-ahead symbol.  */
   if (yychar == YYEMPTY)
     {
-      YYDPRINTF ((stderr, "Reading a token: "));
       yychar = YYLEX;
     }
 
   if (yychar <= YYEOF)
     {
       yychar = yytoken = YYEOF;
-      YYDPRINTF ((stderr, "Now at end of input.\n"));
     }
   else
     {
       yytoken = YYTRANSLATE (yychar);
-      YY_SYMBOL_PRINT ("Next token is", yytoken, &yylval, &yylloc);
     }
 
   /* If the proper action on seeing token YYTOKEN is to reduce or to
@@ -912,9 +865,6 @@ yybackup:
      status.  */
   if (yyerrstatus)
     yyerrstatus--;
-
-  /* Shift the look-ahead token.  */
-  YY_SYMBOL_PRINT ("Shifting", yytoken, &yylval, &yylloc);
 
   /* Discard the shifted token unless it is eof.  */
   if (yychar != YYEOF)
@@ -954,7 +904,6 @@ yyreduce:
   yyval = yyvsp[1-yylen];
 
 
-  YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
         case 2:
@@ -2226,11 +2175,9 @@ yyreduce:
 // #line 3383 "y.tab.c"
       default: break;
     }
-  YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
 
   YYPOPSTACK (yylen);
   yylen = 0;
-  YY_STACK_PRINT (yyss, yyssp);
 
   *++yyvsp = yyval;
 
@@ -2302,7 +2249,6 @@ yyerrorlab:
      this YYERROR.  */
   YYPOPSTACK (yylen);
   yylen = 0;
-  YY_STACK_PRINT (yyss, yyssp);
   yystate = *yyssp;
   goto yyerrlab1;
 
@@ -2336,7 +2282,6 @@ yyerrlab1:
 		  yystos[yystate], yyvsp);
       YYPOPSTACK (1);
       yystate = *yyssp;
-      YY_STACK_PRINT (yyss, yyssp);
     }
 
   if (yyn == YYFINAL)
@@ -2344,9 +2289,6 @@ yyerrlab1:
 
   *++yyvsp = yylval;
 
-
-  /* Shift the error token.  */
-  YY_SYMBOL_PRINT ("Shifting", yystos[yyn], yyvsp, yylsp);
 
   yystate = yyn;
   goto yynewstate;
@@ -2383,7 +2325,6 @@ yyreturn:
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
   YYPOPSTACK (yylen);
-  YY_STACK_PRINT (yyss, yyssp);
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
