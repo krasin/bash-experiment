@@ -241,11 +241,6 @@ static WORD_DESC *word_desc_to_read;
 static REDIRECTEE source;
 static REDIRECTEE redir;
 
-/* Enabling the token table.  */
-#ifndef YYTOKEN_TABLE
-# define YYTOKEN_TABLE 0
-#endif
-
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
 #line 320 "/Users/chet/src/bash/src/parse.y"
@@ -540,33 +535,6 @@ static const yytype_uint8 yytranslate[] =
       35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
       45,    46,    47,    51
 };
-
-#if YYTOKEN_TABLE
-/* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
-   First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
-static const char *const yytname[] =
-{
-  "$end", "error", "$undefined", "IF", "THEN", "ELSE", "ELIF", "FI",
-  "CASE", "ESAC", "FOR", "SELECT", "WHILE", "UNTIL", "DO", "DONE",
-  "FUNCTION", "COPROC", "COND_START", "COND_END", "COND_ERROR", "IN",
-  "BANG", "TIME", "TIMEOPT", "WORD", "ASSIGNMENT_WORD", "REDIR_WORD",
-  "NUMBER", "ARITH_CMD", "ARITH_FOR_EXPRS", "COND_CMD", "AND_AND", "OR_OR",
-  "GREATER_GREATER", "LESS_LESS", "LESS_AND", "LESS_LESS_LESS",
-  "GREATER_AND", "SEMI_SEMI", "SEMI_AND", "SEMI_SEMI_AND",
-  "LESS_LESS_MINUS", "AND_GREATER", "AND_GREATER_GREATER", "LESS_GREATER",
-  "GREATER_BAR", "BAR_AND", "'&'", "';'", "'\\n'", "yacc_EOF", "'|'",
-  "'>'", "'<'", "'-'", "'{'", "'}'", "'('", "')'", "$accept", "inputunit",
-  "word_list", "redirection", "simple_command_element", "redirection_list",
-  "simple_command", "command", "shell_command", "for_command",
-  "arith_for_command", "select_command", "case_command", "function_def",
-  "function_body", "subshell", "coproc", "if_command", "group_command",
-  "arith_command", "cond_command", "elif_clause", "case_clause",
-  "pattern_list", "case_clause_sequence", "pattern", "list",
-  "compound_list", "list0", "list1", "simple_list_terminator",
-  "list_terminator", "newline_list", "simple_list", "simple_list1",
-  "pipeline_command", "pipeline", "timespec", 0
-};
-#endif
 
 # ifdef YYPRINT
 /* YYTOKNUM[YYLEX-NUM] -- Internal token number corresponding to
