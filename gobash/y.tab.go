@@ -122,9 +122,7 @@ const NO_EXPANSION = -100
 // 		: 1)
 // #  define MBTEST(x)	((x) && last_shell_getc_is_singlebyte)
 // 
-// #if defined (EXTENDED_GLOB)
 // extern int extended_glob;
-// #endif
 // 
 // extern int eof_encountered;
 // extern int no_line_editing, running_under_emacs;
@@ -3887,11 +3885,9 @@ reset_parser ()
   dstack.delimiter_depth = 0;	/* No delimiters found so far. */
   open_brace_count = 0;
 
-#if defined (EXTENDED_GLOB)
   /* Reset to global value of extended glob */
   if (parser_state & PST_EXTPAT)
     extended_glob = global_extglob;
-#endif
 
   parser_state = 0;
 
@@ -5388,7 +5384,6 @@ read_token_word (character)
 	}
 #endif /* COND_REGEXP */
 
-#ifdef EXTENDED_GLOB
       /* Parse a ksh-style extended pattern matching specification. */
       if MBTEST(extended_glob && PATTERN_CHAR (character))
 	{
@@ -5414,7 +5409,6 @@ read_token_word (character)
 	  else
 	    shell_ungetc (peek_char);
 	}
-#endif /* EXTENDED_GLOB */
 
       /* If the delimiter character is not single quote, parse some of
 	 the shell expansions that must be read as a single word. */
