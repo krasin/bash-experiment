@@ -4,19 +4,21 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"unicode"
 )
 
 // #define LALA 13 -> const lala = 13
 var constDefine = regexp.MustCompile("^([\t ]*)#[\t ]*define[\t ]+([A-Za-z_][A-Za-z0-9_]*)[\t ]+(.*)$")
 
 // int lala; -> lala int
-var varDefine = regexp.MustCompile("^([\t ]*)(static[\t ]+|)([A-Za-z_][A-Za-z0-9_]*)[\t ]+([A-Za-z_][A-Za-z0-9_]*)[\t ]*;[\n\t ]*(/[*][^*]*[*]/[\n\t ]*|)$")
+var varDefine = regexp.MustCompile("^([\t ]*)(static[\t ]+|)([A-Za-z_][A-Za-z0-9_]*)[\t ]+([A-Za-z_][A-Za-z0-9_]*)[\t ]*;[\t ]*(/[*][^*]*[*]/[\n\t ]*|)$")
 
 // int *lala; -> lala *int
 var pointerDefine = regexp.MustCompile("^([\t ]*)(static[\t ]+|)([A-Za-z_][A-Za-z0-9_]*)[\t ]*[*][\t ]*([A-Za-z_][A-Za-z0-9_]*)[\t ]*;[\n\t ]*(/[*][^*]*[*]/[\n\t ]*|)$")
 
 
 func EnhanceLine(line string) string {
+	line = strings.TrimRightFunc(line, unicode.IsSpace)
 	if (constDefine.MatchString(line)) {
 		groups := constDefine.FindStringSubmatch(line)
 		indent := groups[1]

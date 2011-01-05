@@ -16,6 +16,8 @@ type enhanceLineTest struct {
 var enhanceLineTests = []*enhanceLineTest {
 	&enhanceLineTest{ "int a;", "a int" },
 	&enhanceLineTest{ "Lala b;", "b Lala" },
+	&enhanceLineTest{ "int b;\n", "b int" },
+	&enhanceLineTest{ "  int c;\r\n", "  c int" },
 }
 
 func TestEnhanceLine(t *testing.T) {

@@ -12,7 +12,7 @@ func main() {
 	for {
 		line, err := buf.ReadString('\n')
 		if line != "" {
-			fmt.Printf("%s", togo.EnhanceLine(line))
+			fmt.Printf("%s\n", togo.EnhanceLine(line))
 		}
 		if err != nil {
 			break
