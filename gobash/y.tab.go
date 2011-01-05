@@ -5940,7 +5940,6 @@ parse_cond_command ()
   return (make_cond_command (cexp));
 }
 
-#if defined (ARRAY_VARS)
 /* When this is called, it's guaranteed that we don't care about anything
    in t beyond i.  We do save and restore the chars, though. */
 static int
@@ -5973,7 +5972,6 @@ token_is_ident (t, i)
   t[i] = c;
   return r;
 }
-#endif
 
 static int
 read_token_word (character)
@@ -6237,7 +6235,6 @@ read_token_word (character)
 	    shell_ungetc (peek_char);
 	}
 
-#if defined (ARRAY_VARS)
       /* Identify possible array subscript assignment; match [...].  If
 	 parser_state&PST_COMPASSIGN, we need to parse [sub]=words treating
 	 `sub' as if it were enclosed in double quotes. */
@@ -6281,16 +6278,11 @@ read_token_word (character)
 	      FREE (ttok);
 	      all_digit_token = 0;
 	      compound_assignment = 1;
-#if 1
 	      goto next_character;
-#else
-	      goto got_token;		/* ksh93 seems to do this */
-#endif
 	    }
 	  else
 	    shell_ungetc (peek_char);
 	}
-#endif
 
       /* When not parsing a multi-character word construct, shell meta-
 	 characters break words. */
@@ -7280,9 +7272,7 @@ sh_parser_state_t *
 save_parser_state (ps)
      sh_parser_state_t *ps;
 {
-#if defined (ARRAY_VARS)
   SHELL_VAR *v;
-#endif
 
   if (ps == 0)
     ps = (sh_parser_state_t *)xmalloc (sizeof (sh_parser_state_t));
@@ -7298,14 +7288,12 @@ save_parser_state (ps)
   ps->current_command_line_count = current_command_line_count;
 
   ps->last_command_exit_value = last_command_exit_value;
-#if defined (ARRAY_VARS)
   v = find_variable ("PIPESTATUS");
   if (v && array_p (v) && array_cell (v))
     ps->pipestatus = array_copy (array_cell (v));
   else
     ps->pipestatus = (ARRAY *)NULL;
-#endif
-    
+
   ps->last_shell_builtin = last_shell_builtin;
   ps->this_shell_builtin = this_shell_builtin;
 
@@ -7319,9 +7307,7 @@ void
 restore_parser_state (ps)
      sh_parser_state_t *ps;
 {
-#if defined (ARRAY_VARS)
   SHELL_VAR *v;
-#endif
 
   if (ps == 0)
     return;
@@ -7339,14 +7325,12 @@ restore_parser_state (ps)
   current_command_line_count = ps->current_command_line_count;
 
   last_command_exit_value = ps->last_command_exit_value;
-#if defined (ARRAY_VARS)
   v = find_variable ("PIPESTATUS");
   if (v && array_p (v) && array_cell (v))
     {
       array_dispose (array_cell (v));
       var_setarray (v, ps->pipestatus);
     }
-#endif
 
   last_shell_builtin = ps->last_shell_builtin;
   this_shell_builtin = ps->this_shell_builtin;
