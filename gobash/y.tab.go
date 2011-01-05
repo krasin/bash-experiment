@@ -4005,19 +4005,6 @@ read_secondary_line (remove_quoted_newline)
   if (SHOULD_PROMPT())
     prompt_again ();
   ret = read_a_line (remove_quoted_newline);
-#if defined (HISTORY)
-  if (ret && remember_on_history && (parser_state & PST_HEREDOC))
-    {
-      /* To make adding the the here-document body right, we need to rely
-	 on history_delimiting_chars() returning \n for the first line of
-	 the here-document body and the null string for the second and
-	 subsequent lines, so we avoid double newlines.
-	 current_command_line_count == 2 for the first line of the body. */
-
-      current_command_line_count++;
-      maybe_add_history (ret);
-    }
-#endif /* HISTORY */
   return ret;
 }
 
@@ -4257,63 +4244,6 @@ shell_getc (remove_quoted_newline)
       shell_input_line_len = i;		/* == strlen (shell_input_line) */
 
       set_line_mbstate ();
-
-#if defined (HISTORY)
-      if (remember_on_history && shell_input_line && shell_input_line[0])
-	{
-	  char *expansions;
-#  if defined (BANG_HISTORY)
-	  int old_hist;
-
-	  /* If the current delimiter is a single quote, we should not be
-	     performing history expansion, even if we're on a different
-	     line from the original single quote. */
-	  old_hist = history_expansion_inhibited;
-	  if (current_delimiter (dstack) == '\'')
-	    history_expansion_inhibited = 1;
-#  endif
-	  expansions = pre_process_line (shell_input_line, 1, 1);
-#  if defined (BANG_HISTORY)
-	  history_expansion_inhibited = old_hist;
-#  endif
-	  if (expansions != shell_input_line)
-	    {
-	      free (shell_input_line);
-	      shell_input_line = expansions;
-	      shell_input_line_len = shell_input_line ?
-					strlen (shell_input_line) : 0;
-	      if (!shell_input_line_len)
-		current_command_line_count--;
-
-	      /* We have to force the xrealloc below because we don't know
-		 the true allocated size of shell_input_line anymore. */
-	      shell_input_line_size = shell_input_line_len;
-
-	      set_line_mbstate ();
-	    }
-	}
-      /* Try to do something intelligent with blank lines encountered while
-	 entering multi-line commands.  XXX - this is grotesque */
-      else if (remember_on_history && shell_input_line &&
-	       shell_input_line[0] == '\0' &&
-	       current_command_line_count > 1)
-	{
-	  if (current_delimiter (dstack))
-	    /* We know shell_input_line[0] == 0 and we're reading some sort of
-	       quoted string.  This means we've got a line consisting of only
-	       a newline in a quoted string.  We want to make sure this line
-	       gets added to the history. */
-	    maybe_add_history (shell_input_line);
-	  else
-	    {
-	      char *hdcs;
-	      hdcs = history_delimiting_chars ();
-	      if (hdcs && hdcs[0] == ';')
-		maybe_add_history (shell_input_line);
-	    }
-	}
-
-#endif /* HISTORY */
 
       if (shell_input_line)
 	{
@@ -6738,79 +6668,6 @@ find_reserved_word (tokstr)
   return -1;
 }
 
-#if defined (HISTORY)
-/* A list of tokens which can be followed by newlines, but not by
-   semi-colons.  When concatenating multiple lines of history, the
-   newline separator for such tokens is replaced with a space. */
-static const int no_semi_successors[] = {
-  '\n', '{', '(', ')', ';', '&', '|',
-  CASE, DO, ELSE, IF, SEMI_SEMI, SEMI_AND, SEMI_SEMI_AND, THEN, UNTIL,
-  WHILE, AND_AND, OR_OR, IN,
-  0
-};
-
-/* If we are not within a delimited expression, try to be smart
-   about which separators can be semi-colons and which must be
-   newlines.  Returns the string that should be added into the
-   history entry. */
-char *
-history_delimiting_chars ()
-{
-  register int i;
-
-  if (dstack.delimiter_depth != 0)
-    return ("\n");
-
-  /* We look for current_command_line_count == 2 because we are looking to
-     add the first line of the body of the here document (the second line
-     of the command). */
-  if (parser_state & PST_HEREDOC)
-    return (current_command_line_count == 2 ? "\n" : "");
-
-  /* First, handle some special cases. */
-  /*(*/
-  /* If we just read `()', assume it's a function definition, and don't
-     add a semicolon.  If the token before the `)' was not `(', and we're
-     not in the midst of parsing a case statement, assume it's a
-     parenthesized command and add the semicolon. */
-  /*)(*/
-  if (token_before_that == ')')
-    {
-      if (two_tokens_ago == '(')	/*)*/	/* function def */
-	return " ";
-      /* This does not work for subshells inside case statement
-	 command lists.  It's a suboptimal solution. */
-      else if (parser_state & PST_CASESTMT)	/* case statement pattern */
-	return " ";
-      else	
-	return "; ";				/* (...) subshell */
-    }
-  else if (token_before_that == WORD && two_tokens_ago == FUNCTION)
-    return " ";		/* function def using `function name' without `()' */
-
-  else if (token_before_that == WORD && two_tokens_ago == FOR)
-    {
-      /* Tricky.  `for i\nin ...' should not have a semicolon, but
-	 `for i\ndo ...' should.  We do what we can. */
-      for (i = shell_input_line_index; whitespace (shell_input_line[i]); i++)
-	;
-      if (shell_input_line[i] && shell_input_line[i] == 'i' && shell_input_line[i+1] == 'n')
-	return " ";
-      return ";";
-    }
-  else if (two_tokens_ago == CASE && token_before_that == WORD && (parser_state & PST_CASESTMT))
-    return " ";
-
-  for (i = 0; no_semi_successors[i]; i++)
-    {
-      if (token_before_that == no_semi_successors[i])
-	return (" ");
-    }
-
-  return ("; ");
-}
-#endif /* HISTORY */
-
 /* Issue a prompt, or prepare to issue a prompt when the next character
    is read. */
 static void
@@ -6929,11 +6786,7 @@ decode_prompt_string (string)
 	    }
 	  else
 	    {
-#if !defined (HISTORY)
 		temp = savestring ("1");
-#else /* HISTORY */
-		temp = itos (history_number ());
-#endif /* HISTORY */
 		string--;	/* add_string increments string again. */
 		goto add_string;
 	    }
@@ -7149,11 +7002,7 @@ decode_prompt_string (string)
 	      goto add_string;
 
 	    case '!':
-#if !defined (HISTORY)
 	      temp = savestring ("1");
-#else /* HISTORY */
-	      temp = itos (history_number ());
-#endif /* HISTORY */
 	      goto add_string;
 
 	    case '$':
@@ -7529,17 +7378,6 @@ parse_string_to_word_list (s, flags, whom)
   int tok, orig_current_token, orig_line_number, orig_input_terminator;
   int orig_line_count;
   int old_echo_input, old_expand_aliases;
-#if defined (HISTORY)
-  int old_remember_on_history, old_history_expansion_inhibited;
-#endif
-
-#if defined (HISTORY)
-  old_remember_on_history = remember_on_history;
-#  if defined (BANG_HISTORY)
-  old_history_expansion_inhibited = history_expansion_inhibited;
-#  endif
-  bash_history_disable ();
-#endif
 
   orig_line_number = line_number;
   orig_line_count = current_command_line_count;
@@ -7581,13 +7419,6 @@ parse_string_to_word_list (s, flags, whom)
   
   last_read_token = '\n';
   pop_stream ();
-
-#if defined (HISTORY)
-  remember_on_history = old_remember_on_history;
-#  if defined (BANG_HISTORY)
-  history_expansion_inhibited = old_history_expansion_inhibited;
-#  endif /* BANG_HISTORY */
-#endif /* HISTORY */
 
   echo_input_at_read = old_echo_input;
   expand_aliases = old_expand_aliases;
@@ -7719,13 +7550,6 @@ save_parser_state (ps)
 
   ps->current_command_line_count = current_command_line_count;
 
-#if defined (HISTORY)
-  ps->remember_on_history = remember_on_history;
-#  if defined (BANG_HISTORY)
-  ps->history_expansion_inhibited = history_expansion_inhibited;
-#  endif
-#endif
-
   ps->last_command_exit_value = last_command_exit_value;
 #if defined (ARRAY_VARS)
   v = find_variable ("PIPESTATUS");
@@ -7766,13 +7590,6 @@ restore_parser_state (ps)
   eof_encountered = ps->eof_encountered;
 
   current_command_line_count = ps->current_command_line_count;
-
-#if defined (HISTORY)
-  remember_on_history = ps->remember_on_history;
-#  if defined (BANG_HISTORY)
-  history_expansion_inhibited = ps->history_expansion_inhibited;
-#  endif
-#endif
 
   last_command_exit_value = ps->last_command_exit_value;
 #if defined (ARRAY_VARS)
