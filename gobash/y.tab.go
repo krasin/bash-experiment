@@ -680,7 +680,7 @@ const (
 	yynewstate yyparseState = 0
 	yysetstate yyparseState = iota
 	yybackup yyparseState = iota
-
+	yydefault yyparseState = iota
 
 )
 
@@ -771,10 +771,9 @@ case yybackup:
 
   if (yychar <= YYEOF)
     {
-      yychar = yytoken = YYEOF;
-    }
-  else
-    {
+      yytoken = YYEOF;
+	yychar = YYEOF
+    } else {
       yytoken = YYTRANSLATE (yychar);
     }
 
@@ -797,31 +796,36 @@ case yybackup:
 	continue
     }
 
-  if (yyn == YYFINAL)
+  if (yyn == YYFINAL) {
     yyparseState = yyacceptlab; continue;
+}
 
   /* Count tokens shifted since error; after three, turn off error
      status.  */
-  if (yyerrstatus)
+  if (yyerrstatus) {
     yyerrstatus--;
+  }
 
   /* Discard the shifted token unless it is eof.  */
-  if (yychar != YYEOF)
+  if (yychar != YYEOF) {
     yychar = YYEMPTY;
+  }
 
   yystate = yyn;
-  *++yyvsp = yylval;
+  yyvs.Push(yylval);
 
-  goto yynewstate;
+  yyparseState = yynewstate;
+	continue
 
 
 /*-----------------------------------------------------------.
 | yydefault -- do the default action for the current state.  |
 `-----------------------------------------------------------*/
-yydefault:
+case yydefault:
   yyn = yydefact[yystate];
-  if (yyn == 0)
-    goto yyerrlab;
+  if (yyn == 0) {
+    yyparseState = yyerrlab; continue
+  }
   goto yyreduce;
 
 
