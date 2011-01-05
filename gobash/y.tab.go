@@ -221,25 +221,16 @@ func NewParserState() *ParserState {
 	return
 }
 
-#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef union YYSTYPE
+type YYSTYPE struct {
 // #line 320 "/Users/chet/src/bash/src/parse.y"
-{
-  WORD_DESC *word;		/* the word that we read. */
-  int number;			/* the number that we read. */
-  WORD_LIST *word_list;
-  COMMAND *command;
-  REDIRECT *redirect;
-  ELEMENT element;
-  PATTERN_LIST *pattern;
+  word *WORD_DESC /* the word that we read. */
+  number int /* the number that we read. */
+  word_list *WORD_LIST
+  command *COMMAND
+  redirect *REDIRECT
+  element ELEMENT
+  pattern *PATTERN_LIST
 }
-/* Line 187 of yacc.c.  */
-// #line 501 "y.tab.c"
-	YYSTYPE;
-# define yystype YYSTYPE /* obsolescent; will be withdrawn */
-# define YYSTYPE_IS_DECLARED 1
-#endif
-
 
 
 /* Copy the second part of user declarations.  */
