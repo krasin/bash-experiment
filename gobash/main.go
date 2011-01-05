@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	fmt.Printf("Go Bash")
+	fmt.Printf("Go Bash\n")
 }
