@@ -238,13 +238,13 @@ type CONNECTION struct {
 
 /* Structures used to represent the CASE command. */
 
-/* Values for FLAGS word in a PATTERN_LIST */
+/* Values for FLAGS word in a PatternList */
 const CASEPAT_FALLTHROUGH = 0x01
 const CASEPAT_TESTNEXT = 0x02
 
 /* Pattern/action structure for CASE_COM. */
-type pattern_list struct {
-  next *pattern_list /* Clause to try in case this one failed. */
+type PatternList struct {
+  next *PatternList /* Clause to try in case this one failed. */
   patterns *word_list /* Linked list of patterns to test. */
   action *Command /* Thing to execute if a pattern matches. */
   flags int
@@ -255,7 +255,7 @@ type case_com struct {
   flags int /* See description of CMD flags. */
   line int /* line number the `case' keyword appears on */
   word *word_desc /* The thing to test. */
-  clauses *PATTERN_LIST /* The clauses to test against, or NULL. */
+  clauses *PatternList /* The clauses to test against, or NULL. */
 }
 
 /* FOR command. */

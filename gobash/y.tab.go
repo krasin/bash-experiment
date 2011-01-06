@@ -238,7 +238,7 @@ type YYSTYPE struct {
   command *Command
   redirect *REDIRECT
   element ELEMENT
-  pattern *PATTERN_LIST
+  pattern *PatternList
 }
 
 
@@ -1607,7 +1607,7 @@ case yyreduce:
   case 93:
 // #line 872 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_case_command ((yyvsp[(2) - (6)].word), (PATTERN_LIST *)NULL, word_lineno[word_top]);
+			  (yyval.command) = make_case_command ((yyvsp[(2) - (6)].word), (PatternList *)NULL, word_lineno[word_top]);
 			  if (word_top > 0) { word_top-- }
 			}
     break;
