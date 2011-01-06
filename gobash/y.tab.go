@@ -235,7 +235,7 @@ type YYSTYPE struct {
   word *word_desc /* the word that we read. */
   number int /* the number that we read. */
   word_list *word_list
-  command *COMMAND
+  command *Command
   redirect *REDIRECT
   element ELEMENT
   pattern *PATTERN_LIST
@@ -1379,7 +1379,7 @@ case yyreduce:
   case 61:
 // #line 730 "/Users/chet/src/bash/src/parse.y"
     {
-			  COMMAND *tc;
+			  Command *tc;
 
 			  tc = (yyvsp[(1) - (2)].command);
 			  if (tc.redirects)
@@ -1651,7 +1651,7 @@ case yyreduce:
   case 100:
 // #line 901 "/Users/chet/src/bash/src/parse.y"
     {
-			  COMMAND *tc;
+			  Command *tc;
 
 			  tc = (yyvsp[(1) - (2)].command);
 			  /* According to Posix.2 3.9.5, redirections
@@ -1699,7 +1699,7 @@ case yyreduce:
   case 103:
 // #line 944 "/Users/chet/src/bash/src/parse.y"
     {
-			  COMMAND *tc;
+			  Command *tc;
 
 			  tc = (yyvsp[(2) - (3)].command);
 			  if (tc.redirects)
@@ -1727,7 +1727,7 @@ case yyreduce:
   case 105:
 // #line 966 "/Users/chet/src/bash/src/parse.y"
     {
-			  COMMAND *tc;
+			  Command *tc;
 
 			  tc = (yyvsp[(3) - (4)].command);
 			  if (tc.redirects)
@@ -2089,11 +2089,11 @@ case yyreduce:
 // #line 1237 "/Users/chet/src/bash/src/parse.y"
     {
 			  /* Make cmd1 |& cmd2 equivalent to cmd1 2>&1 | cmd2 */
-			  COMMAND *tc;
+			  Command *tc;
 			  REDIRECTEE rd, sd;
 			  REDIRECT *r;
 
-			  tc = (yyvsp[(1) - (4)].command).type == cm_simple ? (COMMAND *)(yyvsp[(1) - (4)].command).value.Simple : (yyvsp[(1) - (4)].command);
+			  tc = (yyvsp[(1) - (4)].command).type == cm_simple ? (Command *)(yyvsp[(1) - (4)].command).value.Simple : (yyvsp[(1) - (4)].command);
 			  sd.dest = 2;
 			  rd.dest = 1;
 			  r = make_redirection (sd, r_duplicating_output, rd, 0);
@@ -4807,7 +4807,7 @@ cond_term ()
 
 /* This is kind of bogus -- we slip a mini recursive-descent parser in
    here to handle the conditional statement syntax. */
-static COMMAND *
+static Command *
 parse_cond_command ()
 {
   COND_COM *cexp;

@@ -220,7 +220,7 @@ type CommandValue struct {
 }
 
 /* What a command looks like. */
-type COMMAND struct {
+type Command struct {
   typ command_type /* FOR CASE WHILE IF CONNECTION or SIMPLE. */
   flags int /* Flags controlling execution environment. */
   line int /* line number the command starts on */
@@ -231,8 +231,8 @@ type COMMAND struct {
 /* Structure used to represent the CONNECTION type. */
 type CONNECTION struct {
   ignore int /* Unused; simplifies make_command (). */
-  first *COMMAND /* Pointer to the first command. */
-  second *COMMAND /* Pointer to the second command. */
+  first *Command /* Pointer to the first command. */
+  second *Command /* Pointer to the second command. */
   connector int /* What separates this command from others. */
 }
 
@@ -246,7 +246,7 @@ const CASEPAT_TESTNEXT = 0x02
 type pattern_list struct {
   next *pattern_list /* Clause to try in case this one failed. */
   patterns *word_list /* Linked list of patterns to test. */
-  action *COMMAND /* Thing to execute if a pattern matches. */
+  action *Command /* Thing to execute if a pattern matches. */
   flags int
 }
 
@@ -264,7 +264,7 @@ type for_com struct {
   line int /* line number the `for' keyword appears on */
   name *word_desc /* The variable name to get mapped over. */
   map_list *word_list /* The things to map over.  This is never NULL. */
-  action *COMMAND	/* The action to execute.
+  action *Command	/* The action to execute.
 			   During execution, NAME is bound to successive
 			   members of MAP_LIST. */
 }
@@ -275,7 +275,7 @@ type arith_for_com struct {
   init *word_list
   test *word_list
   step *word_list
-  action *COMMAND
+  action *Command
 }
 
 /* KSH SELECT command. */
@@ -284,7 +284,7 @@ type select_com struct {
   line int /* line number the `select' keyword appears on */
   name *word_desc /* The variable name to get mapped over. */
   map_list *word_list /* The things to map over.  This is never NULL. */
-  action *COMMAND	/* The action to execute.
+  action *Command	/* The action to execute.
 			   During execution, NAME is bound to the member of
 			   MAP_LIST chosen by the user. */
 }
@@ -292,16 +292,16 @@ type select_com struct {
 /* IF command. */
 type if_com struct {
   flags int /* See description of CMD flags. */
-  test *COMMAND /* Thing to test. */
-  true_case *COMMAND /* What to do if the test returned non-zero. */
-  false_case *COMMAND /* What to do if the test returned zero. */
+  test *Command /* Thing to test. */
+  true_case *Command /* What to do if the test returned non-zero. */
+  false_case *Command /* What to do if the test returned zero. */
 }
 
 /* WHILE command. */
 type while_com struct {
   flags int /* See description of CMD flags. */
-  test *COMMAND /* Thing to test. */
-  action *COMMAND /* Thing to do while test is non-zero. */
+  test *Command /* Thing to test. */
+  action *Command /* Thing to do while test is non-zero. */
 }
 
 /* The arithmetic evaluation command, ((...)).  Just a set of flags and
@@ -345,7 +345,7 @@ type function_def struct {
   flags int /* See description of CMD flags. */
   line int /* Line number the function def starts on. */
   name *word_desc /* The name of the function. */
-  command *COMMAND /* The parsed execution tree. */
+  command *Command /* The parsed execution tree. */
   source_file *char /* file in which function was defined, if any */
 }
 
@@ -353,12 +353,12 @@ type function_def struct {
    commands in the group. */
 type group_com struct {
   ignore int /* See description of CMD flags. */
-  command *COMMAND
+  command *Command
 }
 
 type subshell_com struct {
   flags int
-  command *COMMAND
+  command *Command
 }
 
 const COPROC_RUNNING = 0x01
@@ -378,7 +378,7 @@ type coproc struct {
 type coproc_com struct {
   flags int
   name *char
-  command *COMMAND
+  command *Command
 }
 
 /* Possible command errors */
