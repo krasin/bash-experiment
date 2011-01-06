@@ -2078,7 +2078,7 @@ case yyreduce:
   case 162:
 // #line 1215 "/Users/chet/src/bash/src/parse.y"
     {
-			  ELEMENT x;
+			  var x ELEMENT
 
 			  /* Boy, this is unclean.  `time' by itself can
 			     time a null command.  We cheat and push a
@@ -2105,19 +2105,23 @@ case yyreduce:
 // #line 1237 "/Users/chet/src/bash/src/parse.y"
     {
 			  /* Make cmd1 |& cmd2 equivalent to cmd1 2>&1 | cmd2 */
-			  Command *tc;
-			  Redirectee rd, sd;
-			  Redirect *r;
+			  var tc *Command
+			  var rd Redirectee
+			  var sd Redirectee
+			  var t *Redirect
 
-			  tc = (yyvsp[(1) - (4)].command).typ == cm_simple ? (Command *)(yyvsp[(1) - (4)].command).value.Simple : (yyvsp[(1) - (4)].command);
+			  if (yyvsp[(1) - (4)].command).typ == cm_simple {
+				tc = (yyvsp[(1) - (4)].command).value.Simple
+			  } else {
+				tc = (yyvsp[(1) - (4)].command);
+			  }
 			  sd.dest = 2;
 			  rd.dest = 1;
 			  r = make_redirection (sd, r_duplicating_output, rd, 0);
 			  if (tc.redirects)
 			    {
 			      Redirect *t;
-			      for (t = tc.redirects; t.next; t = t.next)
-				;
+			      for t = tc.redirects; t.next; t = t.next {}
 			      t.next = r;
 			    } else {
 			    tc.redirects = r;
