@@ -917,8 +917,8 @@ case yyreduce:
 // #line 425 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = 1;
-			  redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_output_direction, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_output_direction, gps.redir, 0);
 			}
     break;
 
@@ -926,8 +926,8 @@ case yyreduce:
 // #line 431 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = 0;
-			  redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_input_direction, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_input_direction, gps.redir, 0);
 			}
     break;
 
@@ -935,8 +935,8 @@ case yyreduce:
 // #line 437 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_output_direction, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_output_direction, gps.redir, 0);
 			}
     break;
 
@@ -944,8 +944,8 @@ case yyreduce:
 // #line 443 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_input_direction, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_input_direction, gps.redir, 0);
 			}
     break;
 
@@ -953,8 +953,8 @@ case yyreduce:
 // #line 449 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_output_direction, redir, REDIR_VARASSIGN);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_output_direction, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -962,8 +962,8 @@ case yyreduce:
 // #line 455 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_input_direction, redir, REDIR_VARASSIGN);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_input_direction, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -971,8 +971,8 @@ case yyreduce:
 // #line 461 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = 1;
-			  redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_appending_to, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_appending_to, gps.redir, 0);
 			}
     break;
 
@@ -980,8 +980,8 @@ case yyreduce:
 // #line 467 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_appending_to, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_appending_to, gps.redir, 0);
 			}
     break;
 
@@ -989,8 +989,8 @@ case yyreduce:
 // #line 473 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_appending_to, redir, REDIR_VARASSIGN);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_appending_to, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -998,8 +998,8 @@ case yyreduce:
 // #line 479 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = 1;
-			  redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_output_force, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_output_force, gps.redir, 0);
 			}
     break;
 
@@ -1007,8 +1007,8 @@ case yyreduce:
 // #line 485 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_output_force, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_output_force, gps.redir, 0);
 			}
     break;
 
@@ -1016,8 +1016,8 @@ case yyreduce:
 // #line 491 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_output_force, redir, REDIR_VARASSIGN);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_output_force, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -1025,8 +1025,8 @@ case yyreduce:
 // #line 497 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = 0;
-			  redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_input_output, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_input_output, gps.redir, 0);
 			}
     break;
 
@@ -1034,8 +1034,8 @@ case yyreduce:
 // #line 503 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_input_output, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_input_output, gps.redir, 0);
 			}
     break;
 
@@ -1043,8 +1043,8 @@ case yyreduce:
 // #line 509 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_input_output, redir, REDIR_VARASSIGN);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_input_output, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -1052,8 +1052,8 @@ case yyreduce:
 // #line 515 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = 0;
-			  redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_reading_until, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_reading_until, gps.redir, 0);
 			  redir_stack[need_here_doc] = (yyval.redirect);
 				need_here_doc++
 			}
@@ -1063,8 +1063,8 @@ case yyreduce:
 // #line 522 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_reading_until, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_reading_until, gps.redir, 0);
 			  redir_stack[need_here_doc] = (yyval.redirect);
 				need_here_doc++
 			}
@@ -1074,8 +1074,8 @@ case yyreduce:
 // #line 529 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_reading_until, redir, REDIR_VARASSIGN);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_reading_until, gps.redir, REDIR_VARASSIGN);
 			  redir_stack[need_here_doc] = (yyval.redirect);
 				need_here_doc++
 			}
@@ -1085,8 +1085,8 @@ case yyreduce:
 // #line 536 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = 0;
-			  redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_deblank_reading_until, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_deblank_reading_until, gps.redir, 0);
 			  redir_stack[need_here_doc] = (yyval.redirect);
 				need_here_doc++
 			}
@@ -1096,8 +1096,8 @@ case yyreduce:
 // #line 543 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_deblank_reading_until, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_deblank_reading_until, gps.redir, 0);
 			  redir_stack[need_here_doc] = (yyval.redirect);
 				need_here_doc++
 			}
@@ -1107,8 +1107,8 @@ case yyreduce:
 // #line 550 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_deblank_reading_until, redir, REDIR_VARASSIGN);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_deblank_reading_until, gps.redir, REDIR_VARASSIGN);
 			  redir_stack[need_here_doc] = (yyval.redirect);
 				need_here_doc++
 			}
@@ -1118,8 +1118,8 @@ case yyreduce:
 // #line 557 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = 0;
-			  redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_reading_string, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_reading_string, gps.redir, 0);
 			}
     break;
 
@@ -1127,8 +1127,8 @@ case yyreduce:
 // #line 563 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_reading_string, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_reading_string, gps.redir, 0);
 			}
     break;
 
@@ -1136,8 +1136,8 @@ case yyreduce:
 // #line 569 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_reading_string, redir, REDIR_VARASSIGN);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_reading_string, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -1145,8 +1145,8 @@ case yyreduce:
 // #line 575 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = 0;
-			  redir.dest = (yyvs.PeekN((2) - (2)).number);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_input, redir, 0);
+			  gps.redir.dest = (yyvs.PeekN((2) - (2)).number);
+			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_input, gps.redir, 0);
 			}
     break;
 
@@ -1154,8 +1154,8 @@ case yyreduce:
 // #line 581 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
-			  redir.dest = (yyvs.PeekN((3) - (3)).number);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_input, redir, 0);
+			  gps.redir.dest = (yyvs.PeekN((3) - (3)).number);
+			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_input, gps.redir, 0);
 			}
     break;
 
@@ -1163,8 +1163,8 @@ case yyreduce:
 // #line 587 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
-			  redir.dest = (yyvs.PeekN((3) - (3)).number);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_input, redir, REDIR_VARASSIGN);
+			  gps.redir.dest = (yyvs.PeekN((3) - (3)).number);
+			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_input, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -1172,8 +1172,8 @@ case yyreduce:
 // #line 593 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = 1;
-			  redir.dest = (yyvs.PeekN((2) - (2)).number);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_output, redir, 0);
+			  gps.redir.dest = (yyvs.PeekN((2) - (2)).number);
+			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_output, gps.redir, 0);
 			}
     break;
 
@@ -1181,8 +1181,8 @@ case yyreduce:
 // #line 599 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
-			  redir.dest = (yyvs.PeekN((3) - (3)).number);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_output, redir, 0);
+			  gps.redir.dest = (yyvs.PeekN((3) - (3)).number);
+			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_output, gps.redir, 0);
 			}
     break;
 
@@ -1190,8 +1190,8 @@ case yyreduce:
 // #line 605 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
-			  redir.dest = (yyvs.PeekN((3) - (3)).number);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_output, redir, REDIR_VARASSIGN);
+			  gps.redir.dest = (yyvs.PeekN((3) - (3)).number);
+			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_output, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -1199,8 +1199,8 @@ case yyreduce:
 // #line 611 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = 0;
-			  redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_input_word, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_input_word, gps.redir, 0);
 			}
     break;
 
@@ -1208,8 +1208,8 @@ case yyreduce:
 // #line 617 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_input_word, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_input_word, gps.redir, 0);
 			}
     break;
 
@@ -1217,8 +1217,8 @@ case yyreduce:
 // #line 623 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_input_word, redir, REDIR_VARASSIGN);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_input_word, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -1226,8 +1226,8 @@ case yyreduce:
 // #line 629 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = 1;
-			  redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_output_word, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_output_word, gps.redir, 0);
 			}
     break;
 
@@ -1235,8 +1235,8 @@ case yyreduce:
 // #line 635 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_output_word, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_output_word, gps.redir, 0);
 			}
     break;
 
@@ -1244,8 +1244,8 @@ case yyreduce:
 // #line 641 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
-			  redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_output_word, redir, REDIR_VARASSIGN);
+			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_output_word, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -1253,8 +1253,8 @@ case yyreduce:
 // #line 647 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = 1;
-			  redir.dest = 0;
-			  (yyval.redirect) = make_redirection (gps.source, r_close_this, redir, 0);
+			  gps.redir.dest = 0;
+			  (yyval.redirect) = make_redirection (gps.source, r_close_this, gps.redir, 0);
 			}
     break;
 
@@ -1262,8 +1262,8 @@ case yyreduce:
 // #line 653 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
-			  redir.dest = 0;
-			  (yyval.redirect) = make_redirection (gps.source, r_close_this, redir, 0);
+			  gps.redir.dest = 0;
+			  (yyval.redirect) = make_redirection (gps.source, r_close_this, gps.redir, 0);
 			}
     break;
 
@@ -1271,8 +1271,8 @@ case yyreduce:
 // #line 659 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
-			  redir.dest = 0;
-			  (yyval.redirect) = make_redirection (gps.source, r_close_this, redir, REDIR_VARASSIGN);
+			  gps.redir.dest = 0;
+			  (yyval.redirect) = make_redirection (gps.source, r_close_this, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -1280,8 +1280,8 @@ case yyreduce:
 // #line 665 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = 0;
-			  redir.dest = 0;
-			  (yyval.redirect) = make_redirection (gps.source, r_close_this, redir, 0);
+			  gps.redir.dest = 0;
+			  (yyval.redirect) = make_redirection (gps.source, r_close_this, gps.redir, 0);
 			}
     break;
 
@@ -1289,8 +1289,8 @@ case yyreduce:
 // #line 671 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
-			  redir.dest = 0;
-			  (yyval.redirect) = make_redirection (gps.source, r_close_this, redir, 0);
+			  gps.redir.dest = 0;
+			  (yyval.redirect) = make_redirection (gps.source, r_close_this, gps.redir, 0);
 			}
     break;
 
@@ -1298,8 +1298,8 @@ case yyreduce:
 // #line 677 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
-			  redir.dest = 0;
-			  (yyval.redirect) = make_redirection (gps.source, r_close_this, redir, REDIR_VARASSIGN);
+			  gps.redir.dest = 0;
+			  (yyval.redirect) = make_redirection (gps.source, r_close_this, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -1307,8 +1307,8 @@ case yyreduce:
 // #line 683 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = 1;
-			  redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_err_and_out, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_err_and_out, gps.redir, 0);
 			}
     break;
 
@@ -1316,8 +1316,8 @@ case yyreduce:
 // #line 689 "/Users/chet/src/bash/src/parse.y"
     {
 			  gps.source.dest = 1;
-			  redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_append_err_and_out, redir, 0);
+			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
+			  (yyval.redirect) = make_redirection (gps.source, r_append_err_and_out, gps.redir, 0);
 			}
     break;
 
