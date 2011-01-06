@@ -205,7 +205,7 @@ const CMD_COPROC_SUBSHELL = 0x1000
 type CommandValue struct {
     For *ForCom
     Case *CaseCom
-    While *while_com
+    While *WhileCom
     If *IfCom
     Connection *connection
     Simple *simple_com
@@ -298,7 +298,7 @@ type IfCom struct {
 }
 
 /* WHILE command. */
-type while_com struct {
+type WhileCom struct {
   flags int /* See description of CMD flags. */
   test *Command /* Thing to test. */
   action *Command /* Thing to do while test is non-zero. */
