@@ -207,7 +207,7 @@ word_top int
    is reset by read_token.  If token_to_read == WORD or
    ASSIGNMENT_WORD, yylval.word should be set to word_desc_to_read. */
 token_to_read int
-word_desc_to_read WORD_DESC
+word_desc_to_read word_desc
 
 source REDIRECTEE
 redir REDIRECTEE
@@ -232,7 +232,7 @@ func NewParserState() *ParserState {
 
 type YYSTYPE struct {
 // #line 320 "/Users/chet/src/bash/src/parse.y"
-  word *WORD_DESC /* the word that we read. */
+  word *word_desc /* the word that we read. */
   number int /* the number that we read. */
   word_list *WORD_LIST
   command *COMMAND
@@ -3496,7 +3496,7 @@ reset_parser ()
     }
 
   FREE (word_desc_to_read);
-  word_desc_to_read = (WORD_DESC *)NULL;
+  word_desc_to_read = (word_desc *)NULL;
 
   current_token = '\n';		/* XXX */
   last_read_token = '\n';
@@ -3525,7 +3525,7 @@ read_token (command)
       if (token_to_read == WORD || token_to_read == ASSIGNMENT_WORD)
 	{
 	  yylval.word = word_desc_to_read;
-	  word_desc_to_read = (WORD_DESC *)NULL;
+	  word_desc_to_read = (word_desc *)NULL;
 	}
       token_to_read = 0;
       return (result);
@@ -4482,7 +4482,7 @@ parse_dparen (c)
 {
   int cmdtyp, sline;
   char *wval;
-  WORD_DESC *wd;
+  word_desc *wd;
 
   if (last_read_token == FOR)
     {
@@ -4614,7 +4614,7 @@ cond_or ()
   if (cond_token == OR_OR)
     {
       r = cond_or ();
-      l = make_cond_node (COND_OR, (WORD_DESC *)NULL, l, r);
+      l = make_cond_node (COND_OR, (word_desc *)NULL, l, r);
     }
   return l;
 }
@@ -4628,7 +4628,7 @@ cond_and ()
   if (cond_token == AND_AND)
     {
       r = cond_and ();
-      l = make_cond_node (COND_AND, (WORD_DESC *)NULL, l, r);
+      l = make_cond_node (COND_AND, (word_desc *)NULL, l, r);
     }
   return l;
 }
@@ -4648,7 +4648,7 @@ cond_skip_newlines ()
 static COND_COM *
 cond_term ()
 {
-  WORD_DESC *op;
+  word_desc *op;
   COND_COM *term, *tleft, *tright;
   int tok, lineno;
   char *etext;
@@ -4678,7 +4678,7 @@ cond_term ()
 	    parser_error (lineno, _("expected `)'"));
 	  COND_RETURN_ERROR ();
 	}
-      term = make_cond_node (COND_EXPR, (WORD_DESC *)NULL, term, (COND_COM *)NULL);
+      term = make_cond_node (COND_EXPR, (word_desc *)NULL, term, (COND_COM *)NULL);
       (void)cond_skip_newlines ();
     }
   else if (tok == BANG || (tok == WORD && (yylval.word.word[0] == '!' && yylval.word.word[1] == '\0')))
@@ -4855,7 +4855,7 @@ read_token_word (character)
      int character;
 {
   /* The value for YYLVAL when a WORD is read. */
-  WORD_DESC *the_word;
+  word_desc *the_word;
 
   /* Index into the token that we are building. */
   int token_index;
@@ -5234,7 +5234,7 @@ got_token:
   if MBTEST(posixly_correct == 0)
     CHECK_FOR_RESERVED_WORD (token);
 
-  the_word = (WORD_DESC *)xmalloc (sizeof (WORD_DESC));
+  the_word = (word_desc *)xmalloc (sizeof (word_desc));
   the_word.word = (char *)xmalloc (1 + token_index);
   the_word.flags = 0;
   strcpy (the_word.word, token);
