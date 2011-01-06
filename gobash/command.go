@@ -203,7 +203,7 @@ const CMD_COMMAND_BUILTIN = 0x0800 /* command executed by `command' builtin */
 const CMD_COPROC_SUBSHELL = 0x1000
 
 type CommandValue struct {
-    For *for_com
+    For *ForCom
     Case *CaseCom
     While *while_com
     If *if_com
@@ -259,7 +259,7 @@ type CaseCom struct {
 }
 
 /* FOR command. */
-type for_com struct {
+type ForCom struct {
   flags int /* See description of CMD flags. */
   line int /* line number the `for' keyword appears on */
   name *word_desc /* The variable name to get mapped over. */
