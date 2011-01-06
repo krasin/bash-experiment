@@ -37,6 +37,16 @@ func (s *stack) Peek() interface{} {
 	panic("Stack is empty")
 }
 
+func (s *stack) PeekN(n int) interface{} {
+	if n > 0 {
+		panic(fmt.Sprintf("PeekN(n=%d) - n must be non-positive", n))
+	}
+	if s.cnt < -n+1 {
+		panic(fmt.Sprintf("PeekN(n=%d) failed: stack has just %d elements", n, s.cnt))
+	}
+	return s.a[s.cnt + n - 1]
+}
+
 func (s *stack) IsEmpty() interface{} {
 	return s.cnt == 0
 }
@@ -103,6 +113,10 @@ func (s *YYSTYPEStack) Pop() YYSTYPE {
 
 func (s *YYSTYPEStack) PopMany(n int) {
 	return inner.PopMany(n)
+}
+
+func (s *YYSTYPEStack) PeekN(n int) YYSTYPE {
+	return inner.PeekN(n).YYSTYPE
 }
 
 func newYYSTYPEStack() *YYSTYPEStack {

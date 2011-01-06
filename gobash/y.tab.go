@@ -845,7 +845,7 @@ case yyreduce:
      users should not rely upon it.  Assigning to YYVAL
      unconditionally makes the parser a bit smaller, and it avoids a
      GCC warning that YYVAL may be used uninitialized.  */
-  yyval = yyvsp[1-yylen];
+  yyval = yyvs.PeekN(1-yylen)
 
 
   switch (yyn)
@@ -855,7 +855,7 @@ case yyreduce:
     {
 			  /* Case of regular command.  Discard the error
 			     safety net,and return the command just parsed. */
-			  gps.global_command = (yyvsp[(1) - (2)].command);
+			  gps.global_command = (yyvs.PeekN((1) - (2)).command);
 			  eof_encountered = 0;
 			  /* discard_parser_constructs (0); */
 			  if (parser_state & PST_CMDSUBST) {
@@ -902,19 +902,19 @@ case yyreduce:
 
   case 6:
 // #line 419 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.word_list) = make_word_list ((yyvsp[(1) - (1)].word), nil); }
+    { (yyval.word_list) = make_word_list ((yyvs.PeekN((1) - (1)).word), nil); }
     break;
 
   case 7:
 // #line 421 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.word_list) = make_word_list ((yyvsp[(2) - (2)].word), (yyvsp[(1) - (2)].word_list)); }
+    { (yyval.word_list) = make_word_list ((yyvs.PeekN((2) - (2)).word), (yyvs.PeekN((1) - (2)).word_list)); }
     break;
 
   case 8:
 // #line 425 "/Users/chet/src/bash/src/parse.y"
     {
 			  source.dest = 1;
-			  redir.filename = (yyvsp[(2) - (2)].word);
+			  redir.filename = (yyvs.PeekN((2) - (2)).word);
 			  (yyval.redirect) = make_redirection (source, r_output_direction, redir, 0);
 			}
     break;
@@ -923,7 +923,7 @@ case yyreduce:
 // #line 431 "/Users/chet/src/bash/src/parse.y"
     {
 			  source.dest = 0;
-			  redir.filename = (yyvsp[(2) - (2)].word);
+			  redir.filename = (yyvs.PeekN((2) - (2)).word);
 			  (yyval.redirect) = make_redirection (source, r_input_direction, redir, 0);
 			}
     break;
@@ -931,8 +931,8 @@ case yyreduce:
   case 10:
 // #line 437 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.dest = (yyvsp[(1) - (3)].number);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.dest = (yyvs.PeekN((1) - (3)).number);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_output_direction, redir, 0);
 			}
     break;
@@ -940,8 +940,8 @@ case yyreduce:
   case 11:
 // #line 443 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.dest = (yyvsp[(1) - (3)].number);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.dest = (yyvs.PeekN((1) - (3)).number);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_input_direction, redir, 0);
 			}
     break;
@@ -949,8 +949,8 @@ case yyreduce:
   case 12:
 // #line 449 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.filename = (yyvsp[(1) - (3)].word);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.filename = (yyvs.PeekN((1) - (3)).word);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_output_direction, redir, REDIR_VARASSIGN);
 			}
     break;
@@ -958,8 +958,8 @@ case yyreduce:
   case 13:
 // #line 455 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.filename = (yyvsp[(1) - (3)].word);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.filename = (yyvs.PeekN((1) - (3)).word);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_input_direction, redir, REDIR_VARASSIGN);
 			}
     break;
@@ -968,7 +968,7 @@ case yyreduce:
 // #line 461 "/Users/chet/src/bash/src/parse.y"
     {
 			  source.dest = 1;
-			  redir.filename = (yyvsp[(2) - (2)].word);
+			  redir.filename = (yyvs.PeekN((2) - (2)).word);
 			  (yyval.redirect) = make_redirection (source, r_appending_to, redir, 0);
 			}
     break;
@@ -976,8 +976,8 @@ case yyreduce:
   case 15:
 // #line 467 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.dest = (yyvsp[(1) - (3)].number);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.dest = (yyvs.PeekN((1) - (3)).number);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_appending_to, redir, 0);
 			}
     break;
@@ -985,8 +985,8 @@ case yyreduce:
   case 16:
 // #line 473 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.filename = (yyvsp[(1) - (3)].word);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.filename = (yyvs.PeekN((1) - (3)).word);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_appending_to, redir, REDIR_VARASSIGN);
 			}
     break;
@@ -995,7 +995,7 @@ case yyreduce:
 // #line 479 "/Users/chet/src/bash/src/parse.y"
     {
 			  source.dest = 1;
-			  redir.filename = (yyvsp[(2) - (2)].word);
+			  redir.filename = (yyvs.PeekN((2) - (2)).word);
 			  (yyval.redirect) = make_redirection (source, r_output_force, redir, 0);
 			}
     break;
@@ -1003,8 +1003,8 @@ case yyreduce:
   case 18:
 // #line 485 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.dest = (yyvsp[(1) - (3)].number);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.dest = (yyvs.PeekN((1) - (3)).number);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_output_force, redir, 0);
 			}
     break;
@@ -1012,8 +1012,8 @@ case yyreduce:
   case 19:
 // #line 491 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.filename = (yyvsp[(1) - (3)].word);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.filename = (yyvs.PeekN((1) - (3)).word);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_output_force, redir, REDIR_VARASSIGN);
 			}
     break;
@@ -1022,7 +1022,7 @@ case yyreduce:
 // #line 497 "/Users/chet/src/bash/src/parse.y"
     {
 			  source.dest = 0;
-			  redir.filename = (yyvsp[(2) - (2)].word);
+			  redir.filename = (yyvs.PeekN((2) - (2)).word);
 			  (yyval.redirect) = make_redirection (source, r_input_output, redir, 0);
 			}
     break;
@@ -1030,8 +1030,8 @@ case yyreduce:
   case 21:
 // #line 503 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.dest = (yyvsp[(1) - (3)].number);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.dest = (yyvs.PeekN((1) - (3)).number);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_input_output, redir, 0);
 			}
     break;
@@ -1039,8 +1039,8 @@ case yyreduce:
   case 22:
 // #line 509 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.filename = (yyvsp[(1) - (3)].word);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.filename = (yyvs.PeekN((1) - (3)).word);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_input_output, redir, REDIR_VARASSIGN);
 			}
     break;
@@ -1049,7 +1049,7 @@ case yyreduce:
 // #line 515 "/Users/chet/src/bash/src/parse.y"
     {
 			  source.dest = 0;
-			  redir.filename = (yyvsp[(2) - (2)].word);
+			  redir.filename = (yyvs.PeekN((2) - (2)).word);
 			  (yyval.redirect) = make_redirection (source, r_reading_until, redir, 0);
 			  redir_stack[need_here_doc] = (yyval.redirect);
 				need_here_doc++
@@ -1059,8 +1059,8 @@ case yyreduce:
   case 24:
 // #line 522 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.dest = (yyvsp[(1) - (3)].number);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.dest = (yyvs.PeekN((1) - (3)).number);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_reading_until, redir, 0);
 			  redir_stack[need_here_doc] = (yyval.redirect);
 				need_here_doc++
@@ -1070,8 +1070,8 @@ case yyreduce:
   case 25:
 // #line 529 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.filename = (yyvsp[(1) - (3)].word);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.filename = (yyvs.PeekN((1) - (3)).word);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_reading_until, redir, REDIR_VARASSIGN);
 			  redir_stack[need_here_doc] = (yyval.redirect);
 				need_here_doc++
@@ -1082,7 +1082,7 @@ case yyreduce:
 // #line 536 "/Users/chet/src/bash/src/parse.y"
     {
 			  source.dest = 0;
-			  redir.filename = (yyvsp[(2) - (2)].word);
+			  redir.filename = (yyvs.PeekN((2) - (2)).word);
 			  (yyval.redirect) = make_redirection (source, r_deblank_reading_until, redir, 0);
 			  redir_stack[need_here_doc] = (yyval.redirect);
 				need_here_doc++
@@ -1092,8 +1092,8 @@ case yyreduce:
   case 27:
 // #line 543 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.dest = (yyvsp[(1) - (3)].number);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.dest = (yyvs.PeekN((1) - (3)).number);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_deblank_reading_until, redir, 0);
 			  redir_stack[need_here_doc] = (yyval.redirect);
 				need_here_doc++
@@ -1103,8 +1103,8 @@ case yyreduce:
   case 28:
 // #line 550 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.filename = (yyvsp[(1) - (3)].word);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.filename = (yyvs.PeekN((1) - (3)).word);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_deblank_reading_until, redir, REDIR_VARASSIGN);
 			  redir_stack[need_here_doc] = (yyval.redirect);
 				need_here_doc++
@@ -1115,7 +1115,7 @@ case yyreduce:
 // #line 557 "/Users/chet/src/bash/src/parse.y"
     {
 			  source.dest = 0;
-			  redir.filename = (yyvsp[(2) - (2)].word);
+			  redir.filename = (yyvs.PeekN((2) - (2)).word);
 			  (yyval.redirect) = make_redirection (source, r_reading_string, redir, 0);
 			}
     break;
@@ -1123,8 +1123,8 @@ case yyreduce:
   case 30:
 // #line 563 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.dest = (yyvsp[(1) - (3)].number);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.dest = (yyvs.PeekN((1) - (3)).number);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_reading_string, redir, 0);
 			}
     break;
@@ -1132,8 +1132,8 @@ case yyreduce:
   case 31:
 // #line 569 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.filename = (yyvsp[(1) - (3)].word);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.filename = (yyvs.PeekN((1) - (3)).word);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_reading_string, redir, REDIR_VARASSIGN);
 			}
     break;
@@ -1142,7 +1142,7 @@ case yyreduce:
 // #line 575 "/Users/chet/src/bash/src/parse.y"
     {
 			  source.dest = 0;
-			  redir.dest = (yyvsp[(2) - (2)].number);
+			  redir.dest = (yyvs.PeekN((2) - (2)).number);
 			  (yyval.redirect) = make_redirection (source, r_duplicating_input, redir, 0);
 			}
     break;
@@ -1150,8 +1150,8 @@ case yyreduce:
   case 33:
 // #line 581 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.dest = (yyvsp[(1) - (3)].number);
-			  redir.dest = (yyvsp[(3) - (3)].number);
+			  source.dest = (yyvs.PeekN((1) - (3)).number);
+			  redir.dest = (yyvs.PeekN((3) - (3)).number);
 			  (yyval.redirect) = make_redirection (source, r_duplicating_input, redir, 0);
 			}
     break;
@@ -1159,8 +1159,8 @@ case yyreduce:
   case 34:
 // #line 587 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.filename = (yyvsp[(1) - (3)].word);
-			  redir.dest = (yyvsp[(3) - (3)].number);
+			  source.filename = (yyvs.PeekN((1) - (3)).word);
+			  redir.dest = (yyvs.PeekN((3) - (3)).number);
 			  (yyval.redirect) = make_redirection (source, r_duplicating_input, redir, REDIR_VARASSIGN);
 			}
     break;
@@ -1169,7 +1169,7 @@ case yyreduce:
 // #line 593 "/Users/chet/src/bash/src/parse.y"
     {
 			  source.dest = 1;
-			  redir.dest = (yyvsp[(2) - (2)].number);
+			  redir.dest = (yyvs.PeekN((2) - (2)).number);
 			  (yyval.redirect) = make_redirection (source, r_duplicating_output, redir, 0);
 			}
     break;
@@ -1177,8 +1177,8 @@ case yyreduce:
   case 36:
 // #line 599 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.dest = (yyvsp[(1) - (3)].number);
-			  redir.dest = (yyvsp[(3) - (3)].number);
+			  source.dest = (yyvs.PeekN((1) - (3)).number);
+			  redir.dest = (yyvs.PeekN((3) - (3)).number);
 			  (yyval.redirect) = make_redirection (source, r_duplicating_output, redir, 0);
 			}
     break;
@@ -1186,8 +1186,8 @@ case yyreduce:
   case 37:
 // #line 605 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.filename = (yyvsp[(1) - (3)].word);
-			  redir.dest = (yyvsp[(3) - (3)].number);
+			  source.filename = (yyvs.PeekN((1) - (3)).word);
+			  redir.dest = (yyvs.PeekN((3) - (3)).number);
 			  (yyval.redirect) = make_redirection (source, r_duplicating_output, redir, REDIR_VARASSIGN);
 			}
     break;
@@ -1196,7 +1196,7 @@ case yyreduce:
 // #line 611 "/Users/chet/src/bash/src/parse.y"
     {
 			  source.dest = 0;
-			  redir.filename = (yyvsp[(2) - (2)].word);
+			  redir.filename = (yyvs.PeekN((2) - (2)).word);
 			  (yyval.redirect) = make_redirection (source, r_duplicating_input_word, redir, 0);
 			}
     break;
@@ -1204,8 +1204,8 @@ case yyreduce:
   case 39:
 // #line 617 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.dest = (yyvsp[(1) - (3)].number);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.dest = (yyvs.PeekN((1) - (3)).number);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_duplicating_input_word, redir, 0);
 			}
     break;
@@ -1213,8 +1213,8 @@ case yyreduce:
   case 40:
 // #line 623 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.filename = (yyvsp[(1) - (3)].word);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.filename = (yyvs.PeekN((1) - (3)).word);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_duplicating_input_word, redir, REDIR_VARASSIGN);
 			}
     break;
@@ -1223,7 +1223,7 @@ case yyreduce:
 // #line 629 "/Users/chet/src/bash/src/parse.y"
     {
 			  source.dest = 1;
-			  redir.filename = (yyvsp[(2) - (2)].word);
+			  redir.filename = (yyvs.PeekN((2) - (2)).word);
 			  (yyval.redirect) = make_redirection (source, r_duplicating_output_word, redir, 0);
 			}
     break;
@@ -1231,8 +1231,8 @@ case yyreduce:
   case 42:
 // #line 635 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.dest = (yyvsp[(1) - (3)].number);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.dest = (yyvs.PeekN((1) - (3)).number);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_duplicating_output_word, redir, 0);
 			}
     break;
@@ -1240,8 +1240,8 @@ case yyreduce:
   case 43:
 // #line 641 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.filename = (yyvsp[(1) - (3)].word);
-			  redir.filename = (yyvsp[(3) - (3)].word);
+			  source.filename = (yyvs.PeekN((1) - (3)).word);
+			  redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = make_redirection (source, r_duplicating_output_word, redir, REDIR_VARASSIGN);
 			}
     break;
@@ -1258,7 +1258,7 @@ case yyreduce:
   case 45:
 // #line 653 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.dest = (yyvsp[(1) - (3)].number);
+			  source.dest = (yyvs.PeekN((1) - (3)).number);
 			  redir.dest = 0;
 			  (yyval.redirect) = make_redirection (source, r_close_this, redir, 0);
 			}
@@ -1267,7 +1267,7 @@ case yyreduce:
   case 46:
 // #line 659 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.filename = (yyvsp[(1) - (3)].word);
+			  source.filename = (yyvs.PeekN((1) - (3)).word);
 			  redir.dest = 0;
 			  (yyval.redirect) = make_redirection (source, r_close_this, redir, REDIR_VARASSIGN);
 			}
@@ -1285,7 +1285,7 @@ case yyreduce:
   case 48:
 // #line 671 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.dest = (yyvsp[(1) - (3)].number);
+			  source.dest = (yyvs.PeekN((1) - (3)).number);
 			  redir.dest = 0;
 			  (yyval.redirect) = make_redirection (source, r_close_this, redir, 0);
 			}
@@ -1294,7 +1294,7 @@ case yyreduce:
   case 49:
 // #line 677 "/Users/chet/src/bash/src/parse.y"
     {
-			  source.filename = (yyvsp[(1) - (3)].word);
+			  source.filename = (yyvs.PeekN((1) - (3)).word);
 			  redir.dest = 0;
 			  (yyval.redirect) = make_redirection (source, r_close_this, redir, REDIR_VARASSIGN);
 			}
@@ -1304,7 +1304,7 @@ case yyreduce:
 // #line 683 "/Users/chet/src/bash/src/parse.y"
     {
 			  source.dest = 1;
-			  redir.filename = (yyvsp[(2) - (2)].word);
+			  redir.filename = (yyvs.PeekN((2) - (2)).word);
 			  (yyval.redirect) = make_redirection (source, r_err_and_out, redir, 0);
 			}
     break;
@@ -1313,30 +1313,30 @@ case yyreduce:
 // #line 689 "/Users/chet/src/bash/src/parse.y"
     {
 			  source.dest = 1;
-			  redir.filename = (yyvsp[(2) - (2)].word);
+			  redir.filename = (yyvs.PeekN((2) - (2)).word);
 			  (yyval.redirect) = make_redirection (source, r_append_err_and_out, redir, 0);
 			}
     break;
 
   case 52:
 // #line 697 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.element).word = (yyvsp[(1) - (1)].word); (yyval.element).redirect = 0; }
+    { (yyval.element).word = (yyvs.PeekN((1) - (1)).word); (yyval.element).redirect = 0; }
     break;
 
   case 53:
 // #line 699 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.element).word = (yyvsp[(1) - (1)].word); (yyval.element).redirect = 0; }
+    { (yyval.element).word = (yyvs.PeekN((1) - (1)).word); (yyval.element).redirect = 0; }
     break;
 
   case 54:
 // #line 701 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.element).redirect = (yyvsp[(1) - (1)].redirect); (yyval.element).word = 0; }
+    { (yyval.element).redirect = (yyvs.PeekN((1) - (1)).redirect); (yyval.element).word = 0; }
     break;
 
   case 55:
 // #line 705 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.redirect) = (yyvsp[(1) - (1)].redirect);
+			  (yyval.redirect) = (yyvs.PeekN((1) - (1)).redirect);
 			}
     break;
 
@@ -1345,31 +1345,31 @@ case yyreduce:
     {
 			  var t *Redirect
 
-			  for t = (yyvsp[(1) - (2)].redirect); t.next; t = t.next {
+			  for t = (yyvs.PeekN((1) - (2)).redirect); t.next; t = t.next {
 			  }
-			  t.next = (yyvsp[(2) - (2)].redirect);
-			  (yyval.redirect) = (yyvsp[(1) - (2)].redirect);
+			  t.next = (yyvs.PeekN((2) - (2)).redirect);
+			  (yyval.redirect) = (yyvs.PeekN((1) - (2)).redirect);
 			}
     break;
 
   case 57:
 // #line 720 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_simple_command ((yyvsp[(1) - (1)].element), nil); }
+    { (yyval.command) = make_simple_command ((yyvs.PeekN((1) - (1)).element), nil); }
     break;
 
   case 58:
 // #line 722 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_simple_command ((yyvsp[(2) - (2)].element), (yyvsp[(1) - (2)].command)); }
+    { (yyval.command) = make_simple_command ((yyvs.PeekN((2) - (2)).element), (yyvs.PeekN((1) - (2)).command)); }
     break;
 
   case 59:
 // #line 726 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = clean_simple_command ((yyvsp[(1) - (1)].command)); }
+    { (yyval.command) = clean_simple_command ((yyvs.PeekN((1) - (1)).command)); }
     break;
 
   case 60:
 // #line 728 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = (yyvsp[(1) - (1)].command); }
+    { (yyval.command) = (yyvs.PeekN((1) - (1)).command); }
     break;
 
   case 61:
@@ -1377,89 +1377,89 @@ case yyreduce:
     {
 			  Command *tc;
 
-			  tc = (yyvsp[(1) - (2)].command);
+			  tc = (yyvs.PeekN((1) - (2)).command);
 			  if (tc.redirects)
 			    {
 			      var t *Redirect;
 			      for t = tc.redirects; t.next; t = t.next {
 				}
-			      t.next = (yyvsp[(2) - (2)].redirect);
+			      t.next = (yyvs.PeekN((2) - (2)).redirect);
 			    } else {
-			    tc.redirects = (yyvsp[(2) - (2)].redirect);
+			    tc.redirects = (yyvs.PeekN((2) - (2)).redirect);
 			}
-			  (yyval.command) = (yyvsp[(1) - (2)].command);
+			  (yyval.command) = (yyvs.PeekN((1) - (2)).command);
 			}
     break;
 
   case 62:
 // #line 746 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = (yyvsp[(1) - (1)].command); }
+    { (yyval.command) = (yyvs.PeekN((1) - (1)).command); }
     break;
 
   case 63:
 // #line 748 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = (yyvsp[(1) - (1)].command); }
+    { (yyval.command) = (yyvs.PeekN((1) - (1)).command); }
     break;
 
   case 64:
 // #line 752 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = (yyvsp[(1) - (1)].command); }
+    { (yyval.command) = (yyvs.PeekN((1) - (1)).command); }
     break;
 
   case 65:
 // #line 754 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = (yyvsp[(1) - (1)].command); }
+    { (yyval.command) = (yyvs.PeekN((1) - (1)).command); }
     break;
 
   case 66:
 // #line 756 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_while_command ((yyvsp[(2) - (5)].command), (yyvsp[(4) - (5)].command)); }
+    { (yyval.command) = make_while_command ((yyvs.PeekN((2) - (5)).command), (yyvs.PeekN((4) - (5)).command)); }
     break;
 
   case 67:
 // #line 758 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_until_command ((yyvsp[(2) - (5)].command), (yyvsp[(4) - (5)].command)); }
+    { (yyval.command) = make_until_command ((yyvs.PeekN((2) - (5)).command), (yyvs.PeekN((4) - (5)).command)); }
     break;
 
   case 68:
 // #line 760 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = (yyvsp[(1) - (1)].command); }
+    { (yyval.command) = (yyvs.PeekN((1) - (1)).command); }
     break;
 
   case 69:
 // #line 762 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = (yyvsp[(1) - (1)].command); }
+    { (yyval.command) = (yyvs.PeekN((1) - (1)).command); }
     break;
 
   case 70:
 // #line 764 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = (yyvsp[(1) - (1)].command); }
+    { (yyval.command) = (yyvs.PeekN((1) - (1)).command); }
     break;
 
   case 71:
 // #line 766 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = (yyvsp[(1) - (1)].command); }
+    { (yyval.command) = (yyvs.PeekN((1) - (1)).command); }
     break;
 
   case 72:
 // #line 768 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = (yyvsp[(1) - (1)].command); }
+    { (yyval.command) = (yyvs.PeekN((1) - (1)).command); }
     break;
 
   case 73:
 // #line 770 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = (yyvsp[(1) - (1)].command); }
+    { (yyval.command) = (yyvs.PeekN((1) - (1)).command); }
     break;
 
   case 74:
 // #line 772 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = (yyvsp[(1) - (1)].command); }
+    { (yyval.command) = (yyvs.PeekN((1) - (1)).command); }
     break;
 
   case 75:
 // #line 776 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_for_command ((yyvsp[(2) - (6)].word), add_string_to_list ("\"$@\"", nil), (yyvsp[(5) - (6)].command), word_lineno[word_top]);
+			  (yyval.command) = make_for_command ((yyvs.PeekN((2) - (6)).word), add_string_to_list ("\"$@\"", nil), (yyvs.PeekN((5) - (6)).command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top--; }
 			}
     break;
@@ -1467,7 +1467,7 @@ case yyreduce:
   case 76:
 // #line 781 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_for_command ((yyvsp[(2) - (6)].word), add_string_to_list ("\"$@\"", nil), (yyvsp[(5) - (6)].command), word_lineno[word_top]);
+			  (yyval.command) = make_for_command ((yyvs.PeekN((2) - (6)).word), add_string_to_list ("\"$@\"", nil), (yyvs.PeekN((5) - (6)).command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top--; }
 			}
     break;
@@ -1475,7 +1475,7 @@ case yyreduce:
   case 77:
 // #line 786 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_for_command ((yyvsp[(2) - (7)].word), add_string_to_list ("\"$@\"", nil), (yyvsp[(6) - (7)].command), word_lineno[word_top]);
+			  (yyval.command) = make_for_command ((yyvs.PeekN((2) - (7)).word), add_string_to_list ("\"$@\"", nil), (yyvs.PeekN((6) - (7)).command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top--; }
 			}
     break;
@@ -1483,7 +1483,7 @@ case yyreduce:
   case 78:
 // #line 791 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_for_command ((yyvsp[(2) - (7)].word), add_string_to_list ("\"$@\"", nil), (yyvsp[(6) - (7)].command), word_lineno[word_top]);
+			  (yyval.command) = make_for_command ((yyvs.PeekN((2) - (7)).word), add_string_to_list ("\"$@\"", nil), (yyvs.PeekN((6) - (7)).command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top--; }
 			}
     break;
@@ -1491,7 +1491,7 @@ case yyreduce:
   case 79:
 // #line 796 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_for_command ((yyvsp[(2) - (10)].word), reverseWordList(yyvsp[(5) - (10)].word_list), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
+			  (yyval.command) = make_for_command ((yyvs.PeekN((2) - (10)).word), reverseWordList(yyvs.PeekN((5) - (10)).word_list), (yyvs.PeekN((9) - (10)).command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top--; }
 			}
     break;
@@ -1499,7 +1499,7 @@ case yyreduce:
   case 80:
 // #line 801 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_for_command ((yyvsp[(2) - (10)].word), reverseWordList(yyvsp[(5) - (10)].word_list), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
+			  (yyval.command) = make_for_command ((yyvs.PeekN((2) - (10)).word), reverseWordList(yyvs.PeekN((5) - (10)).word_list), (yyvs.PeekN((9) - (10)).command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top--; }
 			}
     break;
@@ -1507,7 +1507,7 @@ case yyreduce:
   case 81:
 // #line 806 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_for_command ((yyvsp[(2) - (9)].word), nil, (yyvsp[(8) - (9)].command), word_lineno[word_top]);
+			  (yyval.command) = make_for_command ((yyvs.PeekN((2) - (9)).word), nil, (yyvs.PeekN((8) - (9)).command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top--; }
 			}
     break;
@@ -1515,7 +1515,7 @@ case yyreduce:
   case 82:
 // #line 811 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_for_command ((yyvsp[(2) - (9)].word), nil, (yyvsp[(8) - (9)].command), word_lineno[word_top]);
+			  (yyval.command) = make_for_command ((yyvs.PeekN((2) - (9)).word), nil, (yyvs.PeekN((8) - (9)).command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top--; }
 			}
     break;
@@ -1523,7 +1523,7 @@ case yyreduce:
   case 83:
 // #line 818 "/Users/chet/src/bash/src/parse.y"
     {
-				  (yyval.command) = make_arith_for_command ((yyvsp[(2) - (7)].word_list), (yyvsp[(6) - (7)].command), arith_for_lineno);
+				  (yyval.command) = make_arith_for_command ((yyvs.PeekN((2) - (7)).word_list), (yyvs.PeekN((6) - (7)).command), arith_for_lineno);
 				  if (word_top > 0) { word_top--; }
 				}
     break;
@@ -1531,7 +1531,7 @@ case yyreduce:
   case 84:
 // #line 823 "/Users/chet/src/bash/src/parse.y"
     {
-				  (yyval.command) = make_arith_for_command ((yyvsp[(2) - (7)].word_list), (yyvsp[(6) - (7)].command), arith_for_lineno);
+				  (yyval.command) = make_arith_for_command ((yyvs.PeekN((2) - (7)).word_list), (yyvs.PeekN((6) - (7)).command), arith_for_lineno);
 				  if (word_top > 0) { word_top--; }
 				}
     break;
@@ -1539,7 +1539,7 @@ case yyreduce:
   case 85:
 // #line 828 "/Users/chet/src/bash/src/parse.y"
     {
-				  (yyval.command) = make_arith_for_command ((yyvsp[(2) - (5)].word_list), (yyvsp[(4) - (5)].command), arith_for_lineno);
+				  (yyval.command) = make_arith_for_command ((yyvs.PeekN((2) - (5)).word_list), (yyvs.PeekN((4) - (5)).command), arith_for_lineno);
 				  if (word_top > 0) { word_top--; }
 				}
     break;
@@ -1547,7 +1547,7 @@ case yyreduce:
   case 86:
 // #line 833 "/Users/chet/src/bash/src/parse.y"
     {
-				  (yyval.command) = make_arith_for_command ((yyvsp[(2) - (5)].word_list), (yyvsp[(4) - (5)].command), arith_for_lineno);
+				  (yyval.command) = make_arith_for_command ((yyvs.PeekN((2) - (5)).word_list), (yyvs.PeekN((4) - (5)).command), arith_for_lineno);
 				  if (word_top > 0) { word_top--; }
 				}
     break;
@@ -1555,7 +1555,7 @@ case yyreduce:
   case 87:
 // #line 840 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_select_command ((yyvsp[(2) - (6)].word), add_string_to_list ("\"$@\"", nil), (yyvsp[(5) - (6)].command), word_lineno[word_top]);
+			  (yyval.command) = make_select_command ((yyvs.PeekN((2) - (6)).word), add_string_to_list ("\"$@\"", nil), (yyvs.PeekN((5) - (6)).command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top-- }
 			}
     break;
@@ -1563,7 +1563,7 @@ case yyreduce:
   case 88:
 // #line 845 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_select_command ((yyvsp[(2) - (6)].word), add_string_to_list ("\"$@\"", nil), (yyvsp[(5) - (6)].command), word_lineno[word_top]);
+			  (yyval.command) = make_select_command ((yyvs.PeekN((2) - (6)).word), add_string_to_list ("\"$@\"", nil), (yyvs.PeekN((5) - (6)).command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top-- }
 			}
     break;
@@ -1571,7 +1571,7 @@ case yyreduce:
   case 89:
 // #line 850 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_select_command ((yyvsp[(2) - (7)].word), add_string_to_list ("\"$@\"", nil), (yyvsp[(6) - (7)].command), word_lineno[word_top]);
+			  (yyval.command) = make_select_command ((yyvs.PeekN((2) - (7)).word), add_string_to_list ("\"$@\"", nil), (yyvs.PeekN((6) - (7)).command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top-- }
 			}
     break;
@@ -1579,7 +1579,7 @@ case yyreduce:
   case 90:
 // #line 855 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_select_command ((yyvsp[(2) - (7)].word), add_string_to_list ("\"$@\"", nil), (yyvsp[(6) - (7)].command), word_lineno[word_top]);
+			  (yyval.command) = make_select_command ((yyvs.PeekN((2) - (7)).word), add_string_to_list ("\"$@\"", nil), (yyvs.PeekN((6) - (7)).command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top-- }
 			}
     break;
@@ -1587,7 +1587,7 @@ case yyreduce:
   case 91:
 // #line 860 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_select_command ((yyvsp[(2) - (10)].word), reverseWordList(yyvsp[(5) - (10)].word_list), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
+			  (yyval.command) = make_select_command ((yyvs.PeekN((2) - (10)).word), reverseWordList(yyvs.PeekN((5) - (10)).word_list), (yyvs.PeekN((9) - (10)).command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top-- }
 			}
     break;
@@ -1595,7 +1595,7 @@ case yyreduce:
   case 92:
 // #line 865 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_select_command ((yyvsp[(2) - (10)].word), reverseWordList(yyvsp[(5) - (10)].word_list), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
+			  (yyval.command) = make_select_command ((yyvs.PeekN((2) - (10)).word), reverseWordList(yyvs.PeekN((5) - (10)).word_list), (yyvs.PeekN((9) - (10)).command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top-- }
 			}
     break;
@@ -1603,7 +1603,7 @@ case yyreduce:
   case 93:
 // #line 872 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_case_command ((yyvsp[(2) - (6)].word), nil, word_lineno[word_top]);
+			  (yyval.command) = make_case_command ((yyvs.PeekN((2) - (6)).word), nil, word_lineno[word_top]);
 			  if (word_top > 0) { word_top-- }
 			}
     break;
@@ -1611,7 +1611,7 @@ case yyreduce:
   case 94:
 // #line 877 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_case_command ((yyvsp[(2) - (7)].word), (yyvsp[(5) - (7)].pattern), word_lineno[word_top]);
+			  (yyval.command) = make_case_command ((yyvs.PeekN((2) - (7)).word), (yyvs.PeekN((5) - (7)).pattern), word_lineno[word_top]);
 			  if (word_top > 0) { word_top-- }
 			}
     break;
@@ -1619,29 +1619,29 @@ case yyreduce:
   case 95:
 // #line 882 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_case_command ((yyvsp[(2) - (6)].word), (yyvsp[(5) - (6)].pattern), word_lineno[word_top]);
+			  (yyval.command) = make_case_command ((yyvs.PeekN((2) - (6)).word), (yyvs.PeekN((5) - (6)).pattern), word_lineno[word_top]);
 			  if (word_top > 0) { word_top-- }
 			}
     break;
 
   case 96:
 // #line 889 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_function_def ((yyvsp[(1) - (5)].word), (yyvsp[(5) - (5)].command), function_dstart, function_bstart); }
+    { (yyval.command) = make_function_def ((yyvs.PeekN((1) - (5)).word), (yyvs.PeekN((5) - (5)).command), function_dstart, function_bstart); }
     break;
 
   case 97:
 // #line 892 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_function_def ((yyvsp[(2) - (6)].word), (yyvsp[(6) - (6)].command), function_dstart, function_bstart); }
+    { (yyval.command) = make_function_def ((yyvs.PeekN((2) - (6)).word), (yyvs.PeekN((6) - (6)).command), function_dstart, function_bstart); }
     break;
 
   case 98:
 // #line 895 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_function_def ((yyvsp[(2) - (4)].word), (yyvsp[(4) - (4)].command), function_dstart, function_bstart); }
+    { (yyval.command) = make_function_def ((yyvs.PeekN((2) - (4)).word), (yyvs.PeekN((4) - (4)).command), function_dstart, function_bstart); }
     break;
 
   case 99:
 // #line 899 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = (yyvsp[(1) - (1)].command); }
+    { (yyval.command) = (yyvs.PeekN((1) - (1)).command); }
     break;
 
   case 100:
@@ -1649,7 +1649,7 @@ case yyreduce:
     {
 			  Command *tc;
 
-			  tc = (yyvsp[(1) - (2)].command);
+			  tc = (yyvs.PeekN((1) - (2)).command);
 			  /* According to Posix.2 3.9.5, redirections
 			     specified after the body of a function should
 			     be attached to the function and performed when
@@ -1669,18 +1669,18 @@ case yyreduce:
 			      for t = tc.redirects; t.next; t = t.next {
 			      }
 				;
-			      t.next = (yyvsp[(2) - (2)].redirect);
+			      t.next = (yyvs.PeekN((2) - (2)).redirect);
 			    } else {
-			    tc.redirects = (yyvsp[(2) - (2)].redirect);
+			    tc.redirects = (yyvs.PeekN((2) - (2)).redirect);
 				}
-			  (yyval.command) = (yyvsp[(1) - (2)].command);
+			  (yyval.command) = (yyvs.PeekN((1) - (2)).command);
 			}
     break;
 
   case 101:
 // #line 932 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_subshell_command ((yyvsp[(2) - (3)].command));
+			  (yyval.command) = make_subshell_command ((yyvs.PeekN((2) - (3)).command));
 			  (yyval.command).flags |= CMD_WANT_SUBSHELL;
 			}
     break;
@@ -1688,7 +1688,7 @@ case yyreduce:
   case 102:
 // #line 939 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_coproc_command ("COPROC", (yyvsp[(2) - (2)].command));
+			  (yyval.command) = make_coproc_command ("COPROC", (yyvs.PeekN((2) - (2)).command));
 			  (yyval.command).flags |= CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
 			}
     break;
@@ -1698,17 +1698,17 @@ case yyreduce:
     {
 			  Command *tc;
 
-			  tc = (yyvsp[(2) - (3)].command);
+			  tc = (yyvs.PeekN((2) - (3)).command);
 			  if (tc.redirects)
 			    {
 			      Redirect *t;
 			      for t = tc.redirects; t.next; t = t.next {}
 				;
-			      t.next = (yyvsp[(3) - (3)].redirect);
+			      t.next = (yyvs.PeekN((3) - (3)).redirect);
 			    }  else {
-			    tc.redirects = (yyvsp[(3) - (3)].redirect);
+			    tc.redirects = (yyvs.PeekN((3) - (3)).redirect);
 				}
-			  (yyval.command) = make_coproc_command ("COPROC", (yyvsp[(2) - (3)].command));
+			  (yyval.command) = make_coproc_command ("COPROC", (yyvs.PeekN((2) - (3)).command));
 			  (yyval.command).flags |= CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
 			}
     break;
@@ -1716,7 +1716,7 @@ case yyreduce:
   case 104:
 // #line 961 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_coproc_command ((yyvsp[(2) - (3)].word).word, (yyvsp[(3) - (3)].command));
+			  (yyval.command) = make_coproc_command ((yyvs.PeekN((2) - (3)).word).word, (yyvs.PeekN((3) - (3)).command));
 			  (yyval.command).flags |= CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
 			}
     break;
@@ -1726,17 +1726,17 @@ case yyreduce:
     {
 			  Command *tc;
 
-			  tc = (yyvsp[(3) - (4)].command);
+			  tc = (yyvs.PeekN((3) - (4)).command);
 			  if (tc.redirects)
 			    {
 			      Redirect *t;
 			      for t = tc.redirects; t.next; t = t.next {}
 				;
-			      t.next = (yyvsp[(4) - (4)].redirect);
+			      t.next = (yyvs.PeekN((4) - (4)).redirect);
 			    }			  else {
-			    tc.redirects = (yyvsp[(4) - (4)].redirect);
+			    tc.redirects = (yyvs.PeekN((4) - (4)).redirect);
 				}
-			  (yyval.command) = make_coproc_command ((yyvsp[(2) - (4)].word).word, (yyvsp[(3) - (4)].command));
+			  (yyval.command) = make_coproc_command ((yyvs.PeekN((2) - (4)).word).word, (yyvs.PeekN((3) - (4)).command));
 			  (yyval.command).flags |= CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
 			}
     break;
@@ -1744,125 +1744,125 @@ case yyreduce:
   case 106:
 // #line 983 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_coproc_command ("COPROC", clean_simple_command ((yyvsp[(2) - (2)].command)));
+			  (yyval.command) = make_coproc_command ("COPROC", clean_simple_command ((yyvs.PeekN((2) - (2)).command)));
 			  (yyval.command).flags |= CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
 			}
     break;
 
   case 107:
 // #line 990 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_if_command ((yyvsp[(2) - (5)].command), (yyvsp[(4) - (5)].command), nil); }
+    { (yyval.command) = make_if_command ((yyvs.PeekN((2) - (5)).command), (yyvs.PeekN((4) - (5)).command), nil); }
     break;
 
   case 108:
 // #line 992 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_if_command ((yyvsp[(2) - (7)].command), (yyvsp[(4) - (7)].command), (yyvsp[(6) - (7)].command)); }
+    { (yyval.command) = make_if_command ((yyvs.PeekN((2) - (7)).command), (yyvs.PeekN((4) - (7)).command), (yyvs.PeekN((6) - (7)).command)); }
     break;
 
   case 109:
 // #line 994 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_if_command ((yyvsp[(2) - (6)].command), (yyvsp[(4) - (6)].command), (yyvsp[(5) - (6)].command)); }
+    { (yyval.command) = make_if_command ((yyvs.PeekN((2) - (6)).command), (yyvs.PeekN((4) - (6)).command), (yyvs.PeekN((5) - (6)).command)); }
     break;
 
   case 110:
 // #line 999 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_group_command ((yyvsp[(2) - (3)].command)); }
+    { (yyval.command) = make_group_command ((yyvs.PeekN((2) - (3)).command)); }
     break;
 
   case 111:
 // #line 1003 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_arith_command ((yyvsp[(1) - (1)].word_list)); }
+    { (yyval.command) = make_arith_command ((yyvs.PeekN((1) - (1)).word_list)); }
     break;
 
   case 112:
 // #line 1007 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = (yyvsp[(2) - (3)].command); }
+    { (yyval.command) = (yyvs.PeekN((2) - (3)).command); }
     break;
 
   case 113:
 // #line 1011 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_if_command ((yyvsp[(2) - (4)].command), (yyvsp[(4) - (4)].command), nil); }
+    { (yyval.command) = make_if_command ((yyvs.PeekN((2) - (4)).command), (yyvs.PeekN((4) - (4)).command), nil); }
     break;
 
   case 114:
 // #line 1013 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_if_command ((yyvsp[(2) - (6)].command), (yyvsp[(4) - (6)].command), (yyvsp[(6) - (6)].command)); }
+    { (yyval.command) = make_if_command ((yyvs.PeekN((2) - (6)).command), (yyvs.PeekN((4) - (6)).command), (yyvs.PeekN((6) - (6)).command)); }
     break;
 
   case 115:
 // #line 1015 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_if_command ((yyvsp[(2) - (5)].command), (yyvsp[(4) - (5)].command), (yyvsp[(5) - (5)].command)); }
+    { (yyval.command) = make_if_command ((yyvs.PeekN((2) - (5)).command), (yyvs.PeekN((4) - (5)).command), (yyvs.PeekN((5) - (5)).command)); }
     break;
 
   case 117:
 // #line 1020 "/Users/chet/src/bash/src/parse.y"
-    { (yyvsp[(2) - (2)].pattern).next = (yyvsp[(1) - (2)].pattern); (yyval.pattern) = (yyvsp[(2) - (2)].pattern); }
+    { (yyvs.PeekN((2) - (2)).pattern).next = (yyvs.PeekN((1) - (2)).pattern); (yyval.pattern) = (yyvs.PeekN((2) - (2)).pattern); }
     break;
 
   case 118:
 // #line 1024 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.pattern) = make_pattern_list ((yyvsp[(2) - (4)].word_list), (yyvsp[(4) - (4)].command)); }
+    { (yyval.pattern) = make_pattern_list ((yyvs.PeekN((2) - (4)).word_list), (yyvs.PeekN((4) - (4)).command)); }
     break;
 
   case 119:
 // #line 1026 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.pattern) = make_pattern_list ((yyvsp[(2) - (4)].word_list), nil); }
+    { (yyval.pattern) = make_pattern_list ((yyvs.PeekN((2) - (4)).word_list), nil); }
     break;
 
   case 120:
 // #line 1028 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.pattern) = make_pattern_list ((yyvsp[(3) - (5)].word_list), (yyvsp[(5) - (5)].command)); }
+    { (yyval.pattern) = make_pattern_list ((yyvs.PeekN((3) - (5)).word_list), (yyvs.PeekN((5) - (5)).command)); }
     break;
 
   case 121:
 // #line 1030 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.pattern) = make_pattern_list ((yyvsp[(3) - (5)].word_list), nil); }
+    { (yyval.pattern) = make_pattern_list ((yyvs.PeekN((3) - (5)).word_list), nil); }
     break;
 
   case 122:
 // #line 1034 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.pattern) = (yyvsp[(1) - (2)].pattern); }
+    { (yyval.pattern) = (yyvs.PeekN((1) - (2)).pattern); }
     break;
 
   case 123:
 // #line 1036 "/Users/chet/src/bash/src/parse.y"
-    { (yyvsp[(2) - (3)].pattern).next = (yyvsp[(1) - (3)].pattern); (yyval.pattern) = (yyvsp[(2) - (3)].pattern); }
+    { (yyvs.PeekN((2) - (3)).pattern).next = (yyvs.PeekN((1) - (3)).pattern); (yyval.pattern) = (yyvs.PeekN((2) - (3)).pattern); }
     break;
 
   case 124:
 // #line 1038 "/Users/chet/src/bash/src/parse.y"
-    { (yyvsp[(1) - (2)].pattern).flags |= CASEPAT_FALLTHROUGH; (yyval.pattern) = (yyvsp[(1) - (2)].pattern); }
+    { (yyvs.PeekN((1) - (2)).pattern).flags |= CASEPAT_FALLTHROUGH; (yyval.pattern) = (yyvs.PeekN((1) - (2)).pattern); }
     break;
 
   case 125:
 // #line 1040 "/Users/chet/src/bash/src/parse.y"
-    { (yyvsp[(2) - (3)].pattern).flags |= CASEPAT_FALLTHROUGH; (yyvsp[(2) - (3)].pattern).next = (yyvsp[(1) - (3)].pattern); (yyval.pattern) = (yyvsp[(2) - (3)].pattern); }
+    { (yyvs.PeekN((2) - (3)).pattern).flags |= CASEPAT_FALLTHROUGH; (yyvs.PeekN((2) - (3)).pattern).next = (yyvs.PeekN((1) - (3)).pattern); (yyval.pattern) = (yyvs.PeekN((2) - (3)).pattern); }
     break;
 
   case 126:
 // #line 1042 "/Users/chet/src/bash/src/parse.y"
-    { (yyvsp[(1) - (2)].pattern).flags |= CASEPAT_TESTNEXT; (yyval.pattern) = (yyvsp[(1) - (2)].pattern); }
+    { (yyvs.PeekN((1) - (2)).pattern).flags |= CASEPAT_TESTNEXT; (yyval.pattern) = (yyvs.PeekN((1) - (2)).pattern); }
     break;
 
   case 127:
 // #line 1044 "/Users/chet/src/bash/src/parse.y"
-    { (yyvsp[(2) - (3)].pattern).flags |= CASEPAT_TESTNEXT; (yyvsp[(2) - (3)].pattern).next = (yyvsp[(1) - (3)].pattern); (yyval.pattern) = (yyvsp[(2) - (3)].pattern); }
+    { (yyvs.PeekN((2) - (3)).pattern).flags |= CASEPAT_TESTNEXT; (yyvs.PeekN((2) - (3)).pattern).next = (yyvs.PeekN((1) - (3)).pattern); (yyval.pattern) = (yyvs.PeekN((2) - (3)).pattern); }
     break;
 
   case 128:
 // #line 1048 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.word_list) = make_word_list ((yyvsp[(1) - (1)].word), nil); }
+    { (yyval.word_list) = make_word_list ((yyvs.PeekN((1) - (1)).word), nil); }
     break;
 
   case 129:
 // #line 1050 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.word_list) = make_word_list ((yyvsp[(3) - (3)].word), (yyvsp[(1) - (3)].word_list)); }
+    { (yyval.word_list) = make_word_list ((yyvs.PeekN((3) - (3)).word), (yyvs.PeekN((1) - (3)).word_list)); }
     break;
 
   case 130:
 // #line 1059 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = (yyvsp[(2) - (2)].command);
+			  (yyval.command) = (yyvs.PeekN((2) - (2)).command);
 			  if (need_here_doc) {
 			    gather_here_documents ();
 			}
@@ -1872,55 +1872,55 @@ case yyreduce:
   case 132:
 // #line 1068 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = (yyvsp[(2) - (2)].command);
+			  (yyval.command) = (yyvs.PeekN((2) - (2)).command);
 			}
     break;
 
   case 134:
 // #line 1075 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvsp[(1) - (3)].command).typ == cm_connection) {
-			    (yyval.command) = connect_async_list ((yyvsp[(1) - (3)].command), nil, '&');
+			  if ((yyvs.PeekN((1) - (3)).command).typ == cm_connection) {
+			    (yyval.command) = connect_async_list ((yyvs.PeekN((1) - (3)).command), nil, '&');
 			  } else {
-			    (yyval.command) = command_connect ((yyvsp[(1) - (3)].command), nil, '&');
+			    (yyval.command) = command_connect ((yyvs.PeekN((1) - (3)).command), nil, '&');
 			  }
     }
     break;
 
   case 136:
 // #line 1086 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = command_connect ((yyvsp[(1) - (4)].command), (yyvsp[(4) - (4)].command), AND_AND); }
+    { (yyval.command) = command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), AND_AND); }
     break;
 
   case 137:
 // #line 1088 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = command_connect ((yyvsp[(1) - (4)].command), (yyvsp[(4) - (4)].command), OR_OR); }
+    { (yyval.command) = command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), OR_OR); }
     break;
 
   case 138:
 // #line 1090 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvsp[(1) - (4)].command).typ == cm_connection) {
-			    (yyval.command) = connect_async_list ((yyvsp[(1) - (4)].command), (yyvsp[(4) - (4)].command), '&');
+			  if ((yyvs.PeekN((1) - (4)).command).typ == cm_connection) {
+			    (yyval.command) = connect_async_list ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), '&');
 			  } else {
-			    (yyval.command) = command_connect ((yyvsp[(1) - (4)].command), (yyvsp[(4) - (4)].command), '&');
+			    (yyval.command) = command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), '&');
 			  }
 			}
     break;
 
   case 139:
 // #line 1097 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = command_connect ((yyvsp[(1) - (4)].command), (yyvsp[(4) - (4)].command), ';'); }
+    { (yyval.command) = command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), ';'); }
     break;
 
   case 140:
 // #line 1099 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = command_connect ((yyvsp[(1) - (4)].command), (yyvsp[(4) - (4)].command), ';'); }
+    { (yyval.command) = command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), ';'); }
     break;
 
   case 141:
 // #line 1101 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = (yyvsp[(1) - (1)].command); }
+    { (yyval.command) = (yyvs.PeekN((1) - (1)).command); }
     break;
 
   case 144:
@@ -1941,13 +1941,13 @@ case yyreduce:
   case 149:
 // #line 1127 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = (yyvsp[(1) - (1)].command);
+			  (yyval.command) = (yyvs.PeekN((1) - (1)).command);
 			  if (need_here_doc) {
 			    gather_here_documents ();
 			  }
 			  if ((parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
 			    {
-			      gps.global_command = (yyvsp[(1) - (1)].command);
+			      gps.global_command = (yyvs.PeekN((1) - (1)).command);
 			      eof_encountered = 0;
 			      rewind_input_string ();
 			      yyparseState = yyacceptlab; continue;
@@ -1958,17 +1958,17 @@ case yyreduce:
   case 150:
 // #line 1140 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvsp[(1) - (2)].command).typ == cm_connection) {
-			    (yyval.command) = connect_async_list ((yyvsp[(1) - (2)].command), nil, '&');
+			  if ((yyvs.PeekN((1) - (2)).command).typ == cm_connection) {
+			    (yyval.command) = connect_async_list ((yyvs.PeekN((1) - (2)).command), nil, '&');
 			  } else {
-			    (yyval.command) = command_connect ((yyvsp[(1) - (2)].command), nil, '&');
+			    (yyval.command) = command_connect ((yyvs.PeekN((1) - (2)).command), nil, '&');
 			  }
 			  if (need_here_doc) {
 			    gather_here_documents ();
 			  }
 			  if ((parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
 			    {
-			      gps.global_command = (yyvsp[(1) - (2)].command);
+			      gps.global_command = (yyvs.PeekN((1) - (2)).command);
 			      eof_encountered = 0;
 			      rewind_input_string ();
 			      yyparseState = yyacceptlab; continue;
@@ -1979,13 +1979,13 @@ case yyreduce:
   case 151:
 // #line 1156 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = (yyvsp[(1) - (2)].command);
+			  (yyval.command) = (yyvs.PeekN((1) - (2)).command);
 			  if (need_here_doc) {
 			    gather_here_documents ();
 			  }
 			  if ((parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
 			    {
-			      gps.global_command = (yyvsp[(1) - (2)].command);
+			      gps.global_command = (yyvs.PeekN((1) - (2)).command);
 			      eof_encountered = 0;
 			      rewind_input_string ();
 			      yyparseState = yyacceptlab; continue;
@@ -1995,77 +1995,77 @@ case yyreduce:
 
   case 152:
 // #line 1171 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = command_connect ((yyvsp[(1) - (4)].command), (yyvsp[(4) - (4)].command), AND_AND); }
+    { (yyval.command) = command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), AND_AND); }
     break;
 
   case 153:
 // #line 1173 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = command_connect ((yyvsp[(1) - (4)].command), (yyvsp[(4) - (4)].command), OR_OR); }
+    { (yyval.command) = command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), OR_OR); }
     break;
 
   case 154:
 // #line 1175 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvsp[(1) - (3)].command).typ == cm_connection) {
-			    (yyval.command) = connect_async_list ((yyvsp[(1) - (3)].command), (yyvsp[(3) - (3)].command), '&');
+			  if ((yyvs.PeekN((1) - (3)).command).typ == cm_connection) {
+			    (yyval.command) = connect_async_list ((yyvs.PeekN((1) - (3)).command), (yyvs.PeekN((3) - (3)).command), '&');
 			  } else {
-			    (yyval.command) = command_connect ((yyvsp[(1) - (3)].command), (yyvsp[(3) - (3)].command), '&');
+			    (yyval.command) = command_connect ((yyvs.PeekN((1) - (3)).command), (yyvs.PeekN((3) - (3)).command), '&');
 			  }
     }
     break;
 
   case 155:
 // #line 1182 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = command_connect ((yyvsp[(1) - (3)].command), (yyvsp[(3) - (3)].command), ';'); }
+    { (yyval.command) = command_connect ((yyvs.PeekN((1) - (3)).command), (yyvs.PeekN((3) - (3)).command), ';'); }
     break;
 
   case 156:
 // #line 1185 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = (yyvsp[(1) - (1)].command); }
+    { (yyval.command) = (yyvs.PeekN((1) - (1)).command); }
     break;
 
   case 157:
 // #line 1189 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = (yyvsp[(1) - (1)].command); }
+    { (yyval.command) = (yyvs.PeekN((1) - (1)).command); }
     break;
 
   case 158:
 // #line 1191 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvsp[(2) - (2)].command)) {
-			    (yyvsp[(2) - (2)].command).flags |= CMD_INVERT_RETURN;
+			  if ((yyvs.PeekN((2) - (2)).command)) {
+			    (yyvs.PeekN((2) - (2)).command).flags |= CMD_INVERT_RETURN;
 			  }
-			  (yyval.command) = (yyvsp[(2) - (2)].command);
+			  (yyval.command) = (yyvs.PeekN((2) - (2)).command);
 			}
     break;
 
   case 159:
 // #line 1197 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvsp[(2) - (2)].command)) {
-			    (yyvsp[(2) - (2)].command).flags |= (yyvsp[(1) - (2)].number);
+			  if ((yyvs.PeekN((2) - (2)).command)) {
+			    (yyvs.PeekN((2) - (2)).command).flags |= (yyvs.PeekN((1) - (2)).number);
 			  }
-			  (yyval.command) = (yyvsp[(2) - (2)].command);
+			  (yyval.command) = (yyvs.PeekN((2) - (2)).command);
 			}
     break;
 
   case 160:
 // #line 1203 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvsp[(3) - (3)].command)) {
-			    (yyvsp[(3) - (3)].command).flags |= (yyvsp[(1) - (3)].number)|CMD_INVERT_RETURN;
+			  if ((yyvs.PeekN((3) - (3)).command)) {
+			    (yyvs.PeekN((3) - (3)).command).flags |= (yyvs.PeekN((1) - (3)).number)|CMD_INVERT_RETURN;
 			  }
-			  (yyval.command) = (yyvsp[(3) - (3)].command);
+			  (yyval.command) = (yyvs.PeekN((3) - (3)).command);
 			}
     break;
 
   case 161:
 // #line 1209 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvsp[(3) - (3)].command)) {
-			    (yyvsp[(3) - (3)].command).flags |= (yyvsp[(2) - (3)].number)|CMD_INVERT_RETURN;
+			  if ((yyvs.PeekN((3) - (3)).command)) {
+			    (yyvs.PeekN((3) - (3)).command).flags |= (yyvs.PeekN((2) - (3)).number)|CMD_INVERT_RETURN;
 			  }
-			  (yyval.command) = (yyvsp[(3) - (3)].command);
+			  (yyval.command) = (yyvs.PeekN((3) - (3)).command);
 			}
     break;
 
@@ -2082,9 +2082,9 @@ case yyreduce:
 			  x.word = 0;
 			  x.redirect = 0;
 			  (yyval.command) = make_simple_command (x, nil);
-			  (yyval.command).flags |= (yyvsp[(1) - (2)].number);
+			  (yyval.command).flags |= (yyvs.PeekN((1) - (2)).number);
 			  /* XXX - let's cheat and push a newline back */
-			  if ((yyvsp[(2) - (2)].number) == '\n') {
+			  if ((yyvs.PeekN((2) - (2)).number) == '\n') {
 			    token_to_read = '\n';
 			  }
 			}
@@ -2092,7 +2092,7 @@ case yyreduce:
 
   case 163:
 // #line 1235 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = command_connect ((yyvsp[(1) - (4)].command), (yyvsp[(4) - (4)].command), '|'); }
+    { (yyval.command) = command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), '|'); }
     break;
 
   case 164:
@@ -2104,10 +2104,10 @@ case yyreduce:
 			  var sd Redirectee
 			  var t *Redirect
 
-			  if (yyvsp[(1) - (4)].command).typ == cm_simple {
-				tc = (yyvsp[(1) - (4)].command).value.Simple
+			  if (yyvs.PeekN((1) - (4)).command).typ == cm_simple {
+				tc = (yyvs.PeekN((1) - (4)).command).value.Simple
 			  } else {
-				tc = (yyvsp[(1) - (4)].command);
+				tc = (yyvs.PeekN((1) - (4)).command);
 			  }
 			  sd.dest = 2;
 			  rd.dest = 1;
@@ -2121,13 +2121,13 @@ case yyreduce:
 			    tc.redirects = r;
 			  }
 
-			  (yyval.command) = command_connect ((yyvsp[(1) - (4)].command), (yyvsp[(4) - (4)].command), '|');
+			  (yyval.command) = command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), '|');
 			}
     break;
 
   case 165:
 // #line 1260 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = (yyvsp[(1) - (1)].command); }
+    { (yyval.command) = (yyvs.PeekN((1) - (1)).command); }
     break;
 
   case 166:
