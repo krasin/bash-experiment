@@ -11,6 +11,7 @@ GOFILES=\
 	shell.go\
 	input.go\
 	parser.go\
+	make_cmd.go\
 	y.tab.go\
 
 include $(GOROOT)/src/Make.cmd
