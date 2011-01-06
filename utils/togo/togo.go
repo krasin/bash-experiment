@@ -19,10 +19,10 @@ var pointerDefine = regexp.MustCompile("^([A-Za-z_][A-Za-z0-9_]*)[\t ]*[*][\t ]*
 // type_name lala = 70.0; -> var lala type_name = 70.0
 var initializedDefine = regexp.MustCompile("^([A-Za-z_][A-Za-z0-9_]*)[\t ]+([A-Za-z_][A-Za-z0-9_]*)[\t ]*=[\t ]*([A-Za-z0-9_.\\-+]+)[\t ]*;$")
 
-var trailingComment = regexp.MustCompile("^([^/]*)/*([^*]*[*]/)$")
+var trailingComment = regexp.MustCompile("^([^/]*)(/[*][^*]*[*]/)$")
 var trailingSpace = regexp.MustCompile("^(.*)([\t\r\n ]*)$")
-var indent = regexp.MustCompile("^([\t\r ]*)(.*)$")
-var static = regexp.MustCompile("static[\t\r ](.*)$")
+var indent = regexp.MustCompile("^([\t ]*)([^\t ].*)$")
+var static = regexp.MustCompile("static[\t ](.*)$")
 
 type filter func(line string) (cur string, finalizer filterFinalizer)
 type filterFinalizer func(cur string) string
@@ -50,6 +50,7 @@ var filters = []*filterDef{
 
 func EnhanceLine(line string) (res string) {
 	for _, def := range filters {
+		//		fmt.Printf("line: '%s'\n", line)
 		var fin filterFinalizer
 		if def.r.MatchString(line) {
 			line, fin = def.f(line)
@@ -58,6 +59,7 @@ func EnhanceLine(line string) (res string) {
 			}
 			defer func() {
 				res = fin(res)
+				//				fmt.Printf("res: '%s'\n", res)
 			}()
 		}
 	}
@@ -86,8 +88,13 @@ func filterTrailingComment(line string) (string, filterFinalizer) {
 	comment := ""
 	groups := trailingComment.FindStringSubmatch(line)
 	line = groups[1]
-	comment = " " + strings.TrimSpace(groups[2])
-	return line, func(cur string) string { return fmt.Sprintf("%s%s", cur, comment) }
+	comment = strings.TrimSpace(groups[2])
+	return line, func(cur string) string {
+		if cur != "" {
+			comment = " " + comment
+		}
+		return fmt.Sprintf("%s%s", cur, comment)
+	}
 }
 
 func filterVarDefine(line string) (string, filterFinalizer) {

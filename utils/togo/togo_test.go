@@ -10,21 +10,22 @@ import (
 
 type enhanceLineTest struct {
 	from string
-	to string
+	to   string
 }
 
-var enhanceLineTests = []*enhanceLineTest {
-	&enhanceLineTest{ "int a;", "a int" },
-	&enhanceLineTest{ "Lala b;", "b Lala" },
-	&enhanceLineTest{ "int b;\n", "b int" },
-	&enhanceLineTest{ "  int c;\r\n", "  c int" },
-	&enhanceLineTest{ " /* some comment */", " /* some comment */" },
-	&enhanceLineTest{ " /* some comment */\n", " /* some comment */" },
-	&enhanceLineTest{ "int a = 0;", "var a int = 0" },
-	&enhanceLineTest{ "int a = b;", "var a int = b" },
-	&enhanceLineTest{ "int a = 3.4;", "var a int = 3.4" },
-	&enhanceLineTest{ "int a = -5;", "var a int = -5" },
-	&enhanceLineTest{ "int a = 5 5;", "int a = 5 5;" },
+var enhanceLineTests = []*enhanceLineTest{
+	&enhanceLineTest{"int a;", "a int"},
+	&enhanceLineTest{"Lala b;", "b Lala"},
+	&enhanceLineTest{"int b;\n", "b int"},
+	&enhanceLineTest{"  int c;\r\n", "  c int"},
+	&enhanceLineTest{" /* good comment */", " /* good comment */"},
+	&enhanceLineTest{" /* some comment */\n", " /* some comment */"},
+	&enhanceLineTest{"int a = 0;", "var a int = 0"},
+	&enhanceLineTest{"int a = b;", "var a int = b"},
+	&enhanceLineTest{"int a = 3.4;", "var a int = 3.4"},
+	&enhanceLineTest{"int a = -5;", "var a int = -5"},
+	&enhanceLineTest{"int a = 5 5;", "int a = 5 5;"},
+	&enhanceLineTest{"#define REST -3  /* comment. */\n", "const REST = -3 /* comment. */"},
 }
 
 func TestEnhanceLine(t *testing.T) {
