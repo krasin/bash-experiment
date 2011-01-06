@@ -8,6 +8,8 @@ TARG=$(GOBIN)/gobash
 GOFILES=\
 	stack.go\
 	command.go\
+	shell.go\
+	input.go\
 	y.tab.go\
 
 include $(GOROOT)/src/Make.cmd
