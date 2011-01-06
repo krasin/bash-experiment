@@ -216,7 +216,7 @@ type CommandValue struct {
     Cond *CondCom
     ArithFor *ArithForCom
     Subshell *SubshellCom
-    Coproc *coproc_com
+    Coproc *CoprocCom
 }
 
 /* What a command looks like. */
@@ -375,7 +375,7 @@ type coproc struct {
   c_status int
 }
 
-type coproc_com struct {
+type CoprocCom struct {
   flags int
   name *char
   command *Command
