@@ -1,0 +1,44 @@
+#!/bin/sh
+
+echo
+echo "#### making README"
+touch README
+
+echo
+echo "#### Running autopoint"
+#gettextize  --version
+#gettextize --copy --force --intl --no-changelog
+autopoint  --version
+autopoint -f
+
+echo
+echo "#### getting libgettext.h"
+
+cp /usr/share/gettext/gettext.h src/libgettext.h
+
+echo
+echo "#### running aclocal"
+aclocal --version
+aclocal -I m4 -I ./aclocal
+
+if [ $? -ne 0 ]
+then
+    exit
+fi
+
+echo
+echo "#### running autoheader"
+autoheader --version
+autoheader
+
+echo
+echo "#### running autoconf"
+autoconf --version
+autoconf
+
+echo
+echo "#### running automake"
+automake --version
+automake --add-missing
+rm README
+./configure --enable-maintainer-mode
