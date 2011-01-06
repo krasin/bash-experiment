@@ -210,7 +210,7 @@ type CommandValue struct {
     Connection *connection
     Simple *SimpleCom
     Function_def *FunctionDef
-    Group *group_com
+    Group *GroupCom
     Select *SelectCom
     Arith *ArithCom
     Cond *CondCom
@@ -351,7 +351,7 @@ type FunctionDef struct {
 
 /* A command that is `grouped' allows pipes and redirections to affect all
    commands in the group. */
-type group_com struct {
+type GroupCom struct {
   ignore int /* See description of CMD flags. */
   command *Command
 }
