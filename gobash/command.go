@@ -63,6 +63,7 @@ func CLOBBERING_REDIRECT(ri r_instruction) bool {
 
 func OUTPUT_REDIRECT(ri r_instruction) bool {
   return (ri == r_output_direction || ri == r_input_output || ri == r_err_and_out || ri == r_append_err_and_out)
+}
 
 func INPUT_REDIRECT(ri r_instruction) bool {
   return (ri == r_input_direction || ri == r_inputa_direction || ri == r_input_output)
@@ -79,7 +80,7 @@ func WRITE_REDIRECT(ri r_instruction) bool {
 
 /* redirection needs translation */
 func TRANSLATE_REDIRECT(ri r_instruction) bool {
-  return (ri == r_duplicating_input_word || ri == r_duplicating_output_word || \
+  return (ri == r_duplicating_input_word || ri == r_duplicating_output_word ||
    ri == r_move_input_word || ri == r_move_output_word)
 }
 
@@ -104,7 +105,7 @@ const (
 	cm_coproc = command_type(iota)
 )
 
-/* Possible values for the `flags' field of a WORD_DESC. */
+/* Possible values for the `flags' field of a word_desc. */
 const W_HASDOLLAR = 0x000001 /* Dollar sign present. */
 const W_QUOTED = 0x000002 /* Some form of quote character is present. */
 const W_ASSIGNMENT = 0x000004 /* This word is a variable assignment. */
@@ -145,10 +146,10 @@ type word_desc struct {
 }
 
 /* A linked list of words. */
-typedef struct word_list {
-  struct word_list *next;
-  WORD_DESC *word;
-} WORD_LIST;
+type word_list struct {
+  next *word_list
+  word *word_desc
+}
 
 
 /* **************************************************************** */
@@ -164,7 +165,7 @@ typedef struct word_list {
 
 typedef union {
   int dest;			/* Place to redirect REDIRECTOR to, or ... */
-  WORD_DESC *filename;		/* filename to redirect to. */
+  word_desc *filename;		/* filename to redirect to. */
 } REDIRECTEE;
 
 /* Structure describing a redirection.  If REDIRECTOR is negative, the parser
@@ -182,7 +183,7 @@ typedef struct redirect {
 /* An element used in parsing.  A single word or a single redirection.
    This is an ephemeral construct. */
 typedef struct element {
-  WORD_DESC *word;
+  word_desc *word;
   REDIRECT *redirect;
 } ELEMENT;
 
@@ -250,7 +251,7 @@ typedef struct connection {
 /* Pattern/action structure for CASE_COM. */
 typedef struct pattern_list {
   struct pattern_list *next;	/* Clause to try in case this one failed. */
-  WORD_LIST *patterns;		/* Linked list of patterns to test. */
+  word_list *patterns;		/* Linked list of patterns to test. */
   COMMAND *action;		/* Thing to execute if a pattern matches. */
   int flags;
 } PATTERN_LIST;
@@ -259,7 +260,7 @@ typedef struct pattern_list {
 typedef struct case_com {
   int flags;			/* See description of CMD flags. */
   int line;			/* line number the `case' keyword appears on */
-  WORD_DESC *word;		/* The thing to test. */
+  word_desc *word;		/* The thing to test. */
   PATTERN_LIST *clauses;	/* The clauses to test against, or NULL. */
 } CASE_COM;
 
@@ -267,8 +268,8 @@ typedef struct case_com {
 typedef struct for_com {
   int flags;		/* See description of CMD flags. */
   int line;		/* line number the `for' keyword appears on */
-  WORD_DESC *name;	/* The variable name to get mapped over. */
-  WORD_LIST *map_list;	/* The things to map over.  This is never NULL. */
+  word_desc *name;	/* The variable name to get mapped over. */
+  word_list *map_list;	/* The things to map over.  This is never NULL. */
   COMMAND *action;	/* The action to execute.
 			   During execution, NAME is bound to successive
 			   members of MAP_LIST. */
@@ -278,9 +279,9 @@ typedef struct for_com {
 typedef struct arith_for_com {
   int flags;
   int line;	/* generally used for error messages */
-  WORD_LIST *init;
-  WORD_LIST *test;
-  WORD_LIST *step;
+  word_list *init;
+  word_list *test;
+  word_list *step;
   COMMAND *action;
 } ARITH_FOR_COM;
 #endif
@@ -290,8 +291,8 @@ typedef struct arith_for_com {
 typedef struct select_com {
   int flags;		/* See description of CMD flags. */
   int line;		/* line number the `select' keyword appears on */
-  WORD_DESC *name;	/* The variable name to get mapped over. */
-  WORD_LIST *map_list;	/* The things to map over.  This is never NULL. */
+  word_desc *name;	/* The variable name to get mapped over. */
+  word_list *map_list;	/* The things to map over.  This is never NULL. */
   COMMAND *action;	/* The action to execute.
 			   During execution, NAME is bound to the member of
 			   MAP_LIST chosen by the user. */
@@ -315,12 +316,12 @@ typedef struct while_com {
 
 #if defined (DPAREN_ARITHMETIC)
 /* The arithmetic evaluation command, ((...)).  Just a set of flags and
-   a WORD_LIST, of which the first element is the only one used, for the
+   a word_list, of which the first element is the only one used, for the
    time being. */
 typedef struct arith_com {
   int flags;
   int line;
-  WORD_LIST *exp;
+  word_list *exp;
 } ARITH_COM;
 #endif /* DPAREN_ARITHMETIC */
 
@@ -337,7 +338,7 @@ typedef struct cond_com {
   int flags;
   int line;
   int type;
-  WORD_DESC *op;
+  word_desc *op;
   struct cond_com *left, *right;
 } COND_COM;
 
@@ -345,7 +346,7 @@ typedef struct cond_com {
 typedef struct simple_com {
   int flags;			/* See description of CMD flags. */
   int line;			/* line number the command starts on */
-  WORD_LIST *words;		/* The program name, the arguments,
+  word_list *words;		/* The program name, the arguments,
 				   variable assignments, etc. */
   REDIRECT *redirects;		/* Redirections to perform. */
 } SIMPLE_COM;
@@ -354,7 +355,7 @@ typedef struct simple_com {
 typedef struct function_def {
   int flags;			/* See description of CMD flags. */
   int line;			/* Line number the function def starts on. */
-  WORD_DESC *name;		/* The name of the function. */
+  word_desc *name;		/* The name of the function. */
   COMMAND *command;		/* The parsed execution tree. */
   char *source_file;		/* file in which function was defined, if any */
 } FUNCTION_DEF;
@@ -407,8 +408,8 @@ extern Coproc sh_coproc;
 extern FUNCTION_DEF *copy_function_def_contents __P((FUNCTION_DEF *, FUNCTION_DEF *));
 extern FUNCTION_DEF *copy_function_def __P((FUNCTION_DEF *));
 
-extern WORD_DESC *copy_word __P((WORD_DESC *));
-extern WORD_LIST *copy_word_list __P((WORD_LIST *));
+extern word_desc *copy_word __P((word_desc *));
+extern word_list *copy_word_list __P((word_list *));
 extern REDIRECT *copy_redirect __P((REDIRECT *));
 extern REDIRECT *copy_redirects __P((REDIRECT *));
 extern COMMAND *copy_command __P((COMMAND *));

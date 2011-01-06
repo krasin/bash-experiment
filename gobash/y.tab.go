@@ -234,7 +234,7 @@ type YYSTYPE struct {
 // #line 320 "/Users/chet/src/bash/src/parse.y"
   word *word_desc /* the word that we read. */
   number int /* the number that we read. */
-  word_list *WORD_LIST
+  word_list *word_list
   command *COMMAND
   redirect *REDIRECT
   element ELEMENT
@@ -1495,7 +1495,7 @@ case yyreduce:
   case 79:
 // #line 796 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_for_command ((yyvsp[(2) - (10)].word), REVERSE_LIST ((yyvsp[(5) - (10)].word_list), WORD_LIST *), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
+			  (yyval.command) = make_for_command ((yyvsp[(2) - (10)].word), REVERSE_LIST ((yyvsp[(5) - (10)].word_list), word_list *), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top--; }
 			}
     break;
@@ -1503,7 +1503,7 @@ case yyreduce:
   case 80:
 // #line 801 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_for_command ((yyvsp[(2) - (10)].word), REVERSE_LIST ((yyvsp[(5) - (10)].word_list), WORD_LIST *), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
+			  (yyval.command) = make_for_command ((yyvsp[(2) - (10)].word), REVERSE_LIST ((yyvsp[(5) - (10)].word_list), word_list *), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top--; }
 			}
     break;
@@ -1591,7 +1591,7 @@ case yyreduce:
   case 91:
 // #line 860 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_select_command ((yyvsp[(2) - (10)].word), REVERSE_LIST ((yyvsp[(5) - (10)].word_list), WORD_LIST *), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
+			  (yyval.command) = make_select_command ((yyvsp[(2) - (10)].word), REVERSE_LIST ((yyvsp[(5) - (10)].word_list), word_list *), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top-- }
 			}
     break;
@@ -1599,7 +1599,7 @@ case yyreduce:
   case 92:
 // #line 865 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_select_command ((yyvsp[(2) - (10)].word), REVERSE_LIST ((yyvsp[(5) - (10)].word_list), WORD_LIST *), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
+			  (yyval.command) = make_select_command ((yyvsp[(2) - (10)].word), REVERSE_LIST ((yyvsp[(5) - (10)].word_list), word_list *), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top-- }
 			}
     break;
@@ -5575,17 +5575,17 @@ handle_eof_input_unit ()
 /* It's very important that these two functions treat the characters
    between ( and ) identically. */
 
-static WORD_LIST parse_string_error;
+static word_list parse_string_error;
 
 /* Take a string and run it through the shell parser, returning the
    resultant word list.  Used by compound array assignment. */
-WORD_LIST *
+word_list *
 parse_string_to_word_list (s, flags, whom)
      char *s;
      int flags;
      const char *whom;
 {
-  WORD_LIST *wl;
+  word_list *wl;
   int tok, orig_current_token, orig_line_number, orig_input_terminator;
   int orig_line_count;
   int old_echo_input, old_expand_aliases;
@@ -5649,14 +5649,14 @@ parse_string_to_word_list (s, flags, whom)
 	jump_to_top_level (DISCARD);
     }
 
-  return (REVERSE_LIST (wl, WORD_LIST *));
+  return (REVERSE_LIST (wl, word_list *));
 }
 
 static char *
 parse_compound_assignment (retlenp)
      int *retlenp;
 {
-  WORD_LIST *wl, *rl;
+  word_list *wl, *rl;
   int tok, orig_line_number, orig_token_size, orig_last_token, assignok;
   char *saved_token, *ret;
 
@@ -5716,7 +5716,7 @@ parse_compound_assignment (retlenp)
 
   if (wl)
     {
-      rl = REVERSE_LIST (wl, WORD_LIST *);
+      rl = REVERSE_LIST (wl, word_list *);
       ret = string_list (rl);
       dispose_words (rl);
     }
