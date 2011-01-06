@@ -208,7 +208,7 @@ type CommandValue struct {
     While *WhileCom
     If *IfCom
     Connection *connection
-    Simple *simple_com
+    Simple *SimpleCom
     Function_def *function_def
     Group *group_com
     Select *SelectCom
@@ -332,7 +332,7 @@ type CondCom struct {
 }
 
 /* The "simple" command.  Just a collection of words and redirects. */
-type simple_com struct {
+type SimpleCom struct {
   flags int /* See description of CMD flags. */
   line int /* line number the command starts on */
   word_list *words;		/* The program name, the arguments,
