@@ -206,7 +206,7 @@ type CommandValue struct {
     For *ForCom
     Case *CaseCom
     While *while_com
-    If *if_com
+    If *IfCom
     Connection *connection
     Simple *simple_com
     Function_def *function_def
@@ -290,7 +290,7 @@ type SelectCom struct {
 }
 
 /* IF command. */
-type if_com struct {
+type IfCom struct {
   flags int /* See description of CMD flags. */
   test *Command /* Thing to test. */
   true_case *Command /* What to do if the test returned non-zero. */
