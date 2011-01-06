@@ -36,16 +36,16 @@ func Ident(cur string) string {
 	return cur
 }
 
-var filters = []*filterDef {
-	&filterDef{ trailingSpace, filterTrailingSpace },
-	&filterDef{ indent, filterIndent },
-	&filterDef { static, filterStatic },
-	&filterDef{ trailingComment, filterTrailingComment },
-	&filterDef{ trailingSpace, filterTrailingSpace },
-	&filterDef{ varDefine, filterVarDefine },
-	&filterDef{ pointerDefine, filterPointerDefine },
-	&filterDef{ constDefine, filterConstDefine },
-	&filterDef{ initializedDefine, filterInitializedDefine },
+var filters = []*filterDef{
+	&filterDef{trailingSpace, filterTrailingSpace},
+	&filterDef{indent, filterIndent},
+	&filterDef{static, filterStatic},
+	&filterDef{trailingComment, filterTrailingComment},
+	&filterDef{trailingSpace, filterTrailingSpace},
+	&filterDef{varDefine, filterVarDefine},
+	&filterDef{pointerDefine, filterPointerDefine},
+	&filterDef{constDefine, filterConstDefine},
+	&filterDef{initializedDefine, filterInitializedDefine},
 }
 
 func EnhanceLine(line string) (res string) {
