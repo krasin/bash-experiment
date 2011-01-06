@@ -215,7 +215,7 @@ type CommandValue struct {
     Arith *ArithCom
     Cond *CondCom
     ArithFor *ArithForCom
-    Subshell *subshell_com
+    Subshell *SubshellCom
     Coproc *coproc_com
 }
 
@@ -356,7 +356,7 @@ type GroupCom struct {
   command *Command
 }
 
-type subshell_com struct {
+type SubshellCom struct {
   flags int
   command *Command
 }
