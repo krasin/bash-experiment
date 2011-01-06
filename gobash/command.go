@@ -214,7 +214,7 @@ type CommandValue struct {
     Select *select_com
     Arith *arith_com
     Cond *CondCom
-    ArithFor *arith_for_com
+    ArithFor *ArithForCom
     Subshell *subshell_com
     Coproc *coproc_com
 }
@@ -269,7 +269,7 @@ type ForCom struct {
 			   members of MAP_LIST. */
 }
 
-type arith_for_com struct {
+type ArithForCom struct {
   flags int
   line int /* generally used for error messages */
   init *word_list
