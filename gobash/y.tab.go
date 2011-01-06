@@ -1672,12 +1672,13 @@ case yyreduce:
 			  if (tc.redirects)
 			    {
 			      Redirect *t;
-			      for (t = tc.redirects; t.next; t = t.next)
+			      for t = tc.redirects; t.next; t = t.next {
+			      }
 				;
 			      t.next = (yyvsp[(2) - (2)].redirect);
-			    }
-			  else
+			    } else {
 			    tc.redirects = (yyvsp[(2) - (2)].redirect);
+				}
 			  (yyval.command) = (yyvsp[(1) - (2)].command);
 			}
     break;
@@ -1707,12 +1708,12 @@ case yyreduce:
 			  if (tc.redirects)
 			    {
 			      Redirect *t;
-			      for (t = tc.redirects; t.next; t = t.next)
+			      for t = tc.redirects; t.next; t = t.next {}
 				;
 			      t.next = (yyvsp[(3) - (3)].redirect);
-			    }
-			  else
+			    }  else {
 			    tc.redirects = (yyvsp[(3) - (3)].redirect);
+				}
 			  (yyval.command) = make_coproc_command ("COPROC", (yyvsp[(2) - (3)].command));
 			  (yyval.command).flags |= CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
 			}
@@ -1735,12 +1736,12 @@ case yyreduce:
 			  if (tc.redirects)
 			    {
 			      Redirect *t;
-			      for (t = tc.redirects; t.next; t = t.next)
+			      for t = tc.redirects; t.next; t = t.next {}
 				;
 			      t.next = (yyvsp[(4) - (4)].redirect);
-			    }
-			  else
+			    }			  else {
 			    tc.redirects = (yyvsp[(4) - (4)].redirect);
+				}
 			  (yyval.command) = make_coproc_command ((yyvsp[(2) - (4)].word).word, (yyvsp[(3) - (4)].command));
 			  (yyval.command).flags |= CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
 			}
@@ -1868,9 +1869,10 @@ case yyreduce:
 // #line 1059 "/Users/chet/src/bash/src/parse.y"
     {
 			  (yyval.command) = (yyvsp[(2) - (2)].command);
-			  if (need_here_doc)
+			  if (need_here_doc) {
 			    gather_here_documents ();
-			 }
+			}
+    }
     break;
 
   case 132:
@@ -1883,11 +1885,12 @@ case yyreduce:
   case 134:
 // #line 1075 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvsp[(1) - (3)].command).type == cm_connection)
+			  if ((yyvsp[(1) - (3)].command).typ == cm_connection) {
 			    (yyval.command) = connect_async_list ((yyvsp[(1) - (3)].command), nil, '&');
-			  else
+			  } else {
 			    (yyval.command) = command_connect ((yyvsp[(1) - (3)].command), nil, '&');
-			}
+			  }
+    }
     break;
 
   case 136:
@@ -1903,7 +1906,7 @@ case yyreduce:
   case 138:
 // #line 1090 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvsp[(1) - (4)].command).type == cm_connection)
+			  if ((yyvsp[(1) - (4)].command).typ == cm_connection)
 			    (yyval.command) = connect_async_list ((yyvsp[(1) - (4)].command), (yyvsp[(4) - (4)].command), '&');
 			  else
 			    (yyval.command) = command_connect ((yyvsp[(1) - (4)].command), (yyvsp[(4) - (4)].command), '&');
@@ -1959,7 +1962,7 @@ case yyreduce:
   case 150:
 // #line 1140 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvsp[(1) - (2)].command).type == cm_connection)
+			  if ((yyvsp[(1) - (2)].command).typ == cm_connection)
 			    (yyval.command) = connect_async_list ((yyvsp[(1) - (2)].command), nil, '&');
 			  else
 			    (yyval.command) = command_connect ((yyvsp[(1) - (2)].command), nil, '&');
@@ -2004,7 +2007,7 @@ case yyreduce:
   case 154:
 // #line 1175 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvsp[(1) - (3)].command).type == cm_connection)
+			  if ((yyvsp[(1) - (3)].command).typ == cm_connection)
 			    (yyval.command) = connect_async_list ((yyvsp[(1) - (3)].command), (yyvsp[(3) - (3)].command), '&');
 			  else
 			    (yyval.command) = command_connect ((yyvsp[(1) - (3)].command), (yyvsp[(3) - (3)].command), '&');
@@ -2095,7 +2098,7 @@ case yyreduce:
 			  Redirectee rd, sd;
 			  Redirect *r;
 
-			  tc = (yyvsp[(1) - (4)].command).type == cm_simple ? (Command *)(yyvsp[(1) - (4)].command).value.Simple : (yyvsp[(1) - (4)].command);
+			  tc = (yyvsp[(1) - (4)].command).typ == cm_simple ? (Command *)(yyvsp[(1) - (4)].command).value.Simple : (yyvsp[(1) - (4)].command);
 			  sd.dest = 2;
 			  rd.dest = 1;
 			  r = make_redirection (sd, r_duplicating_output, rd, 0);
@@ -2308,9 +2311,9 @@ int EOF_Reached = 0;
 
 /* yy_getc () returns the next available character from input or EOF.
    yy_ungetc (c) makes `c' the next character to read.
-   init_yy_io (get, unget, type, location) makes the function GET the
+   init_yy_io (get, unget, typ, location) makes the function GET the
    installed function for getting the next character, makes UNGET the
-   installed function for un-getting a character, sets the type of stream
+   installed function for un-getting a character, sets the typ of stream
    (either string or file) from TYPE, and makes LOCATION point to where
    the input is coming from. */
 
@@ -2330,7 +2333,7 @@ BASH_INPUT bash_input;
 void
 initialize_bash_input ()
 {
-  bash_input.type = st_none;
+  bash_input.typ = st_none;
   FREE (bash_input.name);
   bash_input.name = nil;
   bash_input.location.file = nil;
@@ -2342,14 +2345,14 @@ initialize_bash_input ()
 /* Set the contents of the current bash input stream from
    GET, UNGET, TYPE, NAME, and LOCATION. */
 void
-init_yy_io (get, unget, type, name, location)
+init_yy_io (get, unget, typ, name, location)
      sh_cget_func_t *get;
      sh_cunget_func_t *unget;
-     enum stream_type type;
+     enum stream_type typ;
      const char *name;
      INPUT_STREAM location;
 {
-  bash_input.type = type;
+  bash_input.typ = typ;
   FREE (bash_input.name);
   bash_input.name = name ? savestring (name) : nil;
 
@@ -2385,7 +2388,7 @@ yy_ungetc (c)
 int
 input_file_descriptor ()
 {
-  switch (bash_input.type)
+  switch (bash_input.typ)
     {
     case st_stream:
       return (fileno (bash_input.location.file));
@@ -2543,7 +2546,7 @@ push_stream (reset_lineno)
 
   saver.bstream = nil;
   /* If we have a buffered stream, clear out buffers[fd]. */
-  if (bash_input.type == st_bstream && bash_input.location.buffered_fd >= 0)
+  if (bash_input.typ == st_bstream && bash_input.location.buffered_fd >= 0)
     saver.bstream = set_buffered_stream (bash_input.location.buffered_fd,
     					  nil);
 
@@ -2570,7 +2573,7 @@ pop_stream ()
 
       init_yy_io (saver.bash_input.getter,
 		  saver.bash_input.ungetter,
-		  saver.bash_input.type,
+		  saver.bash_input.typ,
 		  saver.bash_input.name,
 		  saver.bash_input.location);
 
@@ -2578,7 +2581,7 @@ pop_stream ()
       /* If the input file descriptor was changed while this was on the
 	 save stack, update the buffered fd to the new file descriptor and
 	 re-establish the buffer <-> bash_input fd correspondence. */
-      if (bash_input.type == st_bstream && bash_input.location.buffered_fd >= 0)
+      if (bash_input.typ == st_bstream && bash_input.location.buffered_fd >= 0)
 	{
 	  if (bash_input_fd_changed)
 	    {
@@ -2601,15 +2604,15 @@ pop_stream ()
     }
 }
 
-/* Return 1 if a stream of type TYPE is saved on the stack. */
+/* Return 1 if a stream of typ TYPE is saved on the stack. */
 int
-stream_on_stack (type)
-     enum stream_type type;
+stream_on_stack (typ)
+     enum stream_type typ;
 {
   STREAM_SAVER *s;
 
   for (s = stream_list; s; s = s.next)
-    if (s.bash_input.type == type)
+    if (s.bash_input.typ == typ)
       return 1;
   return 0;
 }
@@ -3009,7 +3012,7 @@ shell_getc (remove_quoted_newline)
 
       cleanup_dead_jobs ();
 
-      if (bash_input.type == st_stream)
+      if (bash_input.typ == st_stream)
 	clearerr (stdin);
 
       while (1)
@@ -3031,7 +3034,7 @@ shell_getc (remove_quoted_newline)
 
 	  if (c == EOF)
 	    {
-	      if (bash_input.type == st_stream)
+	      if (bash_input.typ == st_stream)
 		clearerr (stdin);
 
 	      if (i == 0)
@@ -3213,7 +3216,7 @@ yylex ()
   if ((parser_state & PST_EOFTOKEN) && current_token == shell_eof_token)
     {
       current_token = yacc_EOF;
-      if (bash_input.type == st_string)
+      if (bash_input.typ == st_string)
 	rewind_input_string ();
     }
   parser_state &= ~PST_EOFTOKEN;
