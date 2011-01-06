@@ -207,7 +207,7 @@ type CommandValue struct {
     Case *CaseCom
     While *WhileCom
     If *IfCom
-    Connection *connection
+    Connection *Connection
     Simple *SimpleCom
     Function_def *FunctionDef
     Group *GroupCom
@@ -221,15 +221,15 @@ type CommandValue struct {
 
 /* What a command looks like. */
 type Command struct {
-  typ command_type /* FOR CASE WHILE IF CONNECTION or SIMPLE. */
+  typ command_type /* FOR CASE WHILE IF Connection or SIMPLE. */
   flags int /* Flags controlling execution environment. */
   line int /* line number the command starts on */
   redirects *REDIRECT /* Special redirects for FOR CASE, etc. */
   value CommandValue
 }
 
-/* Structure used to represent the CONNECTION type. */
-type CONNECTION struct {
+/* Structure used to represent the Connection type. */
+type Connection struct {
   ignore int /* Unused; simplifies make_command (). */
   first *Command /* Pointer to the first command. */
   second *Command /* Pointer to the second command. */
