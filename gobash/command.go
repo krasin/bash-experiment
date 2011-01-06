@@ -141,7 +141,7 @@ const SUBSHELL_COPROC = 0x40 /* subshell from a coproc pipeline */
 
 /* A structure which represents a word. */
 type word_desc struct {
-  word *char /* Zero terminated string. */
+  word string /* Zero terminated string. */
   flags int /* Flags associated with this word. */
 }
 
@@ -190,7 +190,7 @@ type Redirect struct {
   flags int /* Flag value for `open'. */
   instruction r_instruction /* What to do with the information. */
   redirectee Redirectee /* File descriptor or filename */
-  here_doc_eof *char /* The word that appeared in <<foo. */
+  here_doc_eof string /* The word that appeared in <<foo. */
 }
 
 /* An element used in parsing.  A single word or a single redirection.
@@ -348,7 +348,7 @@ type CondCom struct {
 type SimpleCom struct {
   flags int /* See description of CMD flags. */
   line int /* line number the command starts on */
-  word_list *words;		/* The program name, the arguments,
+  words *word_list;		/* The program name, the arguments,
 				   variable assignments, etc. */
   redirects *Redirect /* Redirections to perform. */
 }
@@ -359,7 +359,7 @@ type FunctionDef struct {
   line int /* Line number the function def starts on. */
   name *word_desc /* The name of the function. */
   command *Command /* The parsed execution tree. */
-  source_file *char /* file in which function was defined, if any */
+  source_file string /* file in which function was defined, if any */
 }
 
 /* A command that is `grouped' allows pipes and redirections to affect all
@@ -378,8 +378,8 @@ const COPROC_RUNNING = 0x01
 const COPROC_DEAD = 0x02
 
 type coproc struct {
-  c_name *char
-  c_pid pid_t
+  c_name string
+  c_pid uint32
   c_rfd int
   c_wfd int
   c_rsave int
@@ -390,7 +390,7 @@ type coproc struct {
 
 type CoprocCom struct {
   flags int
-  name *char
+  name string
   command *Command
 }
 

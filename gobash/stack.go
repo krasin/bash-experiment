@@ -1,5 +1,9 @@
 package gobash
 
+import (
+	"fmt"
+)
+
 const (
 	initialCapacity = 100
 )
@@ -47,7 +51,7 @@ func (s *stack) PeekN(n int) interface{} {
 	return s.a[s.cnt + n - 1]
 }
 
-func (s *stack) IsEmpty() interface{} {
+func (s *stack) IsEmpty() bool {
 	return s.cnt == 0
 }
 
@@ -62,7 +66,7 @@ func (s *stack) PopMany(n int) {
 			s.a[i] = nil
 		}
 	} else {
-		panic("PopMany(%d): stack contains just %d elements", n, s.cnt)
+		panic(fmt.Sprintf("PopMany(%d): stack contains just %d elements", n, s.cnt))
 	}
 	return
 }
@@ -76,23 +80,23 @@ type int16Stack struct {
 }
 
 func (s *int16Stack) IsEmpty() bool {
-	return inner.IsEmpty()
+	return s.inner.IsEmpty()
 }
 
 func (s *int16Stack) Push(v int16) {
-	inner.Push(v)
+	s.inner.Push(v)
 }
 
 func (s *int16Stack) Pop() int16 {
-	return inner.Pop().int16
+	return s.inner.Pop().(int16)
 }
 
 func (s *int16Stack) Peek() int16 {
-	return inner.Peek().int16
+	return s.inner.Peek().(int16)
 }
 
 func (s *int16Stack) PopMany(n int) {
-	return inner.PopMany(n)
+	s.inner.PopMany(n)
 }
 
 func newInt16Stack() *int16Stack {
@@ -104,19 +108,19 @@ type YYSTYPEStack struct {
 }
 
 func (s *YYSTYPEStack) Push(v YYSTYPE) {
-	inner.Push(v)
+	s.inner.Push(v)
 }
 
 func (s *YYSTYPEStack) Pop() YYSTYPE {
-	return inner.Pop().YYSTYPE
+	return s.inner.Pop().(YYSTYPE)
 }
 
 func (s *YYSTYPEStack) PopMany(n int) {
-	return inner.PopMany(n)
+	s.inner.PopMany(n)
 }
 
 func (s *YYSTYPEStack) PeekN(n int) YYSTYPE {
-	return inner.PeekN(n).YYSTYPE
+	return s.inner.PeekN(n).(YYSTYPE)
 }
 
 func newYYSTYPEStack() *YYSTYPEStack {

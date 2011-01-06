@@ -3,6 +3,7 @@ package gobash
 import (
 	"os"
 	"log"
+	"fmt"
 )
 
 type ShellState struct {
@@ -21,10 +22,11 @@ func ExecuteScript(filename string) int {
 		return shell.fatal(fmt.Sprintf("Can't open a shell script file: %s, err: %v", filename, err))
 	}
 	shell.shutdown()
+	return 0
 }
 
-func (sh *ShellState) openShellState(filename string) (err os.Error) {
-	file, err := os.Open(filename, O_RDONLY, 0)
+func (sh *ShellState) openShellScript(filename string) (err os.Error) {
+	file, err := os.Open(filename, os.O_RDONLY, 0)
 	if err != nil {
 		return
 	}
