@@ -209,7 +209,7 @@ type CommandValue struct {
     If *IfCom
     Connection *connection
     Simple *SimpleCom
-    Function_def *function_def
+    Function_def *FunctionDef
     Group *group_com
     Select *SelectCom
     Arith *ArithCom
@@ -341,7 +341,7 @@ type SimpleCom struct {
 }
 
 /* The "function definition" command. */
-type function_def struct {
+type FunctionDef struct {
   flags int /* See description of CMD flags. */
   line int /* Line number the function def starts on. */
   name *word_desc /* The name of the function. */
