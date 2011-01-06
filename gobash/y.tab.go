@@ -862,7 +862,7 @@ case yyreduce:
 			     safety net,and return the command just parsed. */
 			  gps.global_command = (yyvs.PeekN((1) - (2)).command);
 			  /* discard_parser_constructs (0); */
-			  if (gps.parser_state & PST_CMDSUBST) {
+			  if (gps.parser_state & PST_CMDSUBST != 0) {
 			    gps.parser_state |= PST_EOFTOKEN;
 			  }
 			  yyparseState = yyacceptlab; continue;
@@ -875,7 +875,7 @@ case yyreduce:
 			  /* Case of regular command, but not a very
 			     interesting one.  Return a NULL command. */
 			  gps.global_command = nil;
-			  if (gps.parser_state & PST_CMDSUBST) {
+			  if (gps.parser_state & PST_CMDSUBST != 0) {
 			    gps.parser_state |= PST_EOFTOKEN;
 			  }
 			  yyparseState = yyacceptlab; continue;
@@ -898,7 +898,7 @@ case yyreduce:
 			  /* Case of EOF seen by itself.  Do ignoreeof or
 			     not. */
 			  gps.global_command = nil
-			  handle_eof_input_unit ();
+			  gps.handle_eof_input_unit ();
 			  yyparseState = yyacceptlab; continue;
 			}
     break;
@@ -5433,18 +5433,16 @@ func (gps *ParserState) yylex() int {
 //
 ///* A flag denoting whether or not ignoreeof is set. */
 //int ignoreeof = 0;
-//
-///* If we have EOF as the only input unit, this user wants to leave
-//   the shell.  If the shell is not interactive, then just leave.
-//   Otherwise, if ignoreeof is set, and we haven't done this the
-//   required number of times in a row, print a message. */
-//static void
-//handle_eof_input_unit ()
-//{
-//  /* We don't write history files, etc., for non-interactive shells. */
-//  gps.EOF_Reached = true;
-//}
-//
+
+/* If we have EOF as the only input unit, this user wants to leave
+   the shell.  If the shell is not interactive, then just leave.
+   Otherwise, if ignoreeof is set, and we haven't done this the
+   required number of times in a row, print a message. */
+func (gps *ParserState) handle_eof_input_unit() {
+  /* We don't write history files, etc., for non-interactive shells. */
+  gps.EOF_Reached = true;
+}
+
 ///************************************************
 // *						*
 // *	STRING PARSING FUNCTIONS		*
