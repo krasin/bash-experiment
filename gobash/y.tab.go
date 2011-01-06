@@ -679,8 +679,7 @@ const YYMAXDEPTH = 10000
 type yyparseState int
 
 const (
-	yynewstate yyparseState = 0
-	yysetstate yyparseState = iota
+	yysetstate yyparseState = 0
 	yybackup yyparseState = iota
 	yydefault yyparseState = iota
 	yyreduce yyparseState = iota
@@ -742,13 +741,8 @@ for {
 	switch yyparseState {
 
 /*------------------------------------------------------------.
-| yynewstate -- Push a new state, which is found in yystate.  |
+| yysetstate -- Push a new state, which is found in yystate.  |
 `------------------------------------------------------------*/
-case yynewstate:
-  /* In all cases, when you get here, the value and location stacks
-     have just been pushed.  So pushing a state here evens the stacks.  */
-	fallthrough // I'm not sure that it's a correct translation
-
 case yysetstate:
 	yyss.Push(yystate)
 	yyparseState = yybackup
@@ -821,7 +815,7 @@ case yybackup:
   yystate = yyn;
   yyvs.Push(yylval);
 
-  yyparseState = yynewstate;
+  yyparseState = yysetstate;
 	continue
 
 
@@ -2164,13 +2158,13 @@ case yyreduce:
 
   yyn = yyr1[yyn];
 
-  yystate = yypgoto[yyn - YYNTOKENS] + *yyssp;
-  if (0 <= yystate && yystate <= YYLAST && yycheck[yystate] == *yyssp) {
+  yystate = yypgoto[yyn - YYNTOKENS] + yyss.Peek()
+  if (0 <= yystate && yystate <= YYLAST && yycheck[yystate] == yyss.Peek()) {
     yystate = yytable[yystate];
   } else {
     yystate = yydefgoto[yyn - YYNTOKENS];
   }
-  yyparseState = yynewState; continue;
+  yyparseState = yysetstate; continue;
 
 
 /*------------------------------------.
@@ -2218,7 +2212,7 @@ case yyerrorlab:
      this YYERROR.  */
   YYPOPSTACK (yylen);
   yylen = 0;
-  yystate = *yyssp;
+  yystate = yyss.Peek();
   yyparseState = yyerrlab1; continue;
 
 
@@ -2244,7 +2238,7 @@ case yyerrlab1:
 	}
 
       /* Pop the current state because it cannot handle the error token.  */
-      if (yyssp == yyss) {
+      if (yyss.IsEmpty()) {
 	yyparseState = yyabortlab; continue;
       }
 
@@ -2252,7 +2246,7 @@ case yyerrlab1:
       yydestruct ("Error: popping",
 		  yystos[yystate], yyvsp);
       YYPOPSTACK (1);
-      yystate = *yyssp;
+      yystate = yyss.Peek()
     }
 
   if (yyn == YYFINAL) {
@@ -2263,7 +2257,7 @@ case yyerrlab1:
 
 
   yystate = yyn;
-  yyparseState = yynewState; continue;
+  yyparseState = yysetstate; continue;
 
 
 /*-------------------------------------.
@@ -2298,10 +2292,10 @@ case yyreturn:
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
   YYPOPSTACK (yylen);
-  while (yyssp != yyss)
+  while (!yyss.IsEmpty())
     {
       yydestruct ("Cleanup: popping",
-		  yystos[*yyssp], yyvsp);
+		  yystos[yyss.Peek()], yyvsp);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow

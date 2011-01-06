@@ -5,12 +5,12 @@ const (
 )
 
 type stack struct {
-	a []interface{}
+	a   []interface{}
 	cnt int
 }
 
 func (s *stack) Push(v interface{}) {
-	if (s.cnt >= len(s.a)) {
+	if s.cnt >= len(s.a) {
 		b := make([]interface{}, 2*len(s.a))
 		for i, v := range s.a {
 			b[i] = v
@@ -30,6 +30,17 @@ func (s *stack) Pop() interface{} {
 	panic("Stack is empty")
 }
 
+func (s *stack) Peek() interface{} {
+	if s.cnt > 0 {
+		return s.a[s.cnt-1]
+	}
+	panic("Stack is empty")
+}
+
+func (s *stack) IsEmpty() interface{} {
+	return s.cnt == 0
+}
+
 func (s *stack) PopMany(n int) {
 	if n < 0 {
 		panic(fmt.Sprintf("n: %d, must be non-negative", n))
@@ -43,15 +54,19 @@ func (s *stack) PopMany(n int) {
 	} else {
 		panic("PopMany(%d): stack contains just %d elements", n, s.cnt)
 	}
-	return;
+	return
 }
 
 func newStack() *stack {
-	return &stack { make([]interface{}, initialCapacity), 0 }
+	return &stack{make([]interface{}, initialCapacity), 0}
 }
 
 type int16Stack struct {
 	inner *stack
+}
+
+func (s *int16Stack) IsEmpty() bool {
+	return inner.IsEmpty()
 }
 
 func (s *int16Stack) Push(v int16) {
@@ -59,15 +74,19 @@ func (s *int16Stack) Push(v int16) {
 }
 
 func (s *int16Stack) Pop() int16 {
-	inner.Pop().int16
+	return inner.Pop().int16
+}
+
+func (s *int16Stack) Peek() int16 {
+	return inner.Peek().int16
 }
 
 func (s *int16Stack) PopMany(n int) {
-	inner.PopMany(n)
+	return inner.PopMany(n)
 }
 
 func newInt16Stack() *int16Stack {
-	return &int16Stack{ newStack() }
+	return &int16Stack{newStack()}
 }
 
 type YYSTYPEStack struct {
@@ -79,13 +98,13 @@ func (s *YYSTYPEStack) Push(v YYSTYPE) {
 }
 
 func (s *YYSTYPEStack) Pop() YYSTYPE {
-	inner.Pop().YYSTYPE
+	return inner.Pop().YYSTYPE
 }
 
 func (s *YYSTYPEStack) PopMany(n int) {
-	inner.PopMany(n)
+	return inner.PopMany(n)
 }
 
 func newYYSTYPEStack() *YYSTYPEStack {
-	return &YYSTYPEStack{ newStack() }
+	return &YYSTYPEStack{newStack()}
 }
