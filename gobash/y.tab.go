@@ -837,7 +837,7 @@ case yydefault:
 /*-----------------------------.
 | yyreduce -- Do a reduction.  |
 `-----------------------------*/
-yyreduce:
+case yyreduce:
   /* yyn is the number of a rule to reduce with.  */
   yylen = yyr2[yyn];
 
@@ -2156,7 +2156,7 @@ yyreduce:
 /*------------------------------------.
 | yyerrlab -- here on detecting error |
 `------------------------------------*/
-yyerrlab:
+case yyerrlab:
   /* If not already recovering from an error, report this error.  */
   if (!yyerrstatus)
     {
@@ -2193,7 +2193,7 @@ yyerrlab:
 /*---------------------------------------------------.
 | yyerrorlab -- error raised explicitly by YYERROR.  |
 `---------------------------------------------------*/
-yyerrorlab:
+case yyerrorlab:
 
   /* Do not reclaim the symbols of the rule which action triggered
      this YYERROR.  */
@@ -2206,7 +2206,7 @@ yyerrorlab:
 /*-------------------------------------------------------------.
 | yyerrlab1 -- common code for both syntax error and YYERROR.  |
 `-------------------------------------------------------------*/
-yyerrlab1:
+case yyerrlab1:
   yyerrstatus = 3;	/* Each real token shifted decrements this.  */
 
   for (;;)
@@ -2247,14 +2247,14 @@ yyerrlab1:
 /*-------------------------------------.
 | yyacceptlab -- YYACCEPT comes here.  |
 `-------------------------------------*/
-yyacceptlab:
+case yyacceptlab:
   yyresult = 0;
   yyparseState = yyreturn; continue;
 
 /*-----------------------------------.
 | yyabortlab -- YYABORT comes here.  |
 `-----------------------------------*/
-yyabortlab:
+case yyabortlab:
   yyresult = 1;
   yyparseState = yyreturn; continue;
 
@@ -2268,7 +2268,7 @@ yyexhaustedlab:
   /* Fall through.  */
 #endif
 
-yyreturn:
+case yyreturn:
   if (yychar != YYEOF && yychar != YYEMPTY)
      yydestruct ("Cleanup: discarding lookahead",
 		 yytoken, &yylval);
@@ -2286,6 +2286,8 @@ yyreturn:
     YYSTACK_FREE (yyss);
 #endif
   return  (yyresult);
+}
+}
 }
 
 
