@@ -165,7 +165,7 @@ parser_state int
 
 /* Variables to manage the task of reading here documents, because we need to
    defer the reading until after a complete command has been collected. */
-redir_stack [10]*REDIRECT
+redir_stack [10]*Redirect
 need_here_doc int
 
 /* Where shell input comes from.  History expansion is performed on each
@@ -236,7 +236,7 @@ type YYSTYPE struct {
   number int /* the number that we read. */
   word_list *word_list
   command *Command
-  redirect *REDIRECT
+  redirect *Redirect
   element ELEMENT
   pattern *PatternList
 }
@@ -1347,7 +1347,7 @@ case yyreduce:
   case 56:
 // #line 709 "/Users/chet/src/bash/src/parse.y"
     {
-			  var t *REDIRECT
+			  var t *Redirect
 
 			  for t = (yyvsp[(1) - (2)].redirect); t.next; t = t.next {
 			  }
@@ -1384,7 +1384,7 @@ case yyreduce:
 			  tc = (yyvsp[(1) - (2)].command);
 			  if (tc.redirects)
 			    {
-			      var t *REDIRECT;
+			      var t *Redirect;
 			      for t = tc.redirects; t.next; t = t.next {
 				}
 			      t.next = (yyvsp[(2) - (2)].redirect);
@@ -1669,7 +1669,7 @@ case yyreduce:
 			     command printing code displays the redirections. */
 			  if (tc.redirects)
 			    {
-			      REDIRECT *t;
+			      Redirect *t;
 			      for (t = tc.redirects; t.next; t = t.next)
 				;
 			      t.next = (yyvsp[(2) - (2)].redirect);
@@ -1704,7 +1704,7 @@ case yyreduce:
 			  tc = (yyvsp[(2) - (3)].command);
 			  if (tc.redirects)
 			    {
-			      REDIRECT *t;
+			      Redirect *t;
 			      for (t = tc.redirects; t.next; t = t.next)
 				;
 			      t.next = (yyvsp[(3) - (3)].redirect);
@@ -1732,7 +1732,7 @@ case yyreduce:
 			  tc = (yyvsp[(3) - (4)].command);
 			  if (tc.redirects)
 			    {
-			      REDIRECT *t;
+			      Redirect *t;
 			      for (t = tc.redirects; t.next; t = t.next)
 				;
 			      t.next = (yyvsp[(4) - (4)].redirect);
@@ -2091,7 +2091,7 @@ case yyreduce:
 			  /* Make cmd1 |& cmd2 equivalent to cmd1 2>&1 | cmd2 */
 			  Command *tc;
 			  Redirectee rd, sd;
-			  REDIRECT *r;
+			  Redirect *r;
 
 			  tc = (yyvsp[(1) - (4)].command).type == cm_simple ? (Command *)(yyvsp[(1) - (4)].command).value.Simple : (yyvsp[(1) - (4)].command);
 			  sd.dest = 2;
@@ -2099,7 +2099,7 @@ case yyreduce:
 			  r = make_redirection (sd, r_duplicating_output, rd, 0);
 			  if (tc.redirects)
 			    {
-			      REDIRECT *t;
+			      Redirect *t;
 			      for (t = tc.redirects; t.next; t = t.next)
 				;
 			      t.next = r;

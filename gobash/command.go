@@ -170,8 +170,8 @@ type Redirectee struct {
 
 /* Structure describing a redirection.  If REDIRECTOR is negative, the parser
    (or translator in redir.c) encountered an out-of-range file descriptor. */
-type REDIRECT struct {
-  next *REDIRECT /* Next element, or NULL. */
+type Redirect struct {
+  next *Redirect /* Next element, or NULL. */
   redirector Redirectee /* Descriptor or varname to be redirected. */
   rflags int /* Private flags for this redirection */
   flags int /* Flag value for `open'. */
@@ -184,7 +184,7 @@ type REDIRECT struct {
    This is an ephemeral construct. */
 type ELEMENT struct {
   word *word_desc
-  redirect *REDIRECT
+  redirect *Redirect
 }
 
 /* Possible values for command->flags. */
@@ -224,7 +224,7 @@ type Command struct {
   typ command_type /* FOR CASE WHILE IF Connection or SIMPLE. */
   flags int /* Flags controlling execution environment. */
   line int /* line number the command starts on */
-  redirects *REDIRECT /* Special redirects for FOR CASE, etc. */
+  redirects *Redirect /* Special redirects for FOR CASE, etc. */
   value CommandValue
 }
 
@@ -337,7 +337,7 @@ type SimpleCom struct {
   line int /* line number the command starts on */
   word_list *words;		/* The program name, the arguments,
 				   variable assignments, etc. */
-  redirects *REDIRECT /* Redirections to perform. */
+  redirects *Redirect /* Redirections to perform. */
 }
 
 /* The "function definition" command. */
