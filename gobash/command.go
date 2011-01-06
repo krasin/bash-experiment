@@ -211,7 +211,7 @@ type CommandValue struct {
     Simple *simple_com
     Function_def *function_def
     Group *group_com
-    Select *select_com
+    Select *SelectCom
     Arith *arith_com
     Cond *CondCom
     ArithFor *ArithForCom
@@ -279,7 +279,7 @@ type ArithForCom struct {
 }
 
 /* KSH SELECT command. */
-type select_com struct {
+type SelectCom struct {
   flags int /* See description of CMD flags. */
   line int /* line number the `select' keyword appears on */
   name *word_desc /* The variable name to get mapped over. */
