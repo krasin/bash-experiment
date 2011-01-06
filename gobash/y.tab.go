@@ -2192,8 +2192,6 @@ case yyerrlab:
 	    yyparseState = yyabortlab; continue;
 	  }
 	} else {
-	  yydestruct ("Error: discarding",
-		      yytoken, &yylval);
 	  yychar = YYEMPTY;
 	}
     }
@@ -2243,8 +2241,6 @@ case yyerrlab1:
       }
 
 
-      yydestruct ("Error: popping",
-		  yystos[yystate], yyvsp);
       YYPOPSTACK (1);
       yystate = yyss.Peek()
     }
@@ -2285,17 +2281,11 @@ yyexhaustedlab:
 #endif
 
 case yyreturn:
-  if (yychar != YYEOF && yychar != YYEMPTY) {
-     yydestruct ("Cleanup: discarding lookahead",
-		 yytoken, &yylval);
-  }
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
   YYPOPSTACK (yylen);
   while (!yyss.IsEmpty())
     {
-      yydestruct ("Cleanup: popping",
-		  yystos[yyss.Peek()], yyvsp);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
