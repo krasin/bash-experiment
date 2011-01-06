@@ -26,6 +26,7 @@ var enhanceLineTests = []*enhanceLineTest{
 	&enhanceLineTest{"int a = -5;", "var a int = -5"},
 	&enhanceLineTest{"int a = 5 5;", "int a = 5 5;"},
 	&enhanceLineTest{"#define REST -3  /* comment. */\n", "const REST = -3 /* comment. */"},
+	&enhanceLineTest{"typedef struct for_com {", "type for_com struct {"},
 }
 
 func TestEnhanceLine(t *testing.T) {

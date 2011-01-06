@@ -19,6 +19,9 @@ var pointerDefine = regexp.MustCompile("^([A-Za-z_][A-Za-z0-9_]*)[\t ]*[*][\t ]*
 // type_name lala = 70.0; -> var lala type_name = 70.0
 var initializedDefine = regexp.MustCompile("^([A-Za-z_][A-Za-z0-9_]*)[\t ]+([A-Za-z_][A-Za-z0-9_]*)[\t ]*=[\t ]*([A-Za-z0-9_.\\-+]+)[\t ]*;$")
 
+// typedef struct for_com { -> type for_com struct {
+var structDefine = regexp.MustCompile("^typedef[\t ]+struct[\t ]+([A-Za-z_][A-Za-z0-9_]*)[\t ]*[{]$")
+
 var trailingComment = regexp.MustCompile("^([^/]*)(/[*][^*]*[*]/)$")
 var trailingSpace = regexp.MustCompile("^(.*)([\t\r\n ]*)$")
 var indent = regexp.MustCompile("^([\t ]*)([^\t ].*)$")
@@ -46,6 +49,7 @@ var filters = []*filterDef{
 	&filterDef{pointerDefine, filterPointerDefine},
 	&filterDef{constDefine, filterConstDefine},
 	&filterDef{initializedDefine, filterInitializedDefine},
+	&filterDef{structDefine, filterStructDefine},
 }
 
 func EnhanceLine(line string) (res string) {
@@ -124,4 +128,10 @@ func filterInitializedDefine(line string) (string, filterFinalizer) {
 	name := groups[2]
 	value := groups[3]
 	return fmt.Sprintf("var %s %s = %s", name, typ, value), nil
+}
+
+func filterStructDefine(line string) (string, filterFinalizer) {
+	groups := structDefine.FindStringSubmatch(line)
+	typ := groups[1]
+	return fmt.Sprintf("type %s struct {", typ), nil
 }
