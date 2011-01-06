@@ -131,7 +131,6 @@ const MAX_CASE_NEST = 128
 // 
 // extern int extended_glob;
 // 
-// extern int eof_encountered;
 // extern int current_command_number;
 // extern int sourcelevel, parse_and_execute_level;
 // extern int posixly_correct;
@@ -281,7 +280,7 @@ const YYNSTATES = 344
 const YYUNDEFTOK = 2
 const YYMAXUTOK = 303
 
-func YYTRANSLATE(yyx int) uint8 {
+func YYTRANSLATE(yyx int) int {
 	if (yyx <= YYMAXUTOK) {
 		return yytranslate[yyx]
 	}
@@ -289,7 +288,7 @@ func YYTRANSLATE(yyx int) uint8 {
 }
 
 /* YYTRANSLATE[YYLEX] -- Bison symbol number corresponding to YYLEX.  */
-var yytranslate = []uint8 {
+var yytranslate = []int {
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
       50,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -324,7 +323,7 @@ var yytranslate = []uint8 {
 }
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
-var yyr1 = []uint8 {
+var yyr1 = []int {
        0,    60,    61,    61,    61,    61,    62,    62,    63,    63,
       63,    63,    63,    63,    63,    63,    63,    63,    63,    63,
       63,    63,    63,    63,    63,    63,    63,    63,    63,    63,
@@ -345,7 +344,7 @@ var yyr1 = []uint8 {
 }
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
-var yyr2 = []uint8 {
+var yyr2 = []int {
        0,     2,     2,     1,     2,     1,     1,     2,     2,     2,
        3,     3,     3,     3,     2,     3,     3,     2,     3,     3,
        2,     3,     3,     2,     3,     3,     2,     3,     3,     2,
@@ -368,7 +367,7 @@ var yyr2 = []uint8 {
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
    STATE-NUM when YYTABLE doesn't specify something else to do.  Zero
    means the default is an error.  */
-var yydefact = []uint8 {
+var yydefact = []int {
        0,     0,   147,     0,     0,     0,   147,   147,     0,     0,
        0,     0,   166,    52,    53,     0,     0,   111,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     3,     5,
@@ -407,7 +406,7 @@ var yydefact = []uint8 {
 }
 
 /* YYDEFGOTO[NTERM-NUM].  */
-var yydefgoto = []int16 {
+var yydefgoto = []int {
       -1,    34,   241,    35,    36,   117,    37,    38,    39,    40,
       41,    42,    43,    44,   215,    45,    46,    47,    48,    49,
       50,   227,   233,   234,   235,   276,    57,    58,   135,   136,
@@ -417,7 +416,7 @@ var yydefgoto = []int16 {
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
 const YYPACT_NINF = -212
-var yypact = []int16 {
+var yypact = []int {
      318,   -40,  -212,    11,    10,    32,  -212,  -212,    34,   661,
       39,   514,    52,    21,  -212,   255,   706,  -212,    65,    79,
       47,    98,    55,   133,   134,   139,   151,   152,  -212,  -212,
@@ -456,7 +455,7 @@ var yypact = []int16 {
 }
 
 /* YYPGOTO[NTERM-NUM].  */
-var yypgoto = []int16 {
+var yypgoto = []int {
     -212,  -212,   148,   -36,     1,   -62,   350,  -212,    -5,  -212,
     -212,  -212,  -212,  -212,  -211,  -212,  -212,  -212,  -212,  -212,
     -212,    50,  -212,   131,  -212,    92,  -194,    -6,  -212,  -200,
@@ -468,7 +467,7 @@ var yypgoto = []int16 {
    number is the opposite.  If zero, do what YYDEFACT says.
    If YYTABLE_NINF, syntax error.  */
 const YYTABLE_NINF = -1
-var yytable = []uint16 {
+var yytable = []int {
       64,    65,    53,   116,    69,    52,   258,   151,   199,   273,
       56,   141,   138,   140,   250,   145,   253,   143,   149,   125,
      224,   225,   226,    71,   126,   274,   111,   112,   262,   263,
@@ -548,7 +547,7 @@ var yytable = []uint16 {
       94,
 }
 
-var yycheck = []int16 {
+var yycheck = []int {
        6,     7,     0,    39,     9,     0,   217,    69,    21,     9,
       50,    14,    60,    61,   208,    63,   210,    62,    66,    47,
        5,     6,     7,    11,    52,    25,    32,    33,   228,   229,
@@ -630,7 +629,7 @@ var yycheck = []int16 {
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
-var yystos = []uint8 {
+var yystos = []int {
        0,     1,     3,     8,    10,    11,    12,    13,    16,    17,
       18,    22,    23,    25,    26,    27,    28,    29,    34,    35,
       36,    37,    38,    42,    43,    44,    45,    46,    50,    51,
@@ -720,7 +719,7 @@ func (gps *ParserState) Yyparse () {
      to reallocate them elsewhere.  */
 
   /* The state stack.  */
-	yyss := newInt16Stack()
+	yyss := newIntStack()
 
   /* The semantic value stack.  */
 	yyvs := newYYSTYPEStack()
@@ -775,13 +774,11 @@ case yybackup:
   /* Not known => get a look-ahead token if don't already have one.  */
 
   /* YYCHAR is either YYEMPTY or YYEOF or a valid look-ahead symbol.  */
-  if (gps.yychar == YYEMPTY)
-    {
-      gps.yychar = YYLEX;
-    }
+  if (gps.yychar == YYEMPTY) {
+      gps.yychar = gps.yylex();
+  }
 
-  if (gps.yychar <= YYEOF)
-    {
+  if (gps.yychar <= YYEOF) {
       yytoken = YYEOF;
 	gps.yychar = YYEOF
     } else {
@@ -791,13 +788,12 @@ case yybackup:
   /* If the proper action on seeing token YYTOKEN is to reduce or to
      detect an error, take that action.  */
   yyn += yytoken;
-	if (yyn < 0 || YYLAST < yyn || yycheck[yyn] != yytoken) {
+	if (yyn < 0 || YYLAST < yyn || yycheck[yyn] != int(yytoken)) {
 		yyparseState = yydefault
 		continue
 	}
   yyn = yytable[yyn];
-  if (yyn <= 0)
-    {
+  if (yyn <= 0)    {
       if (yyn == 0 || yyn == YYTABLE_NINF) {
 		yyparseState = yyerrlab
 		continue
@@ -813,7 +809,7 @@ case yybackup:
 
   /* Count tokens shifted since error; after three, turn off error
      status.  */
-  if (yyerrstatus) {
+  if (yyerrstatus > 0) {
     yyerrstatus--;
   }
 
@@ -823,7 +819,7 @@ case yybackup:
   }
 
   yystate = yyn;
-  yyvs.Push(yylval);
+  yyvs.Push(gps.yylval);
 
   yyparseState = yysetstate;
 	continue
@@ -858,18 +854,16 @@ case yyreduce:
   yyval = yyvs.PeekN(1-yylen)
 
 
-  switch (yyn)
-    {
+  switch (yyn)  {
         case 2:
 // #line 374 "/Users/chet/src/bash/src/parse.y"
     {
 			  /* Case of regular command.  Discard the error
 			     safety net,and return the command just parsed. */
 			  gps.global_command = (yyvs.PeekN((1) - (2)).command);
-			  eof_encountered = 0;
 			  /* discard_parser_constructs (0); */
-			  if (parser_state & PST_CMDSUBST) {
-			    parser_state |= PST_EOFTOKEN;
+			  if (gps.parser_state & PST_CMDSUBST) {
+			    gps.parser_state |= PST_EOFTOKEN;
 			  }
 			  yyparseState = yyacceptlab; continue;
 			}
@@ -881,8 +875,8 @@ case yyreduce:
 			  /* Case of regular command, but not a very
 			     interesting one.  Return a NULL command. */
 			  gps.global_command = nil;
-			  if (parser_state & PST_CMDSUBST) {
-			    parser_state |= PST_EOFTOKEN;
+			  if (gps.parser_state & PST_CMDSUBST) {
+			    gps.parser_state |= PST_EOFTOKEN;
 			  }
 			  yyparseState = yyacceptlab; continue;
 			}
@@ -893,7 +887,6 @@ case yyreduce:
     {
 			  /* Error during parsing.  Return NULL command. */
 			  gps.global_command = nil
-			  eof_encountered = 0;
 			  /* discard_parser_constructs (1); */
 			  yyparseState = yyabortlab; continue;
 			}
@@ -1955,10 +1948,9 @@ case yyreduce:
 			  if (need_here_doc) {
 			    gather_here_documents ();
 			  }
-			  if ((parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
+			  if ((gps.parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
 			    {
 			      gps.global_command = (yyvs.PeekN((1) - (1)).command);
-			      eof_encountered = 0;
 			      rewind_input_string ();
 			      yyparseState = yyacceptlab; continue;
 			    }
@@ -1976,10 +1968,9 @@ case yyreduce:
 			  if (need_here_doc) {
 			    gather_here_documents ();
 			  }
-			  if ((parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
+			  if ((gps.parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
 			    {
 			      gps.global_command = (yyvs.PeekN((1) - (2)).command);
-			      eof_encountered = 0;
 			      rewind_input_string ();
 			      yyparseState = yyacceptlab; continue;
 			    }
@@ -1993,10 +1984,9 @@ case yyreduce:
 			  if (need_here_doc) {
 			    gather_here_documents ();
 			  }
-			  if ((parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
+			  if ((gps.parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
 			    {
 			      gps.global_command = (yyvs.PeekN((1) - (2)).command);
-			      eof_encountered = 0;
 			      rewind_input_string ();
 			      yyparseState = yyacceptlab; continue;
 			    }
@@ -2182,8 +2172,7 @@ case yyreduce:
 `------------------------------------*/
 case yyerrlab:
   /* If not already recovering from an error, report this error.  */
-  if (!yyerrstatus)
-    {
+  if (yyerrstatus == 0)    {
       gps.yynerrs++
       yyerror (("syntax error"));
     }
@@ -2230,8 +2219,7 @@ case yyerrorlab:
 case yyerrlab1:
   yyerrstatus = 3;	/* Each real token shifted decrements this.  */
 
-  for
-    {
+  for {
       yyn = yypact[yystate];
       if (yyn != YYPACT_NINF)
 	{
@@ -2259,7 +2247,7 @@ case yyerrlab1:
     yyparseState = yyacceptlab; continue;
   }
 
-  yyvs.Push(yylval)
+  yyvs.Push(gps.yylval)
 
 
   yystate = yyn;
@@ -2689,9 +2677,9 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  shell_input_line_terminator = pushed_string_list.saved_line_terminator;
 //
 //  if (pushed_string_list.expand_alias)
-//    parser_state |= PST_ALEXPNEXT;
+//    gps.parser_state |= PST_ALEXPNEXT;
 //  else
-//    parser_state &= ~PST_ALEXPNEXT;
+//    gps.parser_state &= ~PST_ALEXPNEXT;
 //
 //  t = pushed_string_list;
 //  pushed_string_list = pushed_string_list.next;
@@ -3142,28 +3130,27 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 ///* Command to read_token () explaining what we want it to do. */
 //#define READ 0
 //#define RESET 1
-//
-///* Function for yyparse to call.  yylex keeps track of
-//   the last two tokens read, and calls read_token.  */
-//static int
-//yylex ()
-//{
-//  two_tokens_ago = token_before_that;
-//  token_before_that = last_read_token;
-//  last_read_token = current_token;
-//  current_token = read_token (READ);
-//
-//  if ((parser_state & PST_EOFTOKEN) && current_token == shell_eof_token)
-//    {
-//      current_token = yacc_EOF;
-//      if (bash_input.typ == st_string)
-//	rewind_input_string ();
-//    }
-//  parser_state &= ~PST_EOFTOKEN;
-//
-//  return (current_token);
-//}
-//
+
+/* Function for yyparse to call.  yylex keeps track of
+   the last two tokens read, and calls read_token.  */
+func (gps *ParserState) yylex() int {
+  two_tokens_ago = token_before_that;
+  token_before_that = last_read_token;
+  last_read_token = current_token;
+  current_token = read_token (READ);
+
+  if ((gps.parser_state & PST_EOFTOKEN) && current_token == shell_eof_token)
+    {
+      current_token = yacc_EOF;
+      if (bash_input.typ == st_string) {
+	rewind_input_string ();
+	}
+  }
+  rser_state &= ^PST_EOFTOKEN;
+
+  return (current_token);
+}
+
 ///* When non-zero, we have read the required tokens
 //   which allow ESAC to be the next one read. */
 //static int esacs_needed_count;
@@ -3176,9 +3163,9 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  r = 0;
 //  while (need_here_doc)
 //    {
-//      parser_state |= PST_HEREDOC;
+//      gps.parser_state |= PST_HEREDOC;
 //      make_here_document (redir_stack[r++], line_number);
-//      parser_state &= ~PST_HEREDOC;
+//      gps.parser_state &= ~PST_HEREDOC;
 //      need_here_doc--;
 //    }
 //}
@@ -3188,11 +3175,11 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //static int open_brace_count;
 //
 //#define command_token_position(token) \
-//  (((token) == ASSIGNMENT_WORD) || (parser_state&PST_REDIRLIST) || \
+//  (((token) == ASSIGNMENT_WORD) || (gps.parser_state&PST_REDIRLIST) || \
 //   ((token) != SEMI_SEMI && (token) != SEMI_AND && (token) != SEMI_SEMI_AND && reserved_word_acceptable(token)))
 //
 //#define assignment_acceptable(token) \
-//  (command_token_position(token) && ((parser_state & PST_CASEPAT) == 0))
+//  (command_token_position(token) && ((gps.parser_state & PST_CASEPAT) == 0))
 //
 ///* Check to see if TOKEN is a reserved word and return the token
 //   value if it is. */
@@ -3205,18 +3192,18 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //	for (i = 0; word_token_alist[i].word != nil; i++) \
 //	  if (STREQ (tok, word_token_alist[i].word)) \
 //	    { \
-//	      if ((parser_state & PST_CASEPAT) && (word_token_alist[i].token != ESAC)) \
+//	      if ((gps.parser_state & PST_CASEPAT) && (word_token_alist[i].token != ESAC)) \
 //		break; \
 //	      if (word_token_alist[i].token == TIME && time_command_acceptable () == 0) \
 //		break; \
 //	      if (word_token_alist[i].token == ESAC) \
-//		parser_state &= ~(PST_CASEPAT|PST_CASESTMT); \
+//		gps.parser_state &= ~(PST_CASEPAT|PST_CASESTMT); \
 //	      else if (word_token_alist[i].token == CASE) \
-//		parser_state |= PST_CASESTMT; \
+//		gps.parser_state |= PST_CASESTMT; \
 //	      else if (word_token_alist[i].token == COND_END) \
-//		parser_state &= ~(PST_CONDCMD|PST_CONDEXPR); \
+//		gps.parser_state &= ~(PST_CONDCMD|PST_CONDEXPR); \
 //	      else if (word_token_alist[i].token == COND_START) \
-//		parser_state |= PST_CONDCMD; \
+//		gps.parser_state |= PST_CONDCMD; \
 //	      else if (word_token_alist[i].token == '{') \
 //		open_brace_count++; \
 //	      else if (word_token_alist[i].token == '}' && open_brace_count) \
@@ -3238,7 +3225,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //       processed alias.
 //
 //       Special cases that disqualify:
-//	 In a pattern list in a case statement (parser_state & PST_CASEPAT). */
+//	 In a pattern list in a case statement (gps.parser_state & PST_CASEPAT). */
 //
 //static char *
 //mk_alexpansion (s)
@@ -3267,8 +3254,8 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  char *expanded;
 //  alias_t *ap;
 //
-//  if (((parser_state & PST_ALEXPNEXT) || command_token_position (last_read_token)) &&
-//	(parser_state & PST_CASEPAT) == 0)
+//  if (((gps.parser_state & PST_ALEXPNEXT) || command_token_position (last_read_token)) &&
+//	(gps.parser_state & PST_CASEPAT) == 0)
 //    {
 //      ap = find_alias (tokstr);
 //
@@ -3335,7 +3322,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //	`-p' is returned as TIMEOPT if the last read token was TIME.
 //
 //	']]' is returned as COND_END if the parser is currently parsing
-//	a conditional expression ((parser_state & PST_CONDEXPR) != 0)
+//	a conditional expression ((gps.parser_state & PST_CONDEXPR) != 0)
 //
 //	`time' is returned as TIME if and only if it is immediately
 //	preceded by one of `;', `\n', `||', `&&', or `&'.
@@ -3351,7 +3338,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //    {
 //      if (token_before_that == CASE)
 //	{
-//	  parser_state |= PST_CASEPAT;
+//	  gps.parser_state |= PST_CASEPAT;
 //	  esacs_needed_count++;
 //	}
 //      return (IN);
@@ -3373,15 +3360,15 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //      esacs_needed_count--;
 //      if (STREQ (tokstr, "esac"))
 //	{
-//	  parser_state &= ~PST_CASEPAT;
+//	  gps.parser_state &= ~PST_CASEPAT;
 //	  return (ESAC);
 //	}
 //    }
 //
 //  /* The start of a shell function definition. */
-//  if (parser_state & PST_ALLOWOPNBRC)
+//  if (gps.parser_state & PST_ALLOWOPNBRC)
 //    {
-//      parser_state &= ~PST_ALLOWOPNBRC;
+//      gps.parser_state &= ~PST_ALLOWOPNBRC;
 //      if (tokstr[0] == '{' && tokstr[1] == '\0')		/* } */
 //	{
 //	  open_brace_count++;
@@ -3410,7 +3397,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  if (last_read_token == TIME && tokstr[0] == '-' && tokstr[1] == 'p' && !tokstr[2])
 //    return (TIMEOPT);
 //
-//  if ((parser_state & PST_CONDEXPR) && tokstr[0] == ']' && tokstr[1] == ']' && tokstr[2] == '\0')
+//  if ((gps.parser_state & PST_CONDEXPR) && tokstr[0] == ']' && tokstr[1] == ']' && tokstr[2] == '\0')
 //    return (COND_END);
 //
 //  return (-1);
@@ -3425,10 +3412,10 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  open_brace_count = 0;
 //
 //  /* Reset to global value of extended glob */
-//  if (parser_state & PST_EXTPAT)
+//  if (gps.parser_state & PST_EXTPAT)
 //    extended_glob = global_extglob;
 //
-//  parser_state = 0;
+//  gps.parser_state = 0;
 //
 //  if (pushed_string_list)
 //    free_string_list ();
@@ -3467,25 +3454,25 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //      result = token_to_read;
 //      if (token_to_read == WORD || token_to_read == ASSIGNMENT_WORD)
 //	{
-//	  yylval.word = word_desc_to_read;
+//	  gps.yylval.word = word_desc_to_read;
 //	  word_desc_to_read = nil;
 //	}
 //      token_to_read = 0;
 //      return (result);
 //    }
 //
-//  if ((parser_state & (PST_CONDCMD|PST_CONDEXPR)) == PST_CONDCMD)
+//  if ((gps.parser_state & (PST_CONDCMD|PST_CONDEXPR)) == PST_CONDCMD)
 //    {
 //      cond_lineno = line_number;
-//      parser_state |= PST_CONDEXPR;
-//      yylval.command = parse_cond_command ();
+//      gps.parser_state |= PST_CONDEXPR;
+//      gps.yylval.command = parse_cond_command ();
 //      if (cond_token != COND_END)
 //	{
 //	  cond_error ();
 //	  return (-1);
 //	}
 //      token_to_read = COND_END;
-//      parser_state &= ~(PST_CONDEXPR|PST_CONDCMD);
+//      gps.parser_state &= ~(PST_CONDEXPR|PST_CONDCMD);
 //      return (COND_CMD);
 //    }
 //
@@ -3518,25 +3505,25 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //      if (need_here_doc)
 //	gather_here_documents ();
 //
-//      parser_state &= ~PST_ALEXPNEXT;
+//      gps.parser_state &= ~PST_ALEXPNEXT;
 //
-//      parser_state &= ~PST_ASSIGNOK;
+//      gps.parser_state &= ~PST_ASSIGNOK;
 //
 //      return (character);
 //    }
 //
-//  if (parser_state & PST_REGEXP)
+//  if (gps.parser_state & PST_REGEXP)
 //    goto tokword;
 //
 //  /* Shell meta-characters. */
-//  if MBTEST(shellmeta (character) && ((parser_state & PST_DBLPAREN) == 0))
+//  if MBTEST(shellmeta (character) && ((gps.parser_state & PST_DBLPAREN) == 0))
 //    {
 //      /* Turn off alias tokenization iff this character sequence would
 //	 not leave us ready to read a command. */
 //      if (character == '<' || character == '>')
-//	parser_state &= ~PST_ALEXPNEXT;
+//	gps.parser_state &= ~PST_ALEXPNEXT;
 //
-//      parser_state &= ~PST_ASSIGNOK;
+//      gps.parser_state &= ~PST_ASSIGNOK;
 //
 //      peek_char = shell_getc (1);
 //      if (character == peek_char)
@@ -3561,8 +3548,8 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //	      return (GREATER_GREATER);
 //
 //	    case ';':
-//	      parser_state |= PST_CASEPAT;
-//	      parser_state &= ~PST_ALEXPNEXT;
+//	      gps.parser_state |= PST_CASEPAT;
+//	      gps.parser_state &= ~PST_ALEXPNEXT;
 //
 //	      peek_char = shell_getc (1);
 //	      if MBTEST(peek_char == '&')
@@ -3610,8 +3597,8 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //	return (BAR_AND);
 //      else if MBTEST(character == ';' && peek_char == '&')
 //	{
-//	  parser_state |= PST_CASEPAT;
-//	  parser_state &= ~PST_ALEXPNEXT;
+//	  gps.parser_state |= PST_CASEPAT;
+//	  gps.parser_state &= ~PST_ALEXPNEXT;
 //	  return (SEMI_AND);
 //	}
 //
@@ -3622,22 +3609,22 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //	 we will do the right thing with `{'. */
 //      if MBTEST(character == ')' && last_read_token == '(' && token_before_that == WORD)
 //	{
-//	  parser_state |= PST_ALLOWOPNBRC;
-//	  parser_state &= ~PST_ALEXPNEXT;
+//	  gps.parser_state |= PST_ALLOWOPNBRC;
+//	  gps.parser_state &= ~PST_ALEXPNEXT;
 //	  function_dstart = line_number;
 //	}
 //
 //      /* case pattern lists may be preceded by an optional left paren.  If
 //	 we're not trying to parse a case pattern list, the left paren
 //	 indicates a subshell. */
-//      if MBTEST(character == '(' && (parser_state & PST_CASEPAT) == 0) /* ) */
-//	parser_state |= PST_SUBSHELL;
+//      if MBTEST(character == '(' && (gps.parser_state & PST_CASEPAT) == 0) /* ) */
+//	gps.parser_state |= PST_SUBSHELL;
 //      /*(*/
-//      else if MBTEST((parser_state & PST_CASEPAT) && character == ')')
-//	parser_state &= ~PST_CASEPAT;
+//      else if MBTEST((gps.parser_state & PST_CASEPAT) && character == ')')
+//	gps.parser_state &= ~PST_CASEPAT;
 //      /*(*/
-//      else if MBTEST((parser_state & PST_SUBSHELL) && character == ')')
-//	parser_state &= ~PST_SUBSHELL;
+//      else if MBTEST((gps.parser_state & PST_SUBSHELL) && character == ')')
+//	gps.parser_state &= ~PST_SUBSHELL;
 //
 //      return (character);
 //    }
@@ -3779,7 +3766,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //	 we've already prepended CTLESC to single-quoted results of $'...'.
 //	 We may want to do this for other CTLESC-quoted characters in
 //	 reparse, too. */
-//      else if MBTEST((parser_state & PST_REPARSE) && open == '\'' && (ch == CTLESC || ch == CTLNUL))
+//      else if MBTEST((gps.parser_state & PST_REPARSE) && open == '\'' && (ch == CTLESC || ch == CTLNUL))
 //	{
 //	  RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
 //	  ret[retind++] = ch;
@@ -4358,7 +4345,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  save_parser_state (&ps);
 //
 //  /*(*/
-//  parser_state |= PST_CMDSUBST|PST_EOFTOKEN;	/* allow instant ')' */ /*(*/
+//  gps.parser_state |= PST_CMDSUBST|PST_EOFTOKEN;	/* allow instant ')' */ /*(*/
 //  shell_eof_token = ')';
 //  parse_string (string, "command substitution", sflags, &ep);
 //
@@ -4414,7 +4401,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //	{
 //	  wd = alloc_word_desc ();
 //	  wd.word = wval;
-//	  yylval.word_list = make_word_list (wd, nil);
+//	  gps.yylval.word_list = make_word_list (wd, nil);
 //	  return (ARITH_FOR_EXPRS);
 //	}
 //      else
@@ -4431,14 +4418,14 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //	  wd = alloc_word_desc ();
 //	  wd.word = wval;
 //	  wd.flags = W_QUOTED|W_NOSPLIT|W_NOGLOB|W_DQUOTE;
-//	  yylval.word_list = make_word_list (wd, nil);
+//	  gps.yylval.word_list = make_word_list (wd, nil);
 //	  return (ARITH_CMD);
 //	}
 //      else if (cmdtyp == 0)	/* nested subshell */
 //	{
 //	  push_string (wval, 0, nil);
-//	  if ((parser_state & PST_CASEPAT) == 0)
-//	    parser_state |= PST_SUBSHELL;
+//	  if ((gps.parser_state & PST_CASEPAT) == 0)
+//	    gps.parser_state |= PST_SUBSHELL;
 //	  return (c);
 //	}
 //      else			/* ERROR */
@@ -4600,21 +4587,21 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //      term = make_cond_node (COND_EXPR, nil, term, nil);
 //      (void)cond_skip_newlines ();
 //    }
-//  else if (tok == BANG || (tok == WORD && (yylval.word.word[0] == '!' && yylval.word.word[1] == '\0')))
+//  else if (tok == BANG || (tok == WORD && (gps.yylval.word.word[0] == '!' && gps.yylval.word.word[1] == '\0')))
 //    {
 //      if (tok == WORD)
-//	dispose_word (yylval.word);	/* not needed */
+//	dispose_word (gps.yylval.word);	/* not needed */
 //      term = cond_term ();
 //      if (term)
 //	term.flags |= CMD_INVERT_RETURN;
 //    }
-//  else if (tok == WORD && yylval.word.word[0] == '-' && yylval.word.word[2] == 0 && test_unop (yylval.word.word))
+//  else if (tok == WORD && gps.yylval.word.word[0] == '-' && gps.yylval.word.word[2] == 0 && test_unop (gps.yylval.word.word))
 //    {
-//      op = yylval.word;
+//      op = gps.yylval.word;
 //      tok = read_token (READ);
 //      if (tok == WORD)
 //	{
-//	  tleft = make_cond_node (COND_TERM, yylval.word, nil, nil);
+//	  tleft = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
 //	  term = make_cond_node (COND_UNARY, op, tleft, nil);
 //	}
 //      else
@@ -4634,22 +4621,22 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  else if (tok == WORD)		/* left argument to binary operator */
 //    {
 //      /* lhs */
-//      tleft = make_cond_node (COND_TERM, yylval.word, nil, nil);
+//      tleft = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
 //
 //      /* binop */
 //      tok = read_token (READ);
-//      if (tok == WORD && test_binop (yylval.word.word))
+//      if (tok == WORD && test_binop (gps.yylval.word.word))
 //	{
-//	  op = yylval.word;
+//	  op = gps.yylval.word;
 //	  if (op.word[0] == '=' && (op.word[1] == '\0' || (op.word[1] == '=' && op.word[2] == '\0')))
-//	    parser_state |= PST_EXTPAT;
+//	    gps.parser_state |= PST_EXTPAT;
 //	  else if (op.word[0] == '!' && op.word[1] == '=' && op.word[2] == '\0')
-//	    parser_state |= PST_EXTPAT;
+//	    gps.parser_state |= PST_EXTPAT;
 //	}
-//      else if (tok == WORD && STREQ (yylval.word.word, "=~"))
+//      else if (tok == WORD && STREQ (gps.yylval.word.word, "=~"))
 //	{
-//	  op = yylval.word;
-//	  parser_state |= PST_REGEXP;
+//	  op = gps.yylval.word;
+//	  gps.parser_state |= PST_REGEXP;
 //	}
 //      else if (tok == '<' || tok == '>')
 //	op = make_word_from_token (tok);  /* ( */
@@ -4678,16 +4665,16 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //	}
 //
 //      /* rhs */
-//      if (parser_state & PST_EXTPAT)
+//      if (gps.parser_state & PST_EXTPAT)
 //	extended_glob = 1;
 //      tok = read_token (READ);
-//      if (parser_state & PST_EXTPAT)
+//      if (gps.parser_state & PST_EXTPAT)
 //	extended_glob = global_extglob;
-//      parser_state &= ~(PST_REGEXP|PST_EXTPAT);
+//      gps.parser_state &= ~(PST_REGEXP|PST_EXTPAT);
 //
 //      if (tok == WORD)
 //	{
-//	  tright = make_cond_node (COND_TERM, yylval.word, nil, nil);
+//	  tright = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
 //	  term = make_cond_node (COND_BINARY, op, tleft, tright);
 //	}
 //      else
@@ -4744,7 +4731,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //
 //  c = t[i]; c1 = t[i+1];
 //  t[i] = '='; t[i+1] = '\0';
-//  r = assignment (t, (parser_state & PST_COMPASSIGN) != 0);
+//  r = assignment (t, (gps.parser_state & PST_COMPASSIGN) != 0);
 //  t[i] = c; t[i+1] = c1;
 //  return r;
 //}
@@ -4868,7 +4855,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //      /* When parsing a regexp as a single word inside a conditional command,
 //	 we need to special-case characters special to both the shell and
 //	 regular expressions.  Right now, that is only '(' and '|'. */ /*)*/
-//      if MBTEST((parser_state & PST_REGEXP) && (character == '(' || character == '|'))		/*)*/
+//      if MBTEST((gps.parser_state & PST_REGEXP) && (character == '(' || character == '|'))		/*)*/
 //	{
 //	  if (character == '|')
 //	    goto got_character;
@@ -5014,11 +5001,11 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //	}
 //
 //      /* Identify possible array subscript assignment; match [...].  If
-//	 parser_state&PST_COMPASSIGN, we need to parse [sub]=words treating
+//	 gps.parser_state&PST_COMPASSIGN, we need to parse [sub]=words treating
 //	 `sub' as if it were enclosed in double quotes. */
 //      else if MBTEST(character == '[' &&		/* ] */
 //		     ((token_index > 0 && assignment_acceptable (last_read_token) && token_is_ident (token, token_index)) ||
-//		      (token_index == 0 && (parser_state&PST_COMPASSIGN))))
+//		      (token_index == 0 && (gps.parser_state&PST_COMPASSIGN))))
 //        {
 //	  ttok = parse_matched_pair (cd, '[', ']', &ttoklen, P_ARRAYSUB);
 //	  if (ttok == &matched_pair_error)
@@ -5033,7 +5020,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //	  goto next_character;
 //        }
 //      /* Identify possible compound array variable assignment. */
-//      else if MBTEST(character == '=' && token_index > 0 && (assignment_acceptable (last_read_token) || (parser_state & PST_ASSIGNOK)) && token_is_assignment (token, token_index))
+//      else if MBTEST(character == '=' && token_index > 0 && (assignment_acceptable (last_read_token) || (gps.parser_state & PST_ASSIGNOK)) && token_is_assignment (token, token_index))
 //	{
 //	  peek_char = shell_getc (1);
 //	  if MBTEST(peek_char == '(')		/* ) */
@@ -5104,9 +5091,9 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //		    last_read_token == GREATER_AND))
 //      {
 //	if (legal_number (token, &lvalue) && (int)lvalue == lvalue)
-//	  yylval.number = lvalue;
+//	  gps.yylval.number = lvalue;
 //	else
-//	  yylval.number = -1;
+//	  gps.yylval.number = -1;
 //	return (NUMBER);
 //      }
 //
@@ -5129,7 +5116,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //      if (result == RE_READ_TOKEN)
 //	return (RE_READ_TOKEN);
 //      else if (result == NO_EXPANSION)
-//	parser_state &= ~PST_ALEXPNEXT;
+//	gps.parser_state &= ~PST_ALEXPNEXT;
 //    }
 //
 //  /* If not in Posix.2 mode, check for reserved words after alias
@@ -5150,11 +5137,11 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  /* A word is an assignment if it appears at the beginning of a
 //     simple command, or after another assignment word.  This is
 //     context-dependent, so it cannot be handled in the grammar. */
-//  if (assignment (token, (parser_state & PST_COMPASSIGN) != 0))
+//  if (assignment (token, (gps.parser_state & PST_COMPASSIGN) != 0))
 //    {
 //      the_word.flags |= W_ASSIGNMENT;
 //      /* Don't perform word splitting on assignment statements. */
-//      if (assignment_acceptable (last_read_token) || (parser_state & PST_COMPASSIGN) != 0)
+//      if (assignment_acceptable (last_read_token) || (gps.parser_state & PST_COMPASSIGN) != 0)
 //	the_word.flags |= W_NOSPLIT;
 //    }
 //
@@ -5163,12 +5150,12 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //      struct builtin *b;
 //      b = builtin_address_internal (token, 0);
 //      if (b && (b.flags & ASSIGNMENT_BUILTIN))
-//	parser_state |= PST_ASSIGNOK;
+//	gps.parser_state |= PST_ASSIGNOK;
 //      else if (STREQ (token, "eval") || STREQ (token, "let"))
-//	parser_state |= PST_ASSIGNOK;
+//	gps.parser_state |= PST_ASSIGNOK;
 //    }
 //
-//  yylval.word = the_word;
+//  gps.yylval.word = the_word;
 //
 //  if (token[0] == '{' && token[token_index-1] == '}' &&
 //      (character == '<' || character == '>'))
@@ -5189,7 +5176,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  switch (last_read_token)
 //    {
 //    case FUNCTION:
-//      parser_state |= PST_ALLOWOPNBRC;
+//      gps.parser_state |= PST_ALLOWOPNBRC;
 //      function_dstart = line_number;
 //      break;
 //    case CASE:
@@ -5295,19 +5282,19 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //    {
 //    case WORD:
 //    case ASSIGNMENT_WORD:
-//      if (yylval.word)
-//	t = savestring (yylval.word.word);
+//      if (gps.yylval.word)
+//	t = savestring (gps.yylval.word.word);
 //      break;
 //    case NUMBER:
-//      t = itos (yylval.number);
+//      t = itos (gps.yylval.number);
 //      break;
 //    case ARITH_CMD:
-//      if (yylval.word_list)
-//        t = string_list (yylval.word_list);
+//      if (gps.yylval.word_list)
+//        t = string_list (gps.yylval.word_list);
 //      break;
 //    case ARITH_FOR_EXPRS:
-//      if (yylval.word_list)
-//	t = string_list_internal (yylval.word_list, " ; ");
+//      if (gps.yylval.word_list)
+//	t = string_list_internal (gps.yylval.word_list, " ; ");
 //      break;
 //    case COND_CMD:
 //      t = nil;		/* punt */
@@ -5447,14 +5434,6 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 ///* A flag denoting whether or not ignoreeof is set. */
 //int ignoreeof = 0;
 //
-///* The number of times that we have encountered an EOF character without
-//   another character intervening.  When this gets above the limit, the
-//   shell terminates. */
-//int eof_encountered = 0;
-//
-///* The limit for eof_encountered. */
-//int eof_encountered_limit = 10;
-//
 ///* If we have EOF as the only input unit, this user wants to leave
 //   the shell.  If the shell is not interactive, then just leave.
 //   Otherwise, if ignoreeof is set, and we haven't done this the
@@ -5505,7 +5484,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  wl = nil;
 //
 //  if (flags & 1)
-//    parser_state |= PST_COMPASSIGN|PST_REPARSE;
+//    gps.parser_state |= PST_COMPASSIGN|PST_REPARSE;
 //
 //  while ((tok = read_token (READ)) != yacc_EOF)
 //    {
@@ -5525,7 +5504,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //	  wl = &parse_string_error;
 //	  break;
 //	}
-//      wl = make_word_list (yylval.word, wl);
+//      wl = make_word_list (gps.yylval.word, wl);
 //    }
 //  
 //  last_read_token = '\n';
@@ -5538,7 +5517,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  shell_input_line_terminator = orig_input_terminator;
 //
 //  if (flags & 1)
-//    parser_state &= ~(PST_COMPASSIGN|PST_REPARSE);
+//    gps.parser_state &= ~(PST_COMPASSIGN|PST_REPARSE);
 //
 //  if (wl == &parse_string_error)
 //    {
@@ -5570,10 +5549,10 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  token = nil;
 //  token_buffer_size = 0;
 //
-//  assignok = parser_state&PST_ASSIGNOK;		/* XXX */
+//  assignok = gps.parser_state&PST_ASSIGNOK;		/* XXX */
 //
 //  wl = nil;	/* ( */
-//  parser_state |= PST_COMPASSIGN;
+//  gps.parser_state |= PST_COMPASSIGN;
 //
 //  while ((tok = read_token (READ)) != ')')
 //    {
@@ -5593,13 +5572,13 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //	  wl = &parse_string_error;
 //	  break;
 //	}
-//      wl = make_word_list (yylval.word, wl);
+//      wl = make_word_list (gps.yylval.word, wl);
 //    }
 //
 //  token = saved_token;
 //  token_buffer_size = orig_token_size;
 //
-//  parser_state &= ~PST_COMPASSIGN;
+//  gps.parser_state &= ~PST_COMPASSIGN;
 //
 //  if (wl == &parse_string_error)
 //    {
@@ -5626,7 +5605,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //    *retlenp = (ret && *ret) ? strlen (ret) : 0;
 //
 //  if (assignok)
-//    parser_state |= PST_ASSIGNOK;
+//    gps.parser_state |= PST_ASSIGNOK;
 //
 //  return ret;
 //}
@@ -5648,11 +5627,10 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  if (ps == 0)
 //    return (nil);
 //
-//  ps.parser_state = parser_state;
+//  ps.gps.parser_state = gps.parser_state;
 //  ps.token_state = save_token_state ();
 //
 //  ps.input_line_terminator = shell_input_line_terminator;
-//  ps.eof_encountered = eof_encountered;
 //
 //  ps.current_command_line_count = current_command_line_count;
 //
@@ -5681,14 +5659,13 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  if (ps == 0)
 //    return;
 //
-//  parser_state = ps.parser_state;
+//  gps.parser_state = ps.gps.parser_state;
 //  if (ps.token_state)
 //    {
 //      restore_token_state (ps.token_state);
 //    }
 //
 //  shell_input_line_terminator = ps.input_line_terminator;
-//  eof_encountered = ps.eof_encountered;
 //
 //  current_command_line_count = ps.current_command_line_count;
 //

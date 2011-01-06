@@ -75,32 +75,32 @@ func newStack() *stack {
 	return &stack{make([]interface{}, initialCapacity), 0}
 }
 
-type int16Stack struct {
+type intStack struct {
 	inner *stack
 }
 
-func (s *int16Stack) IsEmpty() bool {
+func (s *intStack) IsEmpty() bool {
 	return s.inner.IsEmpty()
 }
 
-func (s *int16Stack) Push(v int16) {
+func (s *intStack) Push(v int) {
 	s.inner.Push(v)
 }
 
-func (s *int16Stack) Pop() int16 {
-	return s.inner.Pop().(int16)
+func (s *intStack) Pop() int {
+	return s.inner.Pop().(int)
 }
 
-func (s *int16Stack) Peek() int16 {
-	return s.inner.Peek().(int16)
+func (s *intStack) Peek() int {
+	return s.inner.Peek().(int)
 }
 
-func (s *int16Stack) PopMany(n int) {
+func (s *intStack) PopMany(n int) {
 	s.inner.PopMany(n)
 }
 
-func newInt16Stack() *int16Stack {
-	return &int16Stack{newStack()}
+func newIntStack() *intStack {
+	return &intStack{newStack()}
 }
 
 type YYSTYPEStack struct {
