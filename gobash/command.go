@@ -212,7 +212,7 @@ type CommandValue struct {
     Function_def *function_def
     Group *group_com
     Select *SelectCom
-    Arith *arith_com
+    Arith *ArithCom
     Cond *CondCom
     ArithFor *ArithForCom
     Subshell *subshell_com
@@ -307,7 +307,7 @@ type WhileCom struct {
 /* The arithmetic evaluation command, ((...)).  Just a set of flags and
    a word_list, of which the first element is the only one used, for the
    time being. */
-type arith_com struct {
+type ArithCom struct {
   flags int
   line int
   exp *word_list
