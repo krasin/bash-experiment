@@ -204,7 +204,7 @@ const CMD_COPROC_SUBSHELL = 0x1000
 
 type CommandValue struct {
     For *for_com
-    Case *case_com
+    Case *CaseCom
     While *while_com
     If *if_com
     Connection *connection
@@ -242,7 +242,7 @@ type CONNECTION struct {
 const CASEPAT_FALLTHROUGH = 0x01
 const CASEPAT_TESTNEXT = 0x02
 
-/* Pattern/action structure for CASE_COM. */
+/* Pattern/action structure for CaseCom. */
 type PatternList struct {
   next *PatternList /* Clause to try in case this one failed. */
   patterns *word_list /* Linked list of patterns to test. */
@@ -251,7 +251,7 @@ type PatternList struct {
 }
 
 /* The CASE command. */
-type case_com struct {
+type CaseCom struct {
   flags int /* See description of CMD flags. */
   line int /* line number the `case' keyword appears on */
   word *word_desc /* The thing to test. */
