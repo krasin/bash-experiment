@@ -2295,7 +2295,6 @@ case yyreturn:
 const TOKEN_DEFAULT_INITIAL_SIZE = 496
 const TOKEN_DEFAULT_GROW_SIZE = 512
 
-#define expanding_alias() (pushed_string_list && pushed_string_list.expander)
 
 /* yy_getc () returns the next available character from input or EOF.
    yy_ungetc (c) makes `c' the next character to read.
@@ -3093,14 +3092,7 @@ pop_alias:
 	/* XXX - what do we do here if we're expanding an alias whose definition
 	   ends with a newline?  Recall that we inhibit the appending of a
 	   space in mk_alexpansion() if newline is the last character. */
-#if 0	/* XXX - bash-4.2 (jonathan@claggett.org) */
-	if (expanding_alias () && shell_input_line[shell_input_line_index+1] == '\0')
-	  {
-	    uc = 0;
-	    goto pop_alias;
-	  }
-#endif
-	  
+  
 	goto restart_read;
     }
 
