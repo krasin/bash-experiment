@@ -223,6 +223,9 @@ yylval YYSTYPE
 /* Number of syntax errors so far.  */
 yynerrs int
 
+/* Global var is non-zero when end of file has been reached. */
+EOF_Reached bool
+
 } // ParserState
 
 func NewParserState() *ParserState {
@@ -732,7 +735,7 @@ func (gps *ParserState) Yyparse () {
 
   yystate = 0;
   yyerrstatus = 0;
-  yynerrs = 0;
+  gps.yynerrs = 0;
   yychar = YYEMPTY;		/* Cause a token to be read.  */
 
 	yyparseState := yysetstate
@@ -2174,7 +2177,7 @@ case yyerrlab:
   /* If not already recovering from an error, report this error.  */
   if (!yyerrstatus)
     {
-      ++yynerrs;
+      gps.yynerrs++
       yyerror (("syntax error"));
     }
 
@@ -2220,7 +2223,7 @@ case yyerrorlab:
 case yyerrlab1:
   yyerrstatus = 3;	/* Each real token shifted decrements this.  */
 
-  for (;;)
+  for
     {
       yyn = yypact[yystate];
       if (yyn != YYPACT_NINF)
@@ -2270,16 +2273,6 @@ case yyabortlab:
   yyresult = 1;
   yyparseState = yyreturn; continue;
 
-#ifndef yyoverflow
-/*-------------------------------------------------.
-| yyexhaustedlab -- memory exhaustion comes here.  |
-`-------------------------------------------------*/
-yyexhaustedlab:
-  yyerror (("memory exhausted"));
-  yyresult = 2;
-  /* Fall through.  */
-#endif
-
 case yyreturn:
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
@@ -2299,13 +2292,10 @@ case yyreturn:
 
 /* Initial size to allocate for tokens, and the
    amount to grow them by. */
-#define TOKEN_DEFAULT_INITIAL_SIZE 496
-#define TOKEN_DEFAULT_GROW_SIZE 512
+const TOKEN_DEFAULT_INITIAL_SIZE = 496
+const TOKEN_DEFAULT_GROW_SIZE = 512
 
 #define expanding_alias() (pushed_string_list && pushed_string_list.expander)
-
-/* Global var is non-zero when end of file has been reached. */
-int EOF_Reached = 0;
 
 /* yy_getc () returns the next available character from input or EOF.
    yy_ungetc (c) makes `c' the next character to read.
@@ -2550,7 +2540,7 @@ push_stream (reset_lineno)
   bash_input.name = nil;
   saver.next = stream_list;
   stream_list = saver;
-  EOF_Reached = 0;
+  gps.EOF_Reached = false;
   if (reset_lineno)
     line_number = 0;
 }
@@ -2559,12 +2549,12 @@ void
 pop_stream ()
 {
   if (!stream_list)
-    EOF_Reached = 1;
+    gps.EOF_Reached = true;
   else
     {
       STREAM_SAVER *saver = stream_list;
 
-      EOF_Reached = 0;
+      gps.EOF_Reached = false;
       stream_list = stream_list.next;
 
       init_yy_io (saver.bash_input.getter,
@@ -3548,7 +3538,7 @@ read_token (command)
 
   if (character == EOF)
     {
-      EOF_Reached = 1;
+      gps.EOF_Reached = true;
       return (yacc_EOF);
     }
 
@@ -3784,7 +3774,7 @@ parse_matched_pair (qc, open, close, lenp, flags)
       if (ch == EOF)
 	{
 	  parser_error (start_lineno, _("unexpected EOF while looking for matching `%c'"), close);
-	  EOF_Reached = 1;	/* XXX */
+	  gps.EOF_Reached = true;	/* XXX */
 	  return (&matched_pair_error);
 	}
 
@@ -4007,7 +3997,7 @@ comsub_readchar:
 	{
 eof_error:
 	  parser_error (start_lineno, _("unexpected EOF while looking for matching `%c'"), close);
-	  EOF_Reached = 1;	/* XXX */
+	  gps.EOF_Reached = true;	/* XXX */
 	  return (&matched_pair_error);
 	}
 
@@ -4555,7 +4545,7 @@ cond_error ()
 {
   char *etext;
 
-  if (EOF_Reached && cond_token != COND_ERROR)		/* [[ */
+  if (gps.EOF_Reached && cond_token != COND_ERROR)		/* [[ */
     parser_error (cond_lineno, _("unexpected EOF while looking for `]]'"));
   else if (cond_token != COND_ERROR)
     {
@@ -5442,7 +5432,7 @@ report_syntax_error (message)
   /* If the line of input we're reading is not null, try to find the
      objectionable token.  First, try to figure out what token the
      parser's complaining about by looking at current_token. */
-  if (current_token != 0 && EOF_Reached == 0 && (msg = error_token_from_token (current_token)))
+  if (current_token != 0 && !gps.EOF_Reached && (msg = error_token_from_token (current_token)))
     {
       parser_error (line_number, _("syntax error near unexpected token `%s'"), msg);
 
@@ -5467,7 +5457,7 @@ report_syntax_error (message)
     }
   else
     {
-      msg = EOF_Reached ? _("syntax error: unexpected end of file") : _("syntax error");
+      msg = gps.EOF_Reached ? _("syntax error: unexpected end of file") : _("syntax error");
       parser_error (line_number, "%s", msg);
     }
 
@@ -5512,7 +5502,7 @@ static void
 handle_eof_input_unit ()
 {
   /* We don't write history files, etc., for non-interactive shells. */
-  EOF_Reached = 1;
+  gps.EOF_Reached = true;
 }
 
 /************************************************
