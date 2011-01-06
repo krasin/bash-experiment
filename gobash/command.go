@@ -151,6 +151,19 @@ type word_list struct {
   word *word_desc
 }
 
+func reverseWordList(list *word_list) *word_list {
+	var next *word_list
+	var prev *word_list
+
+	for prev = nil; list != nil; {
+		next = list.next;
+		list.next = prev;
+		prev = list;
+		list = next;
+	}
+	return prev;
+}
+
 
 /* **************************************************************** */
 /*								    */

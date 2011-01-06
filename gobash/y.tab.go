@@ -1497,7 +1497,7 @@ case yyreduce:
   case 79:
 // #line 796 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_for_command ((yyvsp[(2) - (10)].word), REVERSE_LIST ((yyvsp[(5) - (10)].word_list), word_list *), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
+			  (yyval.command) = make_for_command ((yyvsp[(2) - (10)].word), reverseWordList(yyvsp[(5) - (10)].word_list), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top--; }
 			}
     break;
@@ -1505,7 +1505,7 @@ case yyreduce:
   case 80:
 // #line 801 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_for_command ((yyvsp[(2) - (10)].word), REVERSE_LIST ((yyvsp[(5) - (10)].word_list), word_list *), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
+			  (yyval.command) = make_for_command ((yyvsp[(2) - (10)].word), reverseWordList(yyvsp[(5) - (10)].word_list), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top--; }
 			}
     break;
@@ -1593,7 +1593,7 @@ case yyreduce:
   case 91:
 // #line 860 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_select_command ((yyvsp[(2) - (10)].word), REVERSE_LIST ((yyvsp[(5) - (10)].word_list), word_list *), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
+			  (yyval.command) = make_select_command ((yyvsp[(2) - (10)].word), reverseWordList(yyvsp[(5) - (10)].word_list), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top-- }
 			}
     break;
@@ -1601,7 +1601,7 @@ case yyreduce:
   case 92:
 // #line 865 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_select_command ((yyvsp[(2) - (10)].word), REVERSE_LIST ((yyvsp[(5) - (10)].word_list), word_list *), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
+			  (yyval.command) = make_select_command ((yyvsp[(2) - (10)].word), reverseWordList(yyvsp[(5) - (10)].word_list), (yyvsp[(9) - (10)].command), word_lineno[word_top]);
 			  if (word_top > 0) { word_top-- }
 			}
     break;
@@ -5651,7 +5651,7 @@ parse_string_to_word_list (s, flags, whom)
 	jump_to_top_level (DISCARD);
     }
 
-  return (REVERSE_LIST (wl, word_list *));
+  return reverseWordList(wl);
 }
 
 static char *
@@ -5716,9 +5716,9 @@ parse_compound_assignment (retlenp)
 
   last_read_token = orig_last_token;		/* XXX - was WORD? */
 
-  if (wl)
+  if (wl != nil)
     {
-      rl = REVERSE_LIST (wl, word_list *);
+      rl = reverseWordList(wl)
       ret = string_list (rl);
       dispose_words (rl);
     }
