@@ -2149,7 +2149,7 @@ case yyreduce:
   YYPOPSTACK (yylen);
   yylen = 0;
 
-  *++yyvsp = yyval;
+  yyvs.Push(yyval)
 
 
   /* Now `shift' the result of the reduction.  Determine what state
@@ -2253,7 +2253,7 @@ case yyerrlab1:
     yyparseState = yyacceptlab; continue;
   }
 
-  *++yyvsp = yylval;
+  yyvs.Push(yylval)
 
 
   yystate = yyn;
