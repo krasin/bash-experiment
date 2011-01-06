@@ -163,106 +163,98 @@ type word_list struct {
    use the file in FILENAME.  Out-of-range descriptors are identified by a
    negative DEST. */
 
-typedef union {
-  int dest;			/* Place to redirect REDIRECTOR to, or ... */
-  word_desc *filename;		/* filename to redirect to. */
-} REDIRECTEE;
+type REDIRECTEE struct {
+  dest int /* Place to redirect REDIRECTOR to, or ... */
+  filename *word_desc /* filename to redirect to. */
+}
 
 /* Structure describing a redirection.  If REDIRECTOR is negative, the parser
    (or translator in redir.c) encountered an out-of-range file descriptor. */
-typedef struct redirect {
-  struct redirect *next;	/* Next element, or NULL. */
-  REDIRECTEE redirector;	/* Descriptor or varname to be redirected. */
-  int rflags;			/* Private flags for this redirection */
-  int flags;			/* Flag value for `open'. */
-  enum r_instruction  instruction; /* What to do with the information. */
-  REDIRECTEE redirectee;	/* File descriptor or filename */
-  char *here_doc_eof;		/* The word that appeared in <<foo. */
-} REDIRECT;
+type REDIRECT struct {
+  next *REDIRECT /* Next element, or NULL. */
+  redirector REDIRECTEE /* Descriptor or varname to be redirected. */
+  rflags int /* Private flags for this redirection */
+  flags int /* Flag value for `open'. */
+  instruction r_instruction /* What to do with the information. */
+  redirectee REDIRECTEE /* File descriptor or filename */
+  here_doc_eof *char /* The word that appeared in <<foo. */
+}
 
 /* An element used in parsing.  A single word or a single redirection.
    This is an ephemeral construct. */
-typedef struct element {
-  word_desc *word;
-  REDIRECT *redirect;
-} ELEMENT;
+type ELEMENT struct {
+  word *word_desc
+  redirect *REDIRECT
+}
 
 /* Possible values for command->flags. */
-#define CMD_WANT_SUBSHELL  0x01	/* User wants a subshell: ( command ) */
-#define CMD_FORCE_SUBSHELL 0x02	/* Shell needs to force a subshell. */
-#define CMD_INVERT_RETURN  0x04	/* Invert the exit value. */
-#define CMD_IGNORE_RETURN  0x08	/* Ignore the exit value.  For set -e. */
-#define CMD_NO_FUNCTIONS   0x10 /* Ignore functions during command lookup. */
-#define CMD_INHIBIT_EXPANSION 0x20 /* Do not expand the command words. */
-#define CMD_NO_FORK	   0x40	/* Don't fork; just call execve */
-#define CMD_TIME_PIPELINE  0x80 /* Time a pipeline */
-#define CMD_TIME_POSIX	   0x100 /* time -p; use POSIX.2 time output spec. */
-#define CMD_AMPERSAND	   0x200 /* command & */
-#define CMD_STDIN_REDIR	   0x400 /* async command needs implicit </dev/null */
-#define CMD_COMMAND_BUILTIN 0x0800 /* command executed by `command' builtin */
-#define CMD_COPROC_SUBSHELL 0x1000
+const CMD_WANT_SUBSHELL = 0x01 /* User wants a subshell: ( command ) */
+const CMD_FORCE_SUBSHELL = 0x02 /* Shell needs to force a subshell. */
+const CMD_INVERT_RETURN = 0x04 /* Invert the exit value. */
+const CMD_IGNORE_RETURN = 0x08 /* Ignore the exit value.  For set -e. */
+const CMD_NO_FUNCTIONS = 0x10 /* Ignore functions during command lookup. */
+const CMD_INHIBIT_EXPANSION = 0x20 /* Do not expand the command words. */
+const CMD_NO_FORK = 0x40 /* Don't fork; just call execve */
+const CMD_TIME_PIPELINE = 0x80 /* Time a pipeline */
+const CMD_TIME_POSIX = 0x100 /* time -p; use POSIX.2 time output spec. */
+const CMD_AMPERSAND = 0x200 /* command & */
+const CMD_STDIN_REDIR = 0x400 /* async command needs implicit </dev/null */
+const CMD_COMMAND_BUILTIN = 0x0800 /* command executed by `command' builtin */
+const CMD_COPROC_SUBSHELL = 0x1000
 
 /* What a command looks like. */
-typedef struct command {
-  enum command_type type;	/* FOR CASE WHILE IF CONNECTION or SIMPLE. */
-  int flags;			/* Flags controlling execution environment. */
-  int line;			/* line number the command starts on */
-  REDIRECT *redirects;		/* Special redirects for FOR CASE, etc. */
-  union {
-    struct for_com *For;
-    struct case_com *Case;
-    struct while_com *While;
-    struct if_com *If;
-    struct connection *Connection;
-    struct simple_com *Simple;
-    struct function_def *Function_def;
-    struct group_com *Group;
-#if defined (SELECT_COMMAND)
-    struct select_com *Select;
-#endif
-#if defined (DPAREN_ARITHMETIC)
-    struct arith_com *Arith;
-#endif
-#if defined (COND_COMMAND)
-    struct cond_com *Cond;
-#endif
-#if defined (ARITH_FOR_COMMAND)
-    struct arith_for_com *ArithFor;
-#endif
-    struct subshell_com *Subshell;
-    struct coproc_com *Coproc;
+type COMMAND struct {
+  type command_type /* FOR CASE WHILE IF CONNECTION or SIMPLE. */
+  flags int /* Flags controlling execution environment. */
+  line int /* line number the command starts on */
+  redirects *REDIRECT /* Special redirects for FOR CASE, etc. */
+  struct {
+    For *for_com
+    Case *case_com
+    While *while_com
+    If *if_com
+    Connection *connection
+    Simple *simple_com
+    Function_def *function_def
+    Group *group_com
+    Select *select_com
+    Arith *arith_com
+    Cond *cond_com
+    ArithFor *arith_for_com
+    Subshell *subshell_com
+    Coproc *coproc_com
   } value;
 } COMMAND;
 
 /* Structure used to represent the CONNECTION type. */
-typedef struct connection {
-  int ignore;			/* Unused; simplifies make_command (). */
-  COMMAND *first;		/* Pointer to the first command. */
-  COMMAND *second;		/* Pointer to the second command. */
-  int connector;		/* What separates this command from others. */
+type CONNECTION struct {
+  ignore int /* Unused; simplifies make_command (). */
+  first *COMMAND /* Pointer to the first command. */
+  second *COMMAND /* Pointer to the second command. */
+  connector int /* What separates this command from others. */
 } CONNECTION;
 
 /* Structures used to represent the CASE command. */
 
 /* Values for FLAGS word in a PATTERN_LIST */
-#define CASEPAT_FALLTHROUGH	0x01
-#define CASEPAT_TESTNEXT	0x02
+const CASEPAT_FALLTHROUGH = 0x01
+const CASEPAT_TESTNEXT = 0x02
 
 /* Pattern/action structure for CASE_COM. */
-typedef struct pattern_list {
-  struct pattern_list *next;	/* Clause to try in case this one failed. */
-  word_list *patterns;		/* Linked list of patterns to test. */
-  COMMAND *action;		/* Thing to execute if a pattern matches. */
-  int flags;
-} PATTERN_LIST;
+type pattern_list struct {
+  next *pattern_list /* Clause to try in case this one failed. */
+  patterns *word_list /* Linked list of patterns to test. */
+  action *COMMAND /* Thing to execute if a pattern matches. */
+  flags int
+}
 
 /* The CASE command. */
-typedef struct case_com {
-  int flags;			/* See description of CMD flags. */
-  int line;			/* line number the `case' keyword appears on */
-  word_desc *word;		/* The thing to test. */
-  PATTERN_LIST *clauses;	/* The clauses to test against, or NULL. */
-} CASE_COM;
+type case_com struct {
+  flags int /* See description of CMD flags. */
+  line int /* line number the `case' keyword appears on */
+  word *word_desc /* The thing to test. */
+  clauses *PATTERN_LIST /* The clauses to test against, or NULL. */
+}
 
 /* FOR command. */
 typedef struct for_com {
