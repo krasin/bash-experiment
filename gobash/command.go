@@ -202,13 +202,7 @@ const CMD_STDIN_REDIR = 0x400 /* async command needs implicit </dev/null */
 const CMD_COMMAND_BUILTIN = 0x0800 /* command executed by `command' builtin */
 const CMD_COPROC_SUBSHELL = 0x1000
 
-/* What a command looks like. */
-type COMMAND struct {
-  type command_type /* FOR CASE WHILE IF CONNECTION or SIMPLE. */
-  flags int /* Flags controlling execution environment. */
-  line int /* line number the command starts on */
-  redirects *REDIRECT /* Special redirects for FOR CASE, etc. */
-  struct {
+type CommandValue struct {
     For *for_com
     Case *case_com
     While *while_com
@@ -223,8 +217,16 @@ type COMMAND struct {
     ArithFor *arith_for_com
     Subshell *subshell_com
     Coproc *coproc_com
-  } value;
-} COMMAND;
+}
+
+/* What a command looks like. */
+type COMMAND struct {
+  typ command_type /* FOR CASE WHILE IF CONNECTION or SIMPLE. */
+  flags int /* Flags controlling execution environment. */
+  line int /* line number the command starts on */
+  redirects *REDIRECT /* Special redirects for FOR CASE, etc. */
+  value CommandValue
+}
 
 /* Structure used to represent the CONNECTION type. */
 type CONNECTION struct {
@@ -232,7 +234,7 @@ type CONNECTION struct {
   first *COMMAND /* Pointer to the first command. */
   second *COMMAND /* Pointer to the second command. */
   connector int /* What separates this command from others. */
-} CONNECTION;
+}
 
 /* Structures used to represent the CASE command. */
 
@@ -257,153 +259,133 @@ type case_com struct {
 }
 
 /* FOR command. */
-typedef struct for_com {
-  int flags;		/* See description of CMD flags. */
-  int line;		/* line number the `for' keyword appears on */
-  word_desc *name;	/* The variable name to get mapped over. */
-  word_list *map_list;	/* The things to map over.  This is never NULL. */
-  COMMAND *action;	/* The action to execute.
+type for_com struct {
+  flags int /* See description of CMD flags. */
+  line int /* line number the `for' keyword appears on */
+  name *word_desc /* The variable name to get mapped over. */
+  map_list *word_list /* The things to map over.  This is never NULL. */
+  action *COMMAND	/* The action to execute.
 			   During execution, NAME is bound to successive
 			   members of MAP_LIST. */
-} FOR_COM;
+}
 
-#if defined (ARITH_FOR_COMMAND)
-typedef struct arith_for_com {
-  int flags;
-  int line;	/* generally used for error messages */
-  word_list *init;
-  word_list *test;
-  word_list *step;
-  COMMAND *action;
-} ARITH_FOR_COM;
-#endif
+type arith_for_com struct {
+  flags int
+  line int /* generally used for error messages */
+  init *word_list
+  test *word_list
+  step *word_list
+  action *COMMAND
+}
 
-#if defined (SELECT_COMMAND)
 /* KSH SELECT command. */
-typedef struct select_com {
-  int flags;		/* See description of CMD flags. */
-  int line;		/* line number the `select' keyword appears on */
-  word_desc *name;	/* The variable name to get mapped over. */
-  word_list *map_list;	/* The things to map over.  This is never NULL. */
-  COMMAND *action;	/* The action to execute.
+type select_com struct {
+  flags int /* See description of CMD flags. */
+  line int /* line number the `select' keyword appears on */
+  name *word_desc /* The variable name to get mapped over. */
+  map_list *word_list /* The things to map over.  This is never NULL. */
+  action *COMMAND	/* The action to execute.
 			   During execution, NAME is bound to the member of
 			   MAP_LIST chosen by the user. */
-} SELECT_COM;
-#endif /* SELECT_COMMAND */
+}
 
 /* IF command. */
-typedef struct if_com {
-  int flags;			/* See description of CMD flags. */
-  COMMAND *test;		/* Thing to test. */
-  COMMAND *true_case;		/* What to do if the test returned non-zero. */
-  COMMAND *false_case;		/* What to do if the test returned zero. */
-} IF_COM;
+type if_com struct {
+  flags int /* See description of CMD flags. */
+  test *COMMAND /* Thing to test. */
+  true_case *COMMAND /* What to do if the test returned non-zero. */
+  false_case *COMMAND /* What to do if the test returned zero. */
+}
 
 /* WHILE command. */
-typedef struct while_com {
-  int flags;			/* See description of CMD flags. */
-  COMMAND *test;		/* Thing to test. */
-  COMMAND *action;		/* Thing to do while test is non-zero. */
-} WHILE_COM;
+type while_com struct {
+  flags int /* See description of CMD flags. */
+  test *COMMAND /* Thing to test. */
+  action *COMMAND /* Thing to do while test is non-zero. */
+}
 
-#if defined (DPAREN_ARITHMETIC)
 /* The arithmetic evaluation command, ((...)).  Just a set of flags and
    a word_list, of which the first element is the only one used, for the
    time being. */
-typedef struct arith_com {
-  int flags;
-  int line;
-  word_list *exp;
-} ARITH_COM;
-#endif /* DPAREN_ARITHMETIC */
+type arith_com struct {
+  flags int
+  line int
+  exp *word_list
+}
 
 /* The conditional command, [[...]].  This is a binary tree -- we slippped
    a recursive-descent parser into the YACC grammar to parse it. */
-#define COND_AND	1
-#define COND_OR		2
-#define COND_UNARY	3
-#define COND_BINARY	4
-#define COND_TERM	5
-#define COND_EXPR	6
+const COND_AND = 1
+const COND_OR = 2
+const COND_UNARY = 3
+const COND_BINARY = 4
+const COND_TERM = 5
+const COND_EXPR = 6
 
-typedef struct cond_com {
-  int flags;
-  int line;
-  int type;
-  word_desc *op;
-  struct cond_com *left, *right;
-} COND_COM;
+type cond_com struct {
+  flags int
+  line int
+  typ int
+  op *word_desc
+  left *cond_com
+  right *cond_com
+}
 
 /* The "simple" command.  Just a collection of words and redirects. */
-typedef struct simple_com {
-  int flags;			/* See description of CMD flags. */
-  int line;			/* line number the command starts on */
+type simple_com struct {
+  flags int /* See description of CMD flags. */
+  line int /* line number the command starts on */
   word_list *words;		/* The program name, the arguments,
 				   variable assignments, etc. */
-  REDIRECT *redirects;		/* Redirections to perform. */
-} SIMPLE_COM;
+  redirects *REDIRECT /* Redirections to perform. */
+}
 
 /* The "function definition" command. */
-typedef struct function_def {
-  int flags;			/* See description of CMD flags. */
-  int line;			/* Line number the function def starts on. */
-  word_desc *name;		/* The name of the function. */
-  COMMAND *command;		/* The parsed execution tree. */
-  char *source_file;		/* file in which function was defined, if any */
-} FUNCTION_DEF;
+type function_def struct {
+  flags int /* See description of CMD flags. */
+  line int /* Line number the function def starts on. */
+  name *word_desc /* The name of the function. */
+  command *COMMAND /* The parsed execution tree. */
+  source_file *char /* file in which function was defined, if any */
+}
 
 /* A command that is `grouped' allows pipes and redirections to affect all
    commands in the group. */
-typedef struct group_com {
-  int ignore;			/* See description of CMD flags. */
-  COMMAND *command;
-} GROUP_COM;
+type group_com struct {
+  ignore int /* See description of CMD flags. */
+  command *COMMAND
+}
 
-typedef struct subshell_com {
-  int flags;
-  COMMAND *command;
-} SUBSHELL_COM;
+type subshell_com struct {
+  flags int
+  command *COMMAND
+}
 
-#define COPROC_RUNNING	0x01
-#define COPROC_DEAD	0x02
+const COPROC_RUNNING = 0x01
+const COPROC_DEAD = 0x02
 
-typedef struct coproc {
-  char *c_name;
-  pid_t c_pid;
-  int c_rfd;
-  int c_wfd;
-  int c_rsave;
-  int c_wsave;
-  int c_flags;
-  int c_status;
-} Coproc;
+type coproc struct {
+  c_name *char
+  c_pid pid_t
+  c_rfd int
+  c_wfd int
+  c_rsave int
+  c_wsave int
+  c_flags int
+  c_status int
+}
 
-typedef struct coproc_com {
-  int flags;
-  char *name;
-  COMMAND *command;
-} COPROC_COM;
-
-extern COMMAND *global_command;
-extern Coproc sh_coproc;
+type coproc_com struct {
+  flags int
+  name *char
+  command *COMMAND
+}
 
 /* Possible command errors */
-#define CMDERR_DEFAULT	0
-#define CMDERR_BADTYPE	1
-#define CMDERR_BADCONN	2
-#define CMDERR_BADJUMP	3
+const CMDERR_DEFAULT = 0
+const CMDERR_BADTYPE = 1
+const CMDERR_BADCONN = 2
+const CMDERR_BADJUMP = 3
 
-#define CMDERR_LAST	3
+const CMDERR_LAST = 3
 
-/* Forward declarations of functions declared in copy_cmd.c. */
-
-extern FUNCTION_DEF *copy_function_def_contents __P((FUNCTION_DEF *, FUNCTION_DEF *));
-extern FUNCTION_DEF *copy_function_def __P((FUNCTION_DEF *));
-
-extern word_desc *copy_word __P((word_desc *));
-extern word_list *copy_word_list __P((word_list *));
-extern REDIRECT *copy_redirect __P((REDIRECT *));
-extern REDIRECT *copy_redirects __P((REDIRECT *));
-extern COMMAND *copy_command __P((COMMAND *));
-
-#endif /* _COMMAND_H_ */
