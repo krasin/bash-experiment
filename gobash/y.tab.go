@@ -143,6 +143,8 @@ const MAX_CASE_NEST = 128
 
 type ParserState struct {
 
+global_command *Command
+
 /* Non-zero means we expand aliases in commands. */
 expand_aliases int
 
@@ -693,7 +695,7 @@ const (
 | yyparse.  |
 `----------*/
 
-func (s *ParserState) Yyparse () {
+func (gps *ParserState) Yyparse () {
   var yystate int
   var yyn int
   var yyresult int
@@ -859,7 +861,7 @@ case yyreduce:
     {
 			  /* Case of regular command.  Discard the error
 			     safety net,and return the command just parsed. */
-			  global_command = (yyvsp[(1) - (2)].command);
+			  gps.global_command = (yyvsp[(1) - (2)].command);
 			  eof_encountered = 0;
 			  /* discard_parser_constructs (0); */
 			  if (parser_state & PST_CMDSUBST) {
@@ -874,7 +876,7 @@ case yyreduce:
     {
 			  /* Case of regular command, but not a very
 			     interesting one.  Return a NULL command. */
-			  global_command = nil;
+			  gps.global_command = nil;
 			  if (parser_state & PST_CMDSUBST) {
 			    parser_state |= PST_EOFTOKEN;
 			  }
@@ -886,7 +888,7 @@ case yyreduce:
 // #line 394 "/Users/chet/src/bash/src/parse.y"
     {
 			  /* Error during parsing.  Return NULL command. */
-			  global_command = nil
+			  gps.global_command = nil
 			  eof_encountered = 0;
 			  /* discard_parser_constructs (1); */
 			  yyparseState = yyabortlab; continue;
@@ -898,7 +900,7 @@ case yyreduce:
     {
 			  /* Case of EOF seen by itself.  Do ignoreeof or
 			     not. */
-			  global_command = nil
+			  gps.global_command = nil
 			  handle_eof_input_unit ();
 			  yyparseState = yyacceptlab; continue;
 			}
@@ -1946,7 +1948,7 @@ case yyreduce:
 			    gather_here_documents ();
 			  if ((parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
 			    {
-			      global_command = (yyvsp[(1) - (1)].command);
+			      gps.global_command = (yyvsp[(1) - (1)].command);
 			      eof_encountered = 0;
 			      rewind_input_string ();
 			      yyparseState = yyacceptlab; continue;
@@ -1965,7 +1967,7 @@ case yyreduce:
 			    gather_here_documents ();
 			  if ((parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
 			    {
-			      global_command = (yyvsp[(1) - (2)].command);
+			      gps.global_command = (yyvsp[(1) - (2)].command);
 			      eof_encountered = 0;
 			      rewind_input_string ();
 			      yyparseState = yyacceptlab; continue;
@@ -1981,7 +1983,7 @@ case yyreduce:
 			    gather_here_documents ();
 			  if ((parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
 			    {
-			      global_command = (yyvsp[(1) - (2)].command);
+			      gps.global_command = (yyvsp[(1) - (2)].command);
 			      eof_encountered = 0;
 			      rewind_input_string ();
 			      yyparseState = yyacceptlab; continue;
