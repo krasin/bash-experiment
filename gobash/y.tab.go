@@ -2288,11 +2288,6 @@ case yyreturn:
     {
       YYPOPSTACK (1);
     }
-#ifndef yyoverflow
-  if (yyss != yyssa) {
-    YYSTACK_FREE (yyss);
-  }
-#endif
   return  (yyresult);
 }
 }
@@ -2337,7 +2332,6 @@ void
 initialize_bash_input ()
 {
   bash_input.typ = st_none;
-  FREE (bash_input.name);
   bash_input.name = nil;
   bash_input.location.file = nil;
   bash_input.location.string = nil;
@@ -2356,7 +2350,6 @@ init_yy_io (get, unget, typ, name, location)
      INPUT_STREAM location;
 {
   bash_input.typ = typ;
-  FREE (bash_input.name);
   bash_input.name = name ? savestring (name) : nil;
 
   /* XXX */
@@ -2602,8 +2595,6 @@ pop_stream ()
 
       line_number = saver.line;
 
-      FREE (saver.bash_input.name);
-      free (saver);
     }
 }
 
@@ -2724,7 +2715,6 @@ pop_string ()
 {
   STRING_SAVER *t;
 
-  FREE (shell_input_line);
   shell_input_line = pushed_string_list.saved_line;
   shell_input_line_index = pushed_string_list.saved_line_index;
   shell_input_line_size = pushed_string_list.saved_line_size;
@@ -2741,7 +2731,6 @@ pop_string ()
   if (t.expander)
     t.expander.flags &= ~AL_BEINGEXPANDED;
 
-  free ((char *)t);
 
   set_line_mbstate ();
 }
@@ -2754,10 +2743,8 @@ free_string_list ()
   for (t = pushed_string_list; t; )
     {
       t1 = t.next;
-      FREE (t.saved_line);
       if (t.expander)
 	t.expander.flags &= ~AL_BEINGEXPANDED;
-      free ((char *)t);
       t = t1;
     }
   pushed_string_list = nil;
@@ -3189,7 +3176,6 @@ execute_variable_command (command, vname)
 
   restore_parser_state (&ps);
   bind_variable ("_", last_lastarg, 0);
-  FREE (last_lastarg);
 
   if (token_to_read == '\n')	/* reset_parser was called */
     token_to_read = 0;
@@ -3498,12 +3484,10 @@ reset_parser ()
 
   if (shell_input_line)
     {
-      free (shell_input_line);
       shell_input_line = nil;
       shell_input_line_size = shell_input_line_index = 0;
     }
 
-  FREE (word_desc_to_read);
   word_desc_to_read = nil;
 
   current_token = '\n';		/* XXX */
@@ -3752,7 +3736,6 @@ tokword:
   do { \
     if (nestret == &matched_pair_error) \
       { \
-	free (ret); \
 	return &matched_pair_error; \
       } \
   } while (0)
@@ -3800,7 +3783,6 @@ parse_matched_pair (qc, open, close, lenp, flags)
 
       if (ch == EOF)
 	{
-	  free (ret);
 	  parser_error (start_lineno, _("unexpected EOF while looking for matching `%c'"), close);
 	  EOF_Reached = 1;	/* XXX */
 	  return (&matched_pair_error);
@@ -3913,12 +3895,10 @@ parse_matched_pair (qc, open, close, lenp, flags)
 		{
 		  /* Translate $'...' here. */
 		  ttrans = ansiexpand (nestret, 0, nestlen - 1, &ttranslen);
-		  xfree (nestret);
 
 		  if ((rflags & P_DQUOTE) == 0)
 		    {
 		      nestret = sh_single_quote (ttrans);
-		      free (ttrans);
 		      nestlen = strlen (nestret);
 		    }
 		  else
@@ -3932,16 +3912,13 @@ parse_matched_pair (qc, open, close, lenp, flags)
 		{
 		  /* Locale expand $"..." here. */
 		  ttrans = localeexpand (nestret, 0, nestlen - 1, start_lineno, &ttranslen);
-		  xfree (nestret);
 
 		  nestret = sh_mkdoublequoted (ttrans, ttranslen, 0);
-		  free (ttrans);
 		  nestlen = ttranslen + 2;
 		  retind -= 2;		/* back up before the $" */
 		}
 
 	      APPEND_NESTRET ();
-	      FREE (nestret);
 	    }
 	  else if ((flags & P_ARRAYSUB) && (tflags & LEX_WASDOL) && (ch == '(' || ch == '{' || ch == '['))	/* ) } ] */
 	    goto parse_dollar_word;
@@ -3956,7 +3933,6 @@ parse_matched_pair (qc, open, close, lenp, flags)
 	  CHECK_NESTRET_ERROR ();
 	  APPEND_NESTRET ();
 
-	  FREE (nestret);
 	}
       else if MBTEST(open != '`' && (tflags & LEX_WASDOL) && (ch == '(' || ch == '{' || ch == '['))	/* ) } ] */
 	/* check for $(), $[], or ${} inside quoted string. */
@@ -3974,7 +3950,6 @@ parse_dollar_word:
 	  CHECK_NESTRET_ERROR ();
 	  APPEND_NESTRET ();
 
-	  FREE (nestret);
 	}
       if MBTEST(ch == '$')
 	tflags |= LEX_WASDOL;
@@ -4031,8 +4006,6 @@ comsub_readchar:
       if (ch == EOF)
 	{
 eof_error:
-	  free (ret);
-	  FREE (heredelim);
 	  parser_error (start_lineno, _("unexpected EOF while looking for matching `%c'"), close);
 	  EOF_Reached = 1;	/* XXX */
 	  return (&matched_pair_error);
@@ -4061,7 +4034,6 @@ eof_error:
 		{
 		  tflags &= ~(LEX_STRIPDOC|LEX_INHEREDOC);
 /*itrace("parse_comsub:%d: found here doc end `%s'", line_number, ret + tind);*/
-		  free (heredelim);
 		  heredelim = 0;
 		  lex_firstind = -1;
 		}
@@ -4083,7 +4055,6 @@ eof_error:
 	    {
 	      tflags &= ~(LEX_STRIPDOC|LEX_INHEREDOC);
 /*itrace("parse_comsub:%d: found here doc end `%s'", line_number, ret + tind);*/
-	      free (heredelim);
 	      heredelim = 0;
 	      lex_firstind = -1;
 	    }
@@ -4179,7 +4150,6 @@ eof_error:
 		{
 		  nestret = substring (ret, lex_firstind, retind);
 		  heredelim = string_quote_removal (nestret, 0);
-		  free (nestret);
 		  hdlen = STRLEN(heredelim);
 /*itrace("parse_comsub:%d: found here doc delimiter `%s' (%d)", line_number, heredelim, hdlen);*/
 		}
@@ -4360,12 +4330,10 @@ eof_error:
 	    {
 	      /* Translate $'...' here. */
 	      ttrans = ansiexpand (nestret, 0, nestlen - 1, &ttranslen);
-	      xfree (nestret);
 
 	      if ((rflags & P_DQUOTE) == 0)
 		{
 		  nestret = sh_single_quote (ttrans);
-		  free (ttrans);
 		  nestlen = strlen (nestret);
 		}
 	      else
@@ -4379,16 +4347,13 @@ eof_error:
 	    {
 	      /* Locale expand $"..." here. */
 	      ttrans = localeexpand (nestret, 0, nestlen - 1, start_lineno, &ttranslen);
-	      xfree (nestret);
 
 	      nestret = sh_mkdoublequoted (ttrans, ttranslen, 0);
-	      free (ttrans);
 	      nestlen = ttranslen + 2;
 	      retind -= 2;		/* back up before the $" */
 	    }
 
 	  APPEND_NESTRET ();
-	  FREE (nestret);
 	}
       else if MBTEST((tflags & LEX_WASDOL) && (ch == '(' || ch == '{' || ch == '['))	/* ) } ] */
 	/* check for $(), $[], or ${} inside command substitution. */
@@ -4405,7 +4370,6 @@ eof_error:
 	  CHECK_NESTRET_ERROR ();
 	  APPEND_NESTRET ();
 
-	  FREE (nestret);
 	}
       if MBTEST(ch == '$')
 	tflags |= LEX_WASDOL;
@@ -4413,7 +4377,6 @@ eof_error:
 	tflags &= ~LEX_WASDOL;
     }
 
-  FREE (heredelim);
   ret[retind] = '\0';
   if (lenp)
     *lenp = retind;
@@ -4584,7 +4547,6 @@ parse_arith_cmd (ep, adddq)
     }
 
   *ep = tokstr;
-  FREE (ttok);
   return rval;
 }
 
@@ -4600,7 +4562,6 @@ cond_error ()
       if (etext = error_token_from_token (cond_token))
 	{
 	  parser_error (cond_lineno, _("syntax error in conditional expression: unexpected token `%s'"), etext);
-	  free (etext);
 	}
       else
 	parser_error (cond_lineno, _("syntax error in conditional expression"));
@@ -4680,7 +4641,6 @@ cond_term ()
 	  if (etext = error_token_from_token (cond_token))
 	    {
 	      parser_error (lineno, _("unexpected token `%s', expected `)'"), etext);
-	      free (etext);
 	    }
 	  else
 	    parser_error (lineno, _("expected `)'"));
@@ -4712,7 +4672,6 @@ cond_term ()
 	  if (etext = error_token_from_token (tok))
 	    {
 	      parser_error (line_number, _("unexpected argument `%s' to conditional unary operator"), etext);
-	      free (etext);
 	    }
 	  else
 	    parser_error (line_number, _("unexpected argument to conditional unary operator"));
@@ -4760,7 +4719,6 @@ cond_term ()
 	  if (etext = error_token_from_token (tok))
 	    {
 	      parser_error (line_number, _("unexpected token `%s', conditional binary operator expected"), etext);
-	      free (etext);
 	    }
 	  else
 	    parser_error (line_number, _("conditional binary operator expected"));
@@ -4786,7 +4744,6 @@ cond_term ()
 	  if (etext = error_token_from_token (tok))
 	    {
 	      parser_error (line_number, _("unexpected argument `%s' to conditional binary operator"), etext);
-	      free (etext);
 	    }
 	  else
 	    parser_error (line_number, _("unexpected argument to conditional binary operator"));
@@ -4804,7 +4761,6 @@ cond_term ()
       else if (etext = error_token_from_token (tok))
 	{
 	  parser_error (line_number, _("unexpected token `%s' in conditional command"), etext);
-	  free (etext);
 	}
       else
 	parser_error (line_number, _("unexpected token %d in conditional command"), tok);
@@ -4955,7 +4911,6 @@ read_token_word (character)
 	  all_digit_token = 0;
 	  quoted = 1;
 	  dollar_present |= (character == '"' && strchr (ttok, '$') != 0);
-	  FREE (ttok);
 	  goto next_character;
 	}
 
@@ -4977,7 +4932,6 @@ read_token_word (character)
 	  token[token_index++] = character;
 	  strcpy (token + token_index, ttok);
 	  token_index += ttoklen;
-	  FREE (ttok);
 	  dollar_present = all_digit_token = 0;
 	  goto next_character;
 	}
@@ -5000,7 +4954,6 @@ read_token_word (character)
 	      token[token_index++] = peek_char;
 	      strcpy (token + token_index, ttok);
 	      token_index += ttoklen;
-	      FREE (ttok);
 	      dollar_present = all_digit_token = 0;
 	      goto next_character;
 	    }
@@ -5041,7 +4994,6 @@ read_token_word (character)
 	      token[token_index++] = peek_char;
 	      strcpy (token + token_index, ttok);
 	      token_index += ttoklen;
-	      FREE (ttok);
 	      dollar_present = 1;
 	      all_digit_token = 0;
 	      goto next_character;
@@ -5062,13 +5014,11 @@ read_token_word (character)
 	      if (peek_char == '\'')
 		{
 		  ttrans = ansiexpand (ttok, 0, ttoklen - 1, &ttranslen);
-		  free (ttok);
 
 		  /* Insert the single quotes and correctly quote any
 		     embedded single quotes (allowed because P_ALLOWESC was
 		     passed to parse_matched_pair). */
 		  ttok = sh_single_quote (ttrans);
-		  free (ttrans);
 		  ttranslen = strlen (ttok);
 		  ttrans = ttok;
 		}
@@ -5076,11 +5026,9 @@ read_token_word (character)
 		{
 		  /* Try to locale-expand the converted string. */
 		  ttrans = localeexpand (ttok, 0, ttoklen - 1, first_line, &ttranslen);
-		  free (ttok);
 
 		  /* Add the double quotes back */
 		  ttok = sh_mkdoublequoted (ttrans, ttranslen, 0);
-		  free (ttrans);
 		  ttranslen += 2;
 		  ttrans = ttok;
 		}
@@ -5090,7 +5038,6 @@ read_token_word (character)
 				      TOKEN_DEFAULT_GROW_SIZE);
 	      strcpy (token + token_index, ttrans);
 	      token_index += ttranslen;
-	      FREE (ttrans);
 	      quoted = 1;
 	      all_digit_token = 0;
 	      goto next_character;
@@ -5109,7 +5056,6 @@ read_token_word (character)
 	      token_index += 2;
 	      dollar_present = 1;
 	      all_digit_token = 0;
-	      FREE (ttok);
 	      goto next_character;
 	    }
 	  else
@@ -5132,7 +5078,6 @@ read_token_word (character)
 	  token[token_index++] = character;
 	  strcpy (token + token_index, ttok);
 	  token_index += ttoklen;
-	  FREE (ttok);
 	  all_digit_token = 0;
 	  goto next_character;
         }
@@ -5156,7 +5101,6 @@ read_token_word (character)
 		  token_index += ttoklen;
 		}
 	      token[token_index++] = ')';
-	      FREE (ttok);
 	      all_digit_token = 0;
 	      compound_assignment = 1;
 	      goto next_character;
@@ -5476,7 +5420,6 @@ print_offending_line ()
     msg[--token_end] = '\0';
 
   parser_error (line_number, "`%s'", msg);
-  free (msg);
 }
 
 /* Report a syntax error with line numbers, etc.
@@ -5502,7 +5445,6 @@ report_syntax_error (message)
   if (current_token != 0 && EOF_Reached == 0 && (msg = error_token_from_token (current_token)))
     {
       parser_error (line_number, _("syntax error near unexpected token `%s'"), msg);
-      free (msg);
 
       print_offending_line ();
 
@@ -5519,7 +5461,6 @@ report_syntax_error (message)
       if (msg)
 	{
 	  parser_error (line_number, _("syntax error near `%s'"), msg);
-	  free (msg);
 	}
 
       print_offending_line ();
@@ -5704,7 +5645,6 @@ parse_compound_assignment (retlenp)
       wl = make_word_list (yylval.word, wl);
     }
 
-  FREE (token);
   token = saved_token;
   token_buffer_size = orig_token_size;
 
@@ -5794,7 +5734,6 @@ restore_parser_state (ps)
   if (ps.token_state)
     {
       restore_token_state (ps.token_state);
-      free (ps.token_state);
     }
 
   shell_input_line_terminator = ps.input_line_terminator;
@@ -5833,7 +5772,6 @@ set_line_mbstate ()
   if (shell_input_line == NULL)
     return;
   len = strlen (shell_input_line);	/* XXX - shell_input_line_len ? */
-  FREE (shell_input_line_property);
   shell_input_line_property = (char *)xmalloc (len + 1);
 
   memset (&prevs, '\0', sizeof (mbstate_t));
