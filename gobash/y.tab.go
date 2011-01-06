@@ -209,8 +209,8 @@ word_top int
 token_to_read int
 word_desc_to_read word_desc
 
-source REDIRECTEE
-redir REDIRECTEE
+source Redirectee
+redir Redirectee
 
 /* The look-ahead symbol.  */
 yychar int
@@ -2090,7 +2090,7 @@ case yyreduce:
     {
 			  /* Make cmd1 |& cmd2 equivalent to cmd1 2>&1 | cmd2 */
 			  Command *tc;
-			  REDIRECTEE rd, sd;
+			  Redirectee rd, sd;
 			  REDIRECT *r;
 
 			  tc = (yyvsp[(1) - (4)].command).type == cm_simple ? (Command *)(yyvsp[(1) - (4)].command).value.Simple : (yyvsp[(1) - (4)].command);

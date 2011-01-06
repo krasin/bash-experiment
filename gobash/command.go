@@ -163,7 +163,7 @@ type word_list struct {
    use the file in FILENAME.  Out-of-range descriptors are identified by a
    negative DEST. */
 
-type REDIRECTEE struct {
+type Redirectee struct {
   dest int /* Place to redirect REDIRECTOR to, or ... */
   filename *word_desc /* filename to redirect to. */
 }
@@ -172,11 +172,11 @@ type REDIRECTEE struct {
    (or translator in redir.c) encountered an out-of-range file descriptor. */
 type REDIRECT struct {
   next *REDIRECT /* Next element, or NULL. */
-  redirector REDIRECTEE /* Descriptor or varname to be redirected. */
+  redirector Redirectee /* Descriptor or varname to be redirected. */
   rflags int /* Private flags for this redirection */
   flags int /* Flag value for `open'. */
   instruction r_instruction /* What to do with the information. */
-  redirectee REDIRECTEE /* File descriptor or filename */
+  redirectee Redirectee /* File descriptor or filename */
   here_doc_eof *char /* The word that appeared in <<foo. */
 }
 
