@@ -918,7 +918,7 @@ case yyreduce:
     {
 			  gps.source.dest = 1;
 			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_output_direction, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_output_direction, gps.redir, 0);
 			}
     break;
 
@@ -927,7 +927,7 @@ case yyreduce:
     {
 			  gps.source.dest = 0;
 			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_input_direction, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_input_direction, gps.redir, 0);
 			}
     break;
 
@@ -936,7 +936,7 @@ case yyreduce:
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_output_direction, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_output_direction, gps.redir, 0);
 			}
     break;
 
@@ -945,7 +945,7 @@ case yyreduce:
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_input_direction, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_input_direction, gps.redir, 0);
 			}
     break;
 
@@ -954,7 +954,7 @@ case yyreduce:
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_output_direction, gps.redir, REDIR_VARASSIGN);
+			  (yyval.redirect) = makeRedirection (gps.source, r_output_direction, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -963,7 +963,7 @@ case yyreduce:
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_input_direction, gps.redir, REDIR_VARASSIGN);
+			  (yyval.redirect) = makeRedirection (gps.source, r_input_direction, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -972,7 +972,7 @@ case yyreduce:
     {
 			  gps.source.dest = 1;
 			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_appending_to, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_appending_to, gps.redir, 0);
 			}
     break;
 
@@ -981,7 +981,7 @@ case yyreduce:
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_appending_to, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_appending_to, gps.redir, 0);
 			}
     break;
 
@@ -990,7 +990,7 @@ case yyreduce:
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_appending_to, gps.redir, REDIR_VARASSIGN);
+			  (yyval.redirect) = makeRedirection (gps.source, r_appending_to, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -999,7 +999,7 @@ case yyreduce:
     {
 			  gps.source.dest = 1;
 			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_output_force, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_output_force, gps.redir, 0);
 			}
     break;
 
@@ -1008,7 +1008,7 @@ case yyreduce:
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_output_force, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_output_force, gps.redir, 0);
 			}
     break;
 
@@ -1017,7 +1017,7 @@ case yyreduce:
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_output_force, gps.redir, REDIR_VARASSIGN);
+			  (yyval.redirect) = makeRedirection (gps.source, r_output_force, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -1026,7 +1026,7 @@ case yyreduce:
     {
 			  gps.source.dest = 0;
 			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_input_output, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_input_output, gps.redir, 0);
 			}
     break;
 
@@ -1035,7 +1035,7 @@ case yyreduce:
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_input_output, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_input_output, gps.redir, 0);
 			}
     break;
 
@@ -1044,7 +1044,7 @@ case yyreduce:
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_input_output, gps.redir, REDIR_VARASSIGN);
+			  (yyval.redirect) = makeRedirection (gps.source, r_input_output, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -1053,7 +1053,7 @@ case yyreduce:
     {
 			  gps.source.dest = 0;
 			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_reading_until, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_reading_until, gps.redir, 0);
 			  redir_stack[need_here_doc] = (yyval.redirect);
 				need_here_doc++
 			}
@@ -1064,7 +1064,7 @@ case yyreduce:
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_reading_until, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_reading_until, gps.redir, 0);
 			  redir_stack[need_here_doc] = (yyval.redirect);
 				need_here_doc++
 			}
@@ -1075,7 +1075,7 @@ case yyreduce:
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_reading_until, gps.redir, REDIR_VARASSIGN);
+			  (yyval.redirect) = makeRedirection (gps.source, r_reading_until, gps.redir, REDIR_VARASSIGN);
 			  redir_stack[need_here_doc] = (yyval.redirect);
 				need_here_doc++
 			}
@@ -1086,7 +1086,7 @@ case yyreduce:
     {
 			  gps.source.dest = 0;
 			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_deblank_reading_until, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_deblank_reading_until, gps.redir, 0);
 			  redir_stack[need_here_doc] = (yyval.redirect);
 				need_here_doc++
 			}
@@ -1097,7 +1097,7 @@ case yyreduce:
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_deblank_reading_until, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_deblank_reading_until, gps.redir, 0);
 			  redir_stack[need_here_doc] = (yyval.redirect);
 				need_here_doc++
 			}
@@ -1108,7 +1108,7 @@ case yyreduce:
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_deblank_reading_until, gps.redir, REDIR_VARASSIGN);
+			  (yyval.redirect) = makeRedirection (gps.source, r_deblank_reading_until, gps.redir, REDIR_VARASSIGN);
 			  redir_stack[need_here_doc] = (yyval.redirect);
 				need_here_doc++
 			}
@@ -1119,7 +1119,7 @@ case yyreduce:
     {
 			  gps.source.dest = 0;
 			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_reading_string, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_reading_string, gps.redir, 0);
 			}
     break;
 
@@ -1128,7 +1128,7 @@ case yyreduce:
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_reading_string, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_reading_string, gps.redir, 0);
 			}
     break;
 
@@ -1137,7 +1137,7 @@ case yyreduce:
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_reading_string, gps.redir, REDIR_VARASSIGN);
+			  (yyval.redirect) = makeRedirection (gps.source, r_reading_string, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -1146,7 +1146,7 @@ case yyreduce:
     {
 			  gps.source.dest = 0;
 			  gps.redir.dest = (yyvs.PeekN((2) - (2)).number);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_input, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_duplicating_input, gps.redir, 0);
 			}
     break;
 
@@ -1155,7 +1155,7 @@ case yyreduce:
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
 			  gps.redir.dest = (yyvs.PeekN((3) - (3)).number);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_input, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_duplicating_input, gps.redir, 0);
 			}
     break;
 
@@ -1164,7 +1164,7 @@ case yyreduce:
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
 			  gps.redir.dest = (yyvs.PeekN((3) - (3)).number);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_input, gps.redir, REDIR_VARASSIGN);
+			  (yyval.redirect) = makeRedirection (gps.source, r_duplicating_input, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -1173,7 +1173,7 @@ case yyreduce:
     {
 			  gps.source.dest = 1;
 			  gps.redir.dest = (yyvs.PeekN((2) - (2)).number);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_output, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_duplicating_output, gps.redir, 0);
 			}
     break;
 
@@ -1182,7 +1182,7 @@ case yyreduce:
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
 			  gps.redir.dest = (yyvs.PeekN((3) - (3)).number);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_output, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_duplicating_output, gps.redir, 0);
 			}
     break;
 
@@ -1191,7 +1191,7 @@ case yyreduce:
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
 			  gps.redir.dest = (yyvs.PeekN((3) - (3)).number);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_output, gps.redir, REDIR_VARASSIGN);
+			  (yyval.redirect) = makeRedirection (gps.source, r_duplicating_output, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -1200,7 +1200,7 @@ case yyreduce:
     {
 			  gps.source.dest = 0;
 			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_input_word, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_duplicating_input_word, gps.redir, 0);
 			}
     break;
 
@@ -1209,7 +1209,7 @@ case yyreduce:
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_input_word, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_duplicating_input_word, gps.redir, 0);
 			}
     break;
 
@@ -1218,7 +1218,7 @@ case yyreduce:
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_input_word, gps.redir, REDIR_VARASSIGN);
+			  (yyval.redirect) = makeRedirection (gps.source, r_duplicating_input_word, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -1227,7 +1227,7 @@ case yyreduce:
     {
 			  gps.source.dest = 1;
 			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_output_word, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_duplicating_output_word, gps.redir, 0);
 			}
     break;
 
@@ -1236,7 +1236,7 @@ case yyreduce:
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_output_word, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_duplicating_output_word, gps.redir, 0);
 			}
     break;
 
@@ -1245,7 +1245,7 @@ case yyreduce:
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_duplicating_output_word, gps.redir, REDIR_VARASSIGN);
+			  (yyval.redirect) = makeRedirection (gps.source, r_duplicating_output_word, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -1254,7 +1254,7 @@ case yyreduce:
     {
 			  gps.source.dest = 1;
 			  gps.redir.dest = 0;
-			  (yyval.redirect) = make_redirection (gps.source, r_close_this, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_close_this, gps.redir, 0);
 			}
     break;
 
@@ -1263,7 +1263,7 @@ case yyreduce:
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
 			  gps.redir.dest = 0;
-			  (yyval.redirect) = make_redirection (gps.source, r_close_this, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_close_this, gps.redir, 0);
 			}
     break;
 
@@ -1272,7 +1272,7 @@ case yyreduce:
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
 			  gps.redir.dest = 0;
-			  (yyval.redirect) = make_redirection (gps.source, r_close_this, gps.redir, REDIR_VARASSIGN);
+			  (yyval.redirect) = makeRedirection (gps.source, r_close_this, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -1281,7 +1281,7 @@ case yyreduce:
     {
 			  gps.source.dest = 0;
 			  gps.redir.dest = 0;
-			  (yyval.redirect) = make_redirection (gps.source, r_close_this, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_close_this, gps.redir, 0);
 			}
     break;
 
@@ -1290,7 +1290,7 @@ case yyreduce:
     {
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
 			  gps.redir.dest = 0;
-			  (yyval.redirect) = make_redirection (gps.source, r_close_this, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_close_this, gps.redir, 0);
 			}
     break;
 
@@ -1299,7 +1299,7 @@ case yyreduce:
     {
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
 			  gps.redir.dest = 0;
-			  (yyval.redirect) = make_redirection (gps.source, r_close_this, gps.redir, REDIR_VARASSIGN);
+			  (yyval.redirect) = makeRedirection (gps.source, r_close_this, gps.redir, REDIR_VARASSIGN);
 			}
     break;
 
@@ -1308,7 +1308,7 @@ case yyreduce:
     {
 			  gps.source.dest = 1;
 			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_err_and_out, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_err_and_out, gps.redir, 0);
 			}
     break;
 
@@ -1317,7 +1317,7 @@ case yyreduce:
     {
 			  gps.source.dest = 1;
 			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
-			  (yyval.redirect) = make_redirection (gps.source, r_append_err_and_out, gps.redir, 0);
+			  (yyval.redirect) = makeRedirection (gps.source, r_append_err_and_out, gps.redir, 0);
 			}
     break;
 
@@ -2111,7 +2111,7 @@ case yyreduce:
 			  }
 			  sd.dest = 2;
 			  rd.dest = 1;
-			  r = make_redirection (sd, r_duplicating_output, rd, 0);
+			  r = makeRedirection (sd, r_duplicating_output, rd, 0);
 			  if (tc.redirects)
 			    {
 			      Redirect *t;

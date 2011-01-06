@@ -21,6 +21,11 @@ package gobash
    along with Bash.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+import (
+	"fmt"
+	"os"
+)
+
 //extern int line_number, current_command_line_count, parser_state;
 //extern int last_command_exit_value;
 //
@@ -640,9 +645,6 @@ package gobash
    INSTRUCTION is the instruction type, SOURCE is a file descriptor,
    and DEST is a file descriptor or a word_desc *. */
 func makeRedirection(source Redirectee, instruction r_instruction, dest_and_filename Redirectee, flags int) *Redirect {
-  var w *word_desc
-  var wlen int
-  var lfd intmax_t
 
 	temp := new(Redirect)
 
@@ -659,21 +661,21 @@ func makeRedirection(source Redirectee, instruction r_instruction, dest_and_file
     case r_output_direction:		/* >foo */
     case r_output_force:		/* >| foo */
     case r_err_and_out:			/* &>filename */
-      temp.flags = O_TRUNC | O_WRONLY | O_CREAT;
+      temp.flags = os.O_TRUNC | os.O_WRONLY | os.O_CREAT;
       break;
 
     case r_appending_to:		/* >>foo */
     case r_append_err_and_out:		/* &>> filename */
-      temp.flags = O_APPEND | O_WRONLY | O_CREAT;
+      temp.flags = os.O_APPEND | os.O_WRONLY | os.O_CREAT;
       break;
 
     case r_input_direction:		/* <foo */
     case r_inputa_direction:		/* foo & makes this. */
-      temp.flags = O_RDONLY;
+      temp.flags = os.O_RDONLY;
       break;
 
     case r_input_output:		/* <>foo */
-      temp.flags = O_RDWR | O_CREAT;
+      temp.flags = os.O_RDWR | os.O_CREAT;
       break;
 
     case r_deblank_reading_until: 	/* <<-foo */
@@ -713,9 +715,7 @@ func makeRedirection(source Redirectee, instruction r_instruction, dest_and_file
 //       break;
 // 
     default:
-      programming_error (_("makeRedirection: redirection instruction `%d' out of range"), instruction);
-      abort ();
-      break;
+	panic(fmt.Sprintf("makeRedirection: redirecttion instruction `%s' out of range", instruction))
     }
   return (temp);
 }
