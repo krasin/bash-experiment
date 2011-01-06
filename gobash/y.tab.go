@@ -905,12 +905,12 @@ case yyreduce:
 
   case 6:
 // #line 419 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.word_list) = make_word_list ((yyvs.PeekN((1) - (1)).word), nil); }
+    { (yyval.word_list) = makeWordList ((yyvs.PeekN((1) - (1)).word), nil); }
     break;
 
   case 7:
 // #line 421 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.word_list) = make_word_list ((yyvs.PeekN((2) - (2)).word), (yyvs.PeekN((1) - (2)).word_list)); }
+    { (yyval.word_list) = makeWordList ((yyvs.PeekN((2) - (2)).word), (yyvs.PeekN((1) - (2)).word_list)); }
     break;
 
   case 8:
@@ -1854,12 +1854,12 @@ case yyreduce:
 
   case 128:
 // #line 1048 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.word_list) = make_word_list ((yyvs.PeekN((1) - (1)).word), nil); }
+    { (yyval.word_list) = makeWordList ((yyvs.PeekN((1) - (1)).word), nil); }
     break;
 
   case 129:
 // #line 1050 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.word_list) = make_word_list ((yyvs.PeekN((3) - (3)).word), (yyvs.PeekN((1) - (3)).word_list)); }
+    { (yyval.word_list) = makeWordList ((yyvs.PeekN((3) - (3)).word), (yyvs.PeekN((1) - (3)).word_list)); }
     break;
 
   case 130:
@@ -4401,7 +4401,7 @@ func (gps *ParserState) yylex() int {
 //	{
 //	  wd = alloc_word_desc ();
 //	  wd.word = wval;
-//	  gps.yylval.word_list = make_word_list (wd, nil);
+//	  gps.yylval.word_list = makeWordList (wd, nil);
 //	  return (ARITH_FOR_EXPRS);
 //	}
 //      else
@@ -4418,7 +4418,7 @@ func (gps *ParserState) yylex() int {
 //	  wd = alloc_word_desc ();
 //	  wd.word = wval;
 //	  wd.flags = W_QUOTED|W_NOSPLIT|W_NOGLOB|W_DQUOTE;
-//	  gps.yylval.word_list = make_word_list (wd, nil);
+//	  gps.yylval.word_list = makeWordList (wd, nil);
 //	  return (ARITH_CMD);
 //	}
 //      else if (cmdtyp == 0)	/* nested subshell */
@@ -5502,7 +5502,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //	  wl = &parse_string_error;
 //	  break;
 //	}
-//      wl = make_word_list (gps.yylval.word, wl);
+//      wl = makeWordList (gps.yylval.word, wl);
 //    }
 //  
 //  last_read_token = '\n';
@@ -5570,7 +5570,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //	  wl = &parse_string_error;
 //	  break;
 //	}
-//      wl = make_word_list (gps.yylval.word, wl);
+//      wl = makeWordList (gps.yylval.word, wl);
 //    }
 //
 //  token = saved_token;

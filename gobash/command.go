@@ -164,7 +164,12 @@ func reverseWordList(list *word_list) *word_list {
 	return prev;
 }
 
-
+func makeWordList(x *word_desc, l *word_list) *word_list {
+	w := new(word_list)
+	w.word = x
+	w.next = l
+	return w
+}
 /* **************************************************************** */
 /*								    */
 /*			Shell Command Structs			    */
