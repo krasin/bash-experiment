@@ -226,6 +226,10 @@ yynerrs int
 /* Global var is non-zero when end of file has been reached. */
 EOF_Reached bool
 
+/* Variable containing the current get and unget functions.
+   See ./input.h for a clearer description. */
+bash_input BASH_INPUT
+
 } // ParserState
 
 func NewParserState() *ParserState {
@@ -2304,17 +2308,6 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
    (either string or file) from TYPE, and makes LOCATION point to where
    the input is coming from. */
 
-/* Unconditionally returns end-of-file. */
-int
-return_EOF ()
-{
-  return (EOF);
-}
-
-/* Variable containing the current get and unget functions.
-   See ./input.h for a clearer description. */
-BASH_INPUT bash_input;
-
 /* Set all of the fields in BASH_INPUT to NULL.  Free bash_input.name if it
    is non-null, avoiding a memory leak. */
 void
@@ -2368,23 +2361,6 @@ yy_ungetc (c)
 {
   return (*(bash_input.ungetter)) (c);
 }
-
-#ifdef INCLUDE_UNUSED
-int
-input_file_descriptor ()
-{
-  switch (bash_input.typ)
-    {
-    case st_stream:
-      return (fileno (bash_input.location.file));
-    case st_bstream:
-      return (bash_input.location.buffered_fd);
-    case st_stdin:
-    default:
-      return (fileno (stdin));
-    }
-}
-#endif
 
 void
 with_input_from_stdin ()
@@ -3116,16 +3092,6 @@ shell_ungetc (c)
   else
     eol_ungetc_lookahead = c;
 }
-
-#ifdef INCLUDE_UNUSED
-/* Back the input pointer up by one, effectively `ungetting' a character. */
-static void
-shell_ungetchar ()
-{
-  if (shell_input_line && shell_input_line_index)
-    shell_input_line_index--;
-}
-#endif
 
 /* Discard input until CHARACTER is seen, then push that character back
    onto the input stream. */
