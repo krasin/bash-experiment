@@ -213,7 +213,7 @@ type CommandValue struct {
     Group *group_com
     Select *select_com
     Arith *arith_com
-    Cond *cond_com
+    Cond *CondCom
     ArithFor *arith_for_com
     Subshell *subshell_com
     Coproc *coproc_com
@@ -322,13 +322,13 @@ const COND_BINARY = 4
 const COND_TERM = 5
 const COND_EXPR = 6
 
-type cond_com struct {
+type CondCom struct {
   flags int
   line int
   typ int
   op *word_desc
-  left *cond_com
-  right *cond_com
+  left *CondCom
+  right *CondCom
 }
 
 /* The "simple" command.  Just a collection of words and redirects. */

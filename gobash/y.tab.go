@@ -4599,16 +4599,16 @@ cond_error ()
     }
 }
 
-static COND_COM *
+static CondCom *
 cond_expr ()
 {
   return (cond_or ());  
 }
 
-static COND_COM *
+static CondCom *
 cond_or ()
 {
-  COND_COM *l, *r;
+  CondCom *l, *r;
 
   l = cond_and ();
   if (cond_token == OR_OR)
@@ -4619,10 +4619,10 @@ cond_or ()
   return l;
 }
 
-static COND_COM *
+static CondCom *
 cond_and ()
 {
-  COND_COM *l, *r;
+  CondCom *l, *r;
 
   l = cond_term ();
   if (cond_token == AND_AND)
@@ -4643,13 +4643,13 @@ cond_skip_newlines ()
 }
 
 #define COND_RETURN_ERROR() \
-  do { cond_token = COND_ERROR; return ((COND_COM *)NULL); } while (0)
+  do { cond_token = COND_ERROR; return ((CondCom *)NULL); } while (0)
 
-static COND_COM *
+static CondCom *
 cond_term ()
 {
   word_desc *op;
-  COND_COM *term, *tleft, *tright;
+  CondCom *term, *tleft, *tright;
   int tok, lineno;
   char *etext;
 
@@ -4678,7 +4678,7 @@ cond_term ()
 	    parser_error (lineno, _("expected `)'"));
 	  COND_RETURN_ERROR ();
 	}
-      term = make_cond_node (COND_EXPR, (word_desc *)NULL, term, (COND_COM *)NULL);
+      term = make_cond_node (COND_EXPR, (word_desc *)NULL, term, (CondCom *)NULL);
       (void)cond_skip_newlines ();
     }
   else if (tok == BANG || (tok == WORD && (yylval.word.word[0] == '!' && yylval.word.word[1] == '\0')))
@@ -4695,8 +4695,8 @@ cond_term ()
       tok = read_token (READ);
       if (tok == WORD)
 	{
-	  tleft = make_cond_node (COND_TERM, yylval.word, (COND_COM *)NULL, (COND_COM *)NULL);
-	  term = make_cond_node (COND_UNARY, op, tleft, (COND_COM *)NULL);
+	  tleft = make_cond_node (COND_TERM, yylval.word, (CondCom *)NULL, (CondCom *)NULL);
+	  term = make_cond_node (COND_UNARY, op, tleft, (CondCom *)NULL);
 	}
       else
 	{
@@ -4716,7 +4716,7 @@ cond_term ()
   else if (tok == WORD)		/* left argument to binary operator */
     {
       /* lhs */
-      tleft = make_cond_node (COND_TERM, yylval.word, (COND_COM *)NULL, (COND_COM *)NULL);
+      tleft = make_cond_node (COND_TERM, yylval.word, (CondCom *)NULL, (CondCom *)NULL);
 
       /* binop */
       tok = read_token (READ);
@@ -4743,7 +4743,7 @@ cond_term ()
 	     the test command.  Similarly for [[ x && expr ]] or
 	     [[ x || expr ]] or [[ (x) ]]. */
 	  op = make_word ("-n");
-	  term = make_cond_node (COND_UNARY, op, tleft, (COND_COM *)NULL);
+	  term = make_cond_node (COND_UNARY, op, tleft, (CondCom *)NULL);
 	  cond_token = tok;
 	  return (term);
 	}
@@ -4770,7 +4770,7 @@ cond_term ()
 
       if (tok == WORD)
 	{
-	  tright = make_cond_node (COND_TERM, yylval.word, (COND_COM *)NULL, (COND_COM *)NULL);
+	  tright = make_cond_node (COND_TERM, yylval.word, (CondCom *)NULL, (CondCom *)NULL);
 	  term = make_cond_node (COND_BINARY, op, tleft, tright);
 	}
       else
@@ -4810,7 +4810,7 @@ cond_term ()
 static Command *
 parse_cond_command ()
 {
-  COND_COM *cexp;
+  CondCom *cexp;
 
   global_extglob = extended_glob;
   cexp = cond_expr ();
