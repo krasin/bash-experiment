@@ -1906,10 +1906,11 @@ case yyreduce:
   case 138:
 // #line 1090 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvsp[(1) - (4)].command).typ == cm_connection)
+			  if ((yyvsp[(1) - (4)].command).typ == cm_connection) {
 			    (yyval.command) = connect_async_list ((yyvsp[(1) - (4)].command), (yyvsp[(4) - (4)].command), '&');
-			  else
+			  } else {
 			    (yyval.command) = command_connect ((yyvsp[(1) - (4)].command), (yyvsp[(4) - (4)].command), '&');
+			  }
 			}
     break;
 
@@ -1947,8 +1948,9 @@ case yyreduce:
 // #line 1127 "/Users/chet/src/bash/src/parse.y"
     {
 			  (yyval.command) = (yyvsp[(1) - (1)].command);
-			  if (need_here_doc)
+			  if (need_here_doc) {
 			    gather_here_documents ();
+			  }
 			  if ((parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
 			    {
 			      gps.global_command = (yyvsp[(1) - (1)].command);
@@ -1962,12 +1964,14 @@ case yyreduce:
   case 150:
 // #line 1140 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvsp[(1) - (2)].command).typ == cm_connection)
+			  if ((yyvsp[(1) - (2)].command).typ == cm_connection) {
 			    (yyval.command) = connect_async_list ((yyvsp[(1) - (2)].command), nil, '&');
-			  else
+			  } else {
 			    (yyval.command) = command_connect ((yyvsp[(1) - (2)].command), nil, '&');
-			  if (need_here_doc)
+			  }
+			  if (need_here_doc) {
 			    gather_here_documents ();
+			  }
 			  if ((parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
 			    {
 			      gps.global_command = (yyvsp[(1) - (2)].command);
@@ -1982,8 +1986,9 @@ case yyreduce:
 // #line 1156 "/Users/chet/src/bash/src/parse.y"
     {
 			  (yyval.command) = (yyvsp[(1) - (2)].command);
-			  if (need_here_doc)
+			  if (need_here_doc) {
 			    gather_here_documents ();
+			  }
 			  if ((parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
 			    {
 			      gps.global_command = (yyvsp[(1) - (2)].command);
@@ -2007,11 +2012,12 @@ case yyreduce:
   case 154:
 // #line 1175 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvsp[(1) - (3)].command).typ == cm_connection)
+			  if ((yyvsp[(1) - (3)].command).typ == cm_connection) {
 			    (yyval.command) = connect_async_list ((yyvsp[(1) - (3)].command), (yyvsp[(3) - (3)].command), '&');
-			  else
+			  } else {
 			    (yyval.command) = command_connect ((yyvsp[(1) - (3)].command), (yyvsp[(3) - (3)].command), '&');
-			}
+			  }
+    }
     break;
 
   case 155:
@@ -2032,8 +2038,9 @@ case yyreduce:
   case 158:
 // #line 1191 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvsp[(2) - (2)].command))
+			  if ((yyvsp[(2) - (2)].command)) {
 			    (yyvsp[(2) - (2)].command).flags |= CMD_INVERT_RETURN;
+			  }
 			  (yyval.command) = (yyvsp[(2) - (2)].command);
 			}
     break;
@@ -2041,8 +2048,9 @@ case yyreduce:
   case 159:
 // #line 1197 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvsp[(2) - (2)].command))
+			  if ((yyvsp[(2) - (2)].command)) {
 			    (yyvsp[(2) - (2)].command).flags |= (yyvsp[(1) - (2)].number);
+			  }
 			  (yyval.command) = (yyvsp[(2) - (2)].command);
 			}
     break;
@@ -2050,8 +2058,9 @@ case yyreduce:
   case 160:
 // #line 1203 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvsp[(3) - (3)].command))
+			  if ((yyvsp[(3) - (3)].command)) {
 			    (yyvsp[(3) - (3)].command).flags |= (yyvsp[(1) - (3)].number)|CMD_INVERT_RETURN;
+			  }
 			  (yyval.command) = (yyvsp[(3) - (3)].command);
 			}
     break;
@@ -2059,8 +2068,9 @@ case yyreduce:
   case 161:
 // #line 1209 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvsp[(3) - (3)].command))
+			  if ((yyvsp[(3) - (3)].command)) {
 			    (yyvsp[(3) - (3)].command).flags |= (yyvsp[(2) - (3)].number)|CMD_INVERT_RETURN;
+			  }
 			  (yyval.command) = (yyvsp[(3) - (3)].command);
 			}
     break;
@@ -2080,8 +2090,9 @@ case yyreduce:
 			  (yyval.command) = make_simple_command (x, nil);
 			  (yyval.command).flags |= (yyvsp[(1) - (2)].number);
 			  /* XXX - let's cheat and push a newline back */
-			  if ((yyvsp[(2) - (2)].number) == '\n')
+			  if ((yyvsp[(2) - (2)].number) == '\n') {
 			    token_to_read = '\n';
+			  }
 			}
     break;
 
@@ -2108,9 +2119,9 @@ case yyreduce:
 			      for (t = tc.redirects; t.next; t = t.next)
 				;
 			      t.next = r;
-			    }
-			  else
+			    } else {
 			    tc.redirects = r;
+			  }
 
 			  (yyval.command) = command_connect ((yyvsp[(1) - (4)].command), (yyvsp[(4) - (4)].command), '|');
 			}
@@ -2150,11 +2161,11 @@ case yyreduce:
   yyn = yyr1[yyn];
 
   yystate = yypgoto[yyn - YYNTOKENS] + *yyssp;
-  if (0 <= yystate && yystate <= YYLAST && yycheck[yystate] == *yyssp)
+  if (0 <= yystate && yystate <= YYLAST && yycheck[yystate] == *yyssp) {
     yystate = yytable[yystate];
-  else
+  } else {
     yystate = yydefgoto[yyn - YYNTOKENS];
-
+  }
   yyparseState = yynewState; continue;
 
 
@@ -2179,11 +2190,10 @@ case yyerrlab:
       if (yychar <= YYEOF)
 	{
 	  /* Return failure if at end of input.  */
-	  if (yychar == YYEOF)
+	  if (yychar == YYEOF) {
 	    yyparseState = yyabortlab; continue;
-	}
-      else
-	{
+	  }
+	} else {
 	  yydestruct ("Error: discarding",
 		      yytoken, &yylval);
 	  yychar = YYEMPTY;
@@ -2223,14 +2233,16 @@ case yyerrlab1:
 	  if (0 <= yyn && yyn <= YYLAST && yycheck[yyn] == YYTERROR)
 	    {
 	      yyn = yytable[yyn];
-	      if (0 < yyn)
+	      if (0 < yyn) {
 		break;
+	      }
 	    }
 	}
 
       /* Pop the current state because it cannot handle the error token.  */
-      if (yyssp == yyss)
+      if (yyssp == yyss) {
 	yyparseState = yyabortlab; continue;
+      }
 
 
       yydestruct ("Error: popping",
@@ -2239,8 +2251,9 @@ case yyerrlab1:
       yystate = *yyssp;
     }
 
-  if (yyn == YYFINAL)
+  if (yyn == YYFINAL) {
     yyparseState = yyacceptlab; continue;
+  }
 
   *++yyvsp = yylval;
 
@@ -2274,9 +2287,10 @@ yyexhaustedlab:
 #endif
 
 case yyreturn:
-  if (yychar != YYEOF && yychar != YYEMPTY)
+  if (yychar != YYEOF && yychar != YYEMPTY) {
      yydestruct ("Cleanup: discarding lookahead",
 		 yytoken, &yylval);
+  }
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
   YYPOPSTACK (yylen);
@@ -2287,8 +2301,9 @@ case yyreturn:
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
-  if (yyss != yyssa)
+  if (yyss != yyssa) {
     YYSTACK_FREE (yyss);
+  }
 #endif
   return  (yyresult);
 }
