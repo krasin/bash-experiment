@@ -1054,8 +1054,8 @@ case yyreduce:
 			  gps.source.dest = 0;
 			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
 			  (yyval.redirect) = makeRedirection (gps.source, r_reading_until, gps.redir, 0);
-			  redir_stack[need_here_doc] = (yyval.redirect);
-				need_here_doc++
+			  gps.redir_stack[gps.need_here_doc] = (yyval.redirect);
+				gps.need_here_doc++
 			}
     break;
 
@@ -1065,8 +1065,8 @@ case yyreduce:
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = makeRedirection (gps.source, r_reading_until, gps.redir, 0);
-			  redir_stack[need_here_doc] = (yyval.redirect);
-				need_here_doc++
+			  gps.redir_stack[gps.need_here_doc] = (yyval.redirect);
+				gps.need_here_doc++
 			}
     break;
 
@@ -1076,8 +1076,8 @@ case yyreduce:
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = makeRedirection (gps.source, r_reading_until, gps.redir, REDIR_VARASSIGN);
-			  redir_stack[need_here_doc] = (yyval.redirect);
-				need_here_doc++
+			  gps.redir_stack[gps.need_here_doc] = (yyval.redirect);
+				gps.need_here_doc++
 			}
     break;
 
@@ -1087,8 +1087,8 @@ case yyreduce:
 			  gps.source.dest = 0;
 			  gps.redir.filename = (yyvs.PeekN((2) - (2)).word);
 			  (yyval.redirect) = makeRedirection (gps.source, r_deblank_reading_until, gps.redir, 0);
-			  redir_stack[need_here_doc] = (yyval.redirect);
-				need_here_doc++
+			  gps.redir_stack[gps.need_here_doc] = (yyval.redirect);
+				gps.need_here_doc++
 			}
     break;
 
@@ -1098,8 +1098,8 @@ case yyreduce:
 			  gps.source.dest = (yyvs.PeekN((1) - (3)).number);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = makeRedirection (gps.source, r_deblank_reading_until, gps.redir, 0);
-			  redir_stack[need_here_doc] = (yyval.redirect);
-				need_here_doc++
+			  gps.redir_stack[gps.need_here_doc] = (yyval.redirect);
+				gps.need_here_doc++
 			}
     break;
 
@@ -1109,8 +1109,8 @@ case yyreduce:
 			  gps.source.filename = (yyvs.PeekN((1) - (3)).word);
 			  gps.redir.filename = (yyvs.PeekN((3) - (3)).word);
 			  (yyval.redirect) = makeRedirection (gps.source, r_deblank_reading_until, gps.redir, REDIR_VARASSIGN);
-			  redir_stack[need_here_doc] = (yyval.redirect);
-				need_here_doc++
+			  gps.redir_stack[gps.need_here_doc] = (yyval.redirect);
+				gps.need_here_doc++
 			}
     break;
 
@@ -1866,7 +1866,7 @@ case yyreduce:
 // #line 1059 "/Users/chet/src/bash/src/parse.y"
     {
 			  (yyval.command) = (yyvs.PeekN((2) - (2)).command);
-			  if (need_here_doc) {
+			  if (gps.need_here_doc) {
 			    gather_here_documents ();
 			}
     }
@@ -1945,7 +1945,7 @@ case yyreduce:
 // #line 1127 "/Users/chet/src/bash/src/parse.y"
     {
 			  (yyval.command) = (yyvs.PeekN((1) - (1)).command);
-			  if (need_here_doc) {
+			  if (gps.need_here_doc) {
 			    gather_here_documents ();
 			  }
 			  if ((gps.parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
@@ -1965,7 +1965,7 @@ case yyreduce:
 			  } else {
 			    (yyval.command) = command_connect ((yyvs.PeekN((1) - (2)).command), nil, '&');
 			  }
-			  if (need_here_doc) {
+			  if (gps.need_here_doc) {
 			    gather_here_documents ();
 			  }
 			  if ((gps.parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
@@ -1981,7 +1981,7 @@ case yyreduce:
 // #line 1156 "/Users/chet/src/bash/src/parse.y"
     {
 			  (yyval.command) = (yyvs.PeekN((1) - (2)).command);
-			  if (need_here_doc) {
+			  if (gps.need_here_doc) {
 			    gather_here_documents ();
 			  }
 			  if ((gps.parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
@@ -3161,12 +3161,12 @@ func (gps *ParserState) yylex() int {
 //  int r;
 //
 //  r = 0;
-//  while (need_here_doc)
+//  while (gps.need_here_doc)
 //    {
 //      gps.parser_state |= PST_HEREDOC;
-//      make_here_document (redir_stack[r++], line_number);
+//      make_here_document (gps.redir_stack[r++], line_number);
 //      gps.parser_state &= ~PST_HEREDOC;
-//      need_here_doc--;
+//      gps.need_here_doc--;
 //    }
 //}
 //
@@ -3502,7 +3502,7 @@ func (gps *ParserState) yylex() int {
 //    {
 //      /* If we're about to return an unquoted newline, we can go and collect
 //	 the text of any pending here document. */
-//      if (need_here_doc)
+//      if (gps.need_here_doc)
 //	gather_here_documents ();
 //
 //      gps.parser_state &= ~PST_ALEXPNEXT;
