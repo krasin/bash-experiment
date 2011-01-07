@@ -1323,17 +1323,17 @@ case yyreduce:
 
   case 52:
 // #line 697 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.element).word = (yyvs.PeekN((1) - (1)).word); (yyval.element).redirect = 0; }
+    { (yyval.element).word = (yyvs.PeekN((1) - (1)).word); (yyval.element).redirect = nil; }
     break;
 
   case 53:
 // #line 699 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.element).word = (yyvs.PeekN((1) - (1)).word); (yyval.element).redirect = 0; }
+    { (yyval.element).word = (yyvs.PeekN((1) - (1)).word); (yyval.element).redirect = nil; }
     break;
 
   case 54:
 // #line 701 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.element).redirect = (yyvs.PeekN((1) - (1)).redirect); (yyval.element).word = 0; }
+    { (yyval.element).redirect = (yyvs.PeekN((1) - (1)).redirect); (yyval.element).word = nil; }
     break;
 
   case 55:
@@ -1348,7 +1348,7 @@ case yyreduce:
     {
 			  var t *Redirect
 
-			  for t = (yyvs.PeekN((1) - (2)).redirect); t.next; t = t.next {
+			  for t = (yyvs.PeekN((1) - (2)).redirect); t.next != nil; t = t.next {
 			  }
 			  t.next = (yyvs.PeekN((2) - (2)).redirect);
 			  (yyval.redirect) = (yyvs.PeekN((1) - (2)).redirect);
@@ -1378,13 +1378,12 @@ case yyreduce:
   case 61:
 // #line 730 "/Users/chet/src/bash/src/parse.y"
     {
-			  Command *tc;
+			  var tc *Command
 
 			  tc = (yyvs.PeekN((1) - (2)).command);
-			  if (tc.redirects)
-			    {
+			  if (tc.redirects != nil)			    {
 			      var t *Redirect;
-			      for t = tc.redirects; t.next; t = t.next {
+			      for t = tc.redirects; t.next != nil; t = t.next {
 				}
 			      t.next = (yyvs.PeekN((2) - (2)).redirect);
 			    } else {
@@ -1650,7 +1649,7 @@ case yyreduce:
   case 100:
 // #line 901 "/Users/chet/src/bash/src/parse.y"
     {
-			  Command *tc;
+			  var tc *Command
 
 			  tc = (yyvs.PeekN((1) - (2)).command);
 			  /* According to Posix.2 3.9.5, redirections
@@ -1699,7 +1698,7 @@ case yyreduce:
   case 103:
 // #line 944 "/Users/chet/src/bash/src/parse.y"
     {
-			  Command *tc;
+			  var tc *Command
 
 			  tc = (yyvs.PeekN((2) - (3)).command);
 			  if (tc.redirects)
@@ -1727,7 +1726,7 @@ case yyreduce:
   case 105:
 // #line 966 "/Users/chet/src/bash/src/parse.y"
     {
-			  Command *tc;
+			  var tc *Command
 
 			  tc = (yyvs.PeekN((3) - (4)).command);
 			  if (tc.redirects)
