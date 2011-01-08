@@ -252,7 +252,7 @@ type YYSTYPE struct {
   word_list *word_list
   command *Command
   redirect *Redirect
-  element ELEMENT
+  element *ELEMENT
   pattern *PatternList
 }
 
