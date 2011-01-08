@@ -49,79 +49,31 @@ import (
 //  ocache_create (wlcache, word_list, WLCACHESIZE);
 //}
 //
-//word_desc *
-//alloc_word_desc ()
-//{
-//  word_desc *temp;
-//
-//  ocache_alloc (wdcache, word_desc, temp);
-//  temp.flags = 0;
-//  temp.word = 0;
-//  return temp;
-//}
-//
-//word_desc *
-//make_bare_word (string)
-//     const char *string;
-//{
-//  word_desc *temp;
-//
-//  temp = alloc_word_desc ();
-//
-//  if (*string)
-//    temp.word = savestring (string);
-//  else
-//    {
-//      temp.word = (char *)xmalloc (1);
-//      temp.word[0] = '\0';
-//    }
-//
-//  return (temp);
-//}
-//
-//word_desc *
-//make_word_flags (w, string)
-//     word_desc *w;
-//     const char *string;
-//{
-//  register int i;
-//  size_t slen;
-//  DECLARE_MBSTATE;
-//
-//  i = 0;
-//  slen = strlen (string);
-//  for (i < slen)
-//    {
-//      switch (string[i])
-//	{
-//	case '$':
-//	  w.flags |= W_HASDOLLAR;
-//	  break;
-//	case '\\':
-//	  break;	/* continue the loop */
-//	case '\'':
-//	case '`':
-//	case '"':
-//	  w.flags |= W_QUOTED;
-//	  break;
-//	}
-//
-//      ADVANCE_CHAR (string, slen, i);
-//    }
-//
-//  return (w);
-//}
-//
-//word_desc *
-//make_word (string)
-//     const char *string;
-//{
-//  word_desc *temp;
-//
-//  temp = make_bare_word (string);
-//  return (make_word_flags (temp, string));
-//}
-//
+
+func make_bare_word(str string) *word_desc {
+  temp := new(word_desc)
+  temp.word = str
+  return temp
+}
+
+func make_word_flags(w *word_desc, str string) *word_desc {
+  for _, ch := range str {
+      switch ch {
+	case '$':
+	  w.flags |= W_HASDOLLAR;
+	case '\\':
+	  break;	/* continue the loop */
+	case '\'': fallthrough
+	case '`': fallthrough
+	case '"':
+	  w.flags |= W_QUOTED;
+	}
+  }
+
+  return w
+}
+
+
 //word_desc *
 //make_word_from_token (token)
 //     int token;

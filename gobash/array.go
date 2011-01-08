@@ -1048,3 +1048,14 @@ func make_word_list(x *word_desc, l *word_list) *word_list {
 //
 //#endif /* TEST_ARRAY */
 //#endif /* ARRAY_VARS */
+
+func add_string_to_list(s string, l *word_list) *word_list {
+  return make_word_list(make_word(s), l)
+}
+
+func make_word (str string) *word_desc {
+  temp := make_bare_word (str)
+  return make_word_flags(temp, str);
+}
+
+

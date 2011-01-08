@@ -4399,7 +4399,7 @@ func (gps *ParserState) yylex() int {
 //      cmdtyp = parse_arith_cmd (&wval, 0);
 //      if (cmdtyp == 1)
 //	{
-//	  wd = alloc_word_desc ();
+//	  wd = new(word_desc)
 //	  wd.word = wval;
 //	  gps.yylval.word_list = makeWordList (wd, nil);
 //	  return (ARITH_FOR_EXPRS);
@@ -4415,7 +4415,7 @@ func (gps *ParserState) yylex() int {
 //      cmdtyp = parse_arith_cmd (&wval, 0);
 //      if (cmdtyp == 1)	/* arithmetic command */
 //	{
-//	  wd = alloc_word_desc ();
+//	  wd = new(word_desc)
 //	  wd.word = wval;
 //	  wd.flags = W_QUOTED|W_NOSPLIT|W_NOGLOB|W_DQUOTE;
 //	  gps.yylval.word_list = makeWordList (wd, nil);
