@@ -7,6 +7,7 @@ include $(GOROOT)/src/Make.inc
 TARG=$(GOBIN)/gobash
 GOFILES=\
 	stack.go\
+	array.go\
 	command.go\
 	shell.go\
 	input.go\
