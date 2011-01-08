@@ -233,6 +233,9 @@ EOF_Reached bool
    See ./input.h for a clearer description. */
 bash_input BashInput
 
+/* The globally known line number. */
+line_number int
+
 } // ParserState
 
 func newParserState() *ParserState {
@@ -1357,12 +1360,12 @@ case yyreduce:
 
   case 57:
 // #line 720 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_simple_command ((yyvs.PeekN((1) - (1)).element), nil); }
+    { (yyval.command) = gps.make_simple_command ((yyvs.PeekN((1) - (1)).element), nil); }
     break;
 
   case 58:
 // #line 722 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_simple_command ((yyvs.PeekN((2) - (2)).element), (yyvs.PeekN((1) - (2)).command)); }
+    { (yyval.command) = gps.make_simple_command ((yyvs.PeekN((2) - (2)).element), (yyvs.PeekN((1) - (2)).command)); }
     break;
 
   case 59:
@@ -2080,7 +2083,7 @@ case yyreduce:
 			     terminate this, one to terminate the command) */
 			  x.word = 0;
 			  x.redirect = 0;
-			  (yyval.command) = make_simple_command (x, nil);
+			  (yyval.command) = gps.make_simple_command (x, nil);
 			  (yyval.command).flags |= (yyvs.PeekN((1) - (2)).number);
 			  /* XXX - let's cheat and push a newline back */
 			  if ((yyvs.PeekN((2) - (2)).number) == '\n') {
@@ -2479,9 +2482,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  BUFFERED_STREAM *bstream;
 //} STREAM_SAVER;
 //
-///* The globally known line number. */
-//int line_number = 0;
-//
+
 //static int cond_lineno;
 //static int cond_token;
 //
