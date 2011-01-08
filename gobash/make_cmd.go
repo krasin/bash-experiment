@@ -769,27 +769,21 @@ func makeRedirection(source Redirectee, instruction r_instruction, dest_and_file
 //  return (make_command (cm_coproc, (SimpleCom *)temp));
 //}
 //
-///* Reverse the word list and redirection list in the simple command
-//   has just been parsed.  It seems simpler to do this here the one
-//   time then by any other method that I can think of. */
-//Command *
-//clean_simple_command (command)
-//     Command *command;
-//{
-//  if (command.typ != cm_simple)
-//    command_error ("clean_simple_command", CMDERR_BADTYPE, command.typ, 0);
-//  else
-//    {
-//      command.value.Simple.words =
-//	REVERSE_LIST (command.value.Simple.words, word_list *);
-//      command.value.Simple.redirects =
-//	REVERSE_LIST (command.value.Simple.redirects, Redirect *);
-//    }
-//
-//  parser_state &= ^PST_REDIRLIST;
-//  return (command);
-//}
-//
+/* Reverse the word list and redirection list in the simple command
+   has just been parsed.  It seems simpler to do this here the one
+   time then by any other method that I can think of. */
+func (gps *ParserState) clean_simple_command (command *Command) *Command {
+  if command.typ != cm_simple {
+    command_error ("clean_simple_command", CMDERR_BADTYPE, command.typ, 0);
+  } else {
+    command.value.Simple.words = reverseWordList(command.value.Simple.words)
+    command.value.Simple.redirects = reverseRedirectList(command.value.Simple.redirects)
+ }
+
+  gps.parser_state &= ^PST_REDIRLIST;
+  return (command);
+}
+
 ///* The Yacc grammar productions have a problem, in that they take a
 //   list followed by an ampersand (`&') and do a simple command connection,
 //   making the entire list effectively asynchronous, instead of just

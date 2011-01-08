@@ -152,17 +152,30 @@ type word_list struct {
 }
 
 func reverseWordList(list *word_list) *word_list {
-	var next *word_list
 	var prev *word_list
 
-	for prev = nil; list != nil; {
-		next = list.next;
+	for list != nil {
+		next := list.next;
 		list.next = prev;
 		prev = list;
 		list = next;
 	}
 	return prev;
 }
+
+func reverseRedirectList(list *Redirect) *Redirect {
+	var prev *Redirect
+
+	for list != nil {
+		next := list.next;
+		list.next = prev;
+		prev = list;
+		list = next;
+	}
+	return prev;
+}
+
+
 
 func makeWordList(x *word_desc, l *word_list) *word_list {
 	w := new(word_list)
