@@ -1418,12 +1418,12 @@ case yyreduce:
 
   case 66:
 // #line 756 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_while_command ((yyvs.PeekN((2) - (5)).command), (yyvs.PeekN((4) - (5)).command)); }
+    { (yyval.command) = gps.make_while_command ((yyvs.PeekN((2) - (5)).command), (yyvs.PeekN((4) - (5)).command)); }
     break;
 
   case 67:
 // #line 758 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_until_command ((yyvs.PeekN((2) - (5)).command), (yyvs.PeekN((4) - (5)).command)); }
+    { (yyval.command) = gps.make_until_command ((yyvs.PeekN((2) - (5)).command), (yyvs.PeekN((4) - (5)).command)); }
     break;
 
   case 68:

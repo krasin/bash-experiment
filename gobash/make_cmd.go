@@ -147,22 +147,33 @@ import (
 //  temp.next = wlink;
 //  return (temp);
 //}
-//
-//Command *
-//make_command (type, pointer)
-//     enum command_type type;
-//     SimpleCom *pointer;
-//{
-//  Command *temp;
-//
-//  temp = (Command *)xmalloc (sizeof (Command));
-//  temp.typ = type;
-//  temp.value.Simple = pointer;
-//  temp.value.Simple.flags = temp.flags = 0;
-//  temp.redirects = nil;
-//  return (temp);
-//}
-//
+
+func (gps *ParserState) make_command(typ command_type, value interface{}) *Command {
+  temp := new(Command)
+  temp.typ = typ;
+  switch typ {
+  case cm_for: temp.value.For = value.(*ForCom)
+	case cm_case: temp.value.Case = value.(*CaseCom)
+	case cm_while: temp.value.While = value.(*WhileCom)
+	case cm_if: temp.value.If = value.(*IfCom)
+	case cm_simple: temp.value.Simple = value.(*SimpleCom)
+	case cm_select: temp.value.Select = value.(*SelectCom)
+	case cm_connection: temp.value.Connection = value.(*Connection)
+	case cm_function_def: temp.value.Function_def = value.(*FunctionDef)
+	case cm_until: temp.value.While = value.(*WhileCom)
+	case cm_group: temp.value.Group = value.(*GroupCom)
+	case cm_arith: temp.value.Arith = value.(*ArithCom)
+	case cm_cond: temp.value.Cond = value.(*CondCom)
+	case cm_arith_for: temp.value.ArithFor = value.(*ArithForCom)
+	case cm_subshell: temp.value.Subshell = value.(*SubshellCom)
+	case cm_coproc: temp.value.Coproc = value.(*CoprocCom)
+
+  }
+  temp.flags = 0
+  temp.redirects = nil;
+  return temp
+}
+
 //Command *
 //command_connect (com1, com2, connector)
 //     Command *com1, *com2;
@@ -372,35 +383,23 @@ import (
 //  temp.false_case = false_case;
 //  return (make_command (cm_if, (SimpleCom *)temp));
 //}
-//
-//static Command *
-//make_until_or_while (which, test, action)
-//     enum command_type which;
-//     Command *test, *action;
-//{
-//  WHILE_COM *temp;
-//
-//  temp = (WHILE_COM *)xmalloc (sizeof (WHILE_COM));
-//  temp.flags = 0;
-//  temp.test = test;
-//  temp.action = action;
-//  return (make_command (which, (SimpleCom *)temp));
-//}
-//
-//Command *
-//make_while_command (test, action)
-//     Command *test, *action;
-//{
-//  return (make_until_or_while (cm_while, test, action));
-//}
-//
-//Command *
-//make_until_command (test, action)
-//     Command *test, *action;
-//{
-//  return (make_until_or_while (cm_until, test, action));
-//}
-//
+
+func (gps *ParserState) make_until_or_while(which command_type, test *Command, action *Command) *Command {
+  temp := new(WhileCom)
+  temp.flags = 0;
+  temp.test = test;
+  temp.action = action;
+  return gps.make_command(which, temp)
+}
+
+func (gps *ParserState) make_while_command (test *Command, action *Command) *Command {
+  return gps.make_until_or_while (cm_while, test, action)
+}
+
+func (gps *ParserState) make_until_command (test *Command, action *Command) *Command {
+  return gps.make_until_or_while (cm_until, test, action)
+}
+
 //Command *
 //make_arith_command (exp)
 //     word_list *exp;
