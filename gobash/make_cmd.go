@@ -90,7 +90,7 @@ import (
 //
 //  i = 0;
 //  slen = strlen (string);
-//  while (i < slen)
+//  for (i < slen)
 //    {
 //      switch (string[i])
 //	{
@@ -156,7 +156,7 @@ import (
 //  Command *temp;
 //
 //  temp = (Command *)xmalloc (sizeof (Command));
-//  temp.type = type;
+//  temp.typ = type;
 //  temp.value.Simple = pointer;
 //  temp.value.Simple.flags = temp.flags = 0;
 //  temp.redirects = nil;
@@ -230,10 +230,10 @@ import (
 //  word_desc *wd;
 //
 //  if (s == 0 || *s == '\0')
-//    return ((word_list *)NULL);
+//    return (nil);
 //  wd = make_word (s);
 //  wd.flags |= W_NOGLOB|W_NOSPLIT|W_QUOTED|W_DQUOTE;	/* no word splitting or globbing */
-//  result = make_word_list (wd, (word_list *)NULL);
+//  result = make_word_list (wd, nil);
 //  return result;
 //}
 //#endif
@@ -254,20 +254,20 @@ import (
 //  char *s, *t, *start;
 //  int nsemi;
 //
-//  init = test = step = (word_list *)NULL;
+//  init = test = step = nil;
 //  /* Parse the string into the three component sub-expressions. */
 //  start = t = s = exprs.word.word;
 //  for (nsemi = 0; ;)
 //    {
 //      /* skip whitespace at the start of each sub-expression. */
-//      while (whitespace (*s))
+//      for (whitespace (*s))
 //	s++;
 //      start = s;
 //      /* skip to the semicolon or EOS */
-//      while (*s && *s != ';')
+//      for (*s && *s != ';')
 //	s++;
 //
-//      t = (s > start) ? substring (start, 0, s - start) : (char *)NULL;
+//      t = (s > start) ? substring (start, 0, s - start) : nil;
 //
 //      nsemi++;
 //      switch (nsemi)
@@ -416,7 +416,7 @@ import (
 //  temp.line = line_number;
 //  temp.exp = exp;
 //
-//  command.type = cm_arith;
+//  command.typ = cm_arith;
 //  command.redirects = nil;
 //  command.flags = 0;
 //
@@ -439,7 +439,7 @@ import (
 //  temp = (COND_COM *)xmalloc (sizeof (COND_COM));
 //  temp.flags = 0;
 //  temp.line = line_number;
-//  temp.type = type;
+//  temp.typ = type;
 //  temp.op = op;
 //  temp.left = left;
 //  temp.right = right;
@@ -458,7 +458,7 @@ import (
 //  command = (Command *)xmalloc (sizeof (Command));
 //  command.value.Cond = cond_node;
 //
-//  command.type = cm_cond;
+//  command.typ = cm_cond;
 //  command.redirects = nil;
 //  command.flags = 0;
 //  command.line = cond_node ? cond_node.line : 0;
@@ -470,63 +470,52 @@ import (
 //#endif
 //}
 //
-//Command *
-//make_bare_simple_command ()
-//{
-//  Command *command;
-//  SimpleCom *temp;
-//
-//  command = (Command *)xmalloc (sizeof (Command));
-//  command.value.Simple = temp = (SimpleCom *)xmalloc (sizeof (SimpleCom));
-//
-//  temp.flags = 0;
-//  temp.line = line_number;
-//  temp.words = (word_list *)NULL;
-//  temp.redirects = nil;
-//
-//  command.type = cm_simple;
-//  command.redirects = nil;
-//  command.flags = 0;
-//
-//  return (command);
-//}
-//
-///* Return a command which is the connection of the word or redirection
-//   in ELEMENT, and the command * or NULL in Command. */
-//Command *
-//make_simple_command (element, command)
-//     ELEMENT element;
-//     Command *command;
-//{
-//  /* If we are starting from scratch, then make the initial command
-//     structure.  Also note that we have to fill in all the slots, since
-//     malloc doesn't return zeroed space. */
-//  if (command == 0)
-//    {
-//      command = make_bare_simple_command ();
-//      parser_state |= PST_REDIRLIST;
-//    }
-//
-//  if (element.word)
-//    {
-//      command.value.Simple.words = make_word_list (element.word, command.value.Simple.words);
-//      parser_state &= ~PST_REDIRLIST;
-//    }
-//  else if (element.redirect)
-//    {
-//      Redirect *r = element.redirect;
-//      /* Due to the way <> is implemented, there may be more than a single
-//	 redirection in element.redirect.  We just follow the chain as far
-//	 as it goes, and hook onto the end. */
-//      while (r.next)
-//	r = r.next;
-//      r.next = command.value.Simple.redirects;
-//      command.value.Simple.redirects = element.redirect;
-//    }
-//
-//  return (command);
-//}
-//
+func (gps *ParserState) make_bare_simple_command () *Command {
+  command := new(Command)
+  temp := new(SimpleCom)
+  command.value.Simple = temp
+
+  temp.flags = 0;
+  temp.line = gps.line_number;
+  temp.words = nil;
+  temp.redirects = nil;
+
+  command.typ = cm_simple;
+  command.redirects = nil;
+  command.flags = 0;
+
+  return (command);
+}
+
+/* Return a command which is the connection of the word or redirection
+   in ELEMENT, and the command * or NULL in Command. */
+func (gps *ParserState) make_simple_command (element *ELEMENT, command *Command) *Command {
+  /* If we are starting from scratch, then make the initial command
+     structure.  Also note that we have to fill in all the slots, since
+     malloc doesn't return zeroed space. */
+  if command == nil {
+      command = gps.make_bare_simple_command ();
+      gps.parser_state |= PST_REDIRLIST;
+    }
+
+  if element.word != nil {
+      command.value.Simple.words = make_word_list (element.word, command.value.Simple.words);
+      gps.parser_state &= ^PST_REDIRLIST;
+    }  else if element.redirect != nil {
+      r:= element.redirect;
+      /* Due to the way <> is implemented, there may be more than a single
+	 redirection in element.redirect.  We just follow the chain as far
+	 as it goes, and hook onto the end. */
+      for r.next != nil {
+	r = r.next;
+      }
+      r.next = command.value.Simple.redirects;
+      command.value.Simple.redirects = element.redirect;
+    }
+
+  return (command);
+}
+
 ///* Because we are Bourne compatible, we read the input for this
 //   << or <<- redirection now, from wherever input is coming from.
 //   We store the input read into a word_desc.  Replace the text of
@@ -550,7 +539,7 @@ import (
 //
 //  kill_leading = temp.instruction == r_deblank_reading_until;
 //
-//  document = (char *)NULL;
+//  document = nil;
 //  document_index = document_size = 0;
 //
 //  /* Quote removal is the only expansion performed on the delimiter
@@ -583,7 +572,7 @@ import (
 //     be read verbatim from the input.  If it was not quoted, we
 //     need to perform backslash-quoted newline removal. */
 //  delim_unquoted = (temp.redirectee.filename.flags & W_QUOTED) == 0;
-//  while (full_line = read_secondary_line (delim_unquoted))
+//  for (full_line = read_secondary_line (delim_unquoted))
 //    {
 //      register char *line;
 //      int len;
@@ -604,7 +593,7 @@ import (
 //	  if (STREQN (line, redir_word, redir_len) && line[redir_len] == '\n')
 //	    goto document_done;
 //
-//	  while (*line == '\t')
+//	  for (*line == '\t')
 //	    line++;
 //	}
 //
@@ -787,8 +776,8 @@ func makeRedirection(source Redirectee, instruction r_instruction, dest_and_file
 //clean_simple_command (command)
 //     Command *command;
 //{
-//  if (command.type != cm_simple)
-//    command_error ("clean_simple_command", CMDERR_BADTYPE, command.type, 0);
+//  if (command.typ != cm_simple)
+//    command_error ("clean_simple_command", CMDERR_BADTYPE, command.typ, 0);
 //  else
 //    {
 //      command.value.Simple.words =
@@ -797,7 +786,7 @@ func makeRedirection(source Redirectee, instruction r_instruction, dest_and_file
 //	REVERSE_LIST (command.value.Simple.redirects, Redirect *);
 //    }
 //
-//  parser_state &= ~PST_REDIRLIST;
+//  parser_state &= ^PST_REDIRLIST;
 //  return (command);
 //}
 //
@@ -834,7 +823,7 @@ func makeRedirection(source Redirectee, instruction r_instruction, dest_and_file
 //     this if the list is not being executed as a unit in the background
 //     with `( ... )', so we have to check for CMD_WANT_SUBSHELL.  That's
 //     the only way to tell. */
-//  while (((t.flags & CMD_WANT_SUBSHELL) == 0) && t.type == cm_connection &&
+//  for (((t.flags & CMD_WANT_SUBSHELL) == 0) && t.typ == cm_connection &&
 //	 t.value.Connection.connector == ';')
 //    {
 //      t1 = t;
