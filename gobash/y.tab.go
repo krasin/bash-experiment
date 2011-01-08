@@ -1370,7 +1370,7 @@ case yyreduce:
 
   case 59:
 // #line 726 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = clean_simple_command ((yyvs.PeekN((1) - (1)).command)); }
+    { (yyval.command) = gps.clean_simple_command ((yyvs.PeekN((1) - (1)).command)); }
     break;
 
   case 60:
@@ -1749,7 +1749,7 @@ case yyreduce:
   case 106:
 // #line 983 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_coproc_command ("COPROC", clean_simple_command ((yyvs.PeekN((2) - (2)).command)));
+			  (yyval.command) = make_coproc_command ("COPROC", gps.clean_simple_command ((yyvs.PeekN((2) - (2)).command)));
 			  (yyval.command).flags |= CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
 			}
     break;
