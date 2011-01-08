@@ -8,6 +8,7 @@ TARG=$(GOBIN)/gobash
 GOFILES=\
 	stack.go\
 	array.go\
+	error.go\
 	command.go\
 	shell.go\
 	input.go\
