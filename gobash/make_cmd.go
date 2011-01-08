@@ -187,36 +187,20 @@ func (gps *ParserState) make_command(typ command_type, value interface{}) *Comma
 //  temp.second = com2;
 //  return (make_command (cm_connection, (SimpleCom *)temp));
 //}
-//
-//static Command *
-//make_for_or_select (type, name, map_list, action, lineno)
-//     enum command_type type;
-//     word_desc *name;
-//     word_list *map_list;
-//     Command *action;
-//     int lineno;
-//{
-//  ForCom *temp;
-//
-//  temp = (ForCom *)xmalloc (sizeof (ForCom));
-//  temp.flags = 0;
-//  temp.name = name;
-//  temp.line = lineno;
-//  temp.map_list = map_list;
-//  temp.action = action;
-//  return (make_command (type, (SimpleCom *)temp));
-//}
-//
-//Command *
-//make_for_command (name, map_list, action, lineno)
-//     word_desc *name;
-//     word_list *map_list;
-//     Command *action;
-//     int lineno;
-//{
-//  return (make_for_or_select (cm_for, name, map_list, action, lineno));
-//}
-//
+
+func (gps *ParserState) make_for_or_select(typ command_type, name *word_desc, map_list *word_list, action *Command, lineno int) *Command {
+  temp := new(ForCom)
+  temp.name = name;
+  temp.line = lineno;
+  temp.map_list = map_list;
+  temp.action = action;
+  return gps.make_command(typ, temp)
+}
+
+func (gps *ParserState) make_for_command(name *word_desc, map_list *word_list, action *Command, lineno int) *Command {
+  return gps.make_for_or_select(cm_for, name, map_list, action, lineno)
+}
+
 //Command *
 //make_select_command (name, map_list, action, lineno)
 //     word_desc *name;
