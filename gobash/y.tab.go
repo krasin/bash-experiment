@@ -1773,7 +1773,7 @@ case yyreduce:
 
   case 111:
 // #line 1003 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_arith_command ((yyvs.PeekN((1) - (1)).word_list)); }
+    { (yyval.command) = gps.make_arith_command ((yyvs.PeekN((1) - (1)).word_list)); }
     break;
 
   case 112:

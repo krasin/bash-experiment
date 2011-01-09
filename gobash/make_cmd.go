@@ -253,32 +253,18 @@ func (gps *ParserState) make_until_command (test *Command, action *Command) *Com
   return gps.make_until_or_while (cm_until, test, action)
 }
 
-//Command *
-//make_arith_command (exp)
-//     word_list *exp;
-//{
-//#if defined (DPAREN_ARITHMETIC)
-//  Command *command;
-//  ARITH_COM *temp;
-//
-//  command = (Command *)xmalloc (sizeof (Command));
-//  command.value.Arith = temp = (ARITH_COM *)xmalloc (sizeof (ARITH_COM));
-//
-//  temp.flags = 0;
-//  temp.line = line_number;
-//  temp.exp = exp;
-//
-//  command.typ = cm_arith;
-//  command.redirects = nil;
-//  command.flags = 0;
-//
-//  return (command);
-//#else
-//  last_command_exit_value = 2;
-//  return (nil);
-//#endif
-//}
-//
+func (gps *ParserState) make_arith_command(exp *word_list) *Command {
+  temp := new(ArithCom)
+  temp.line = gps.line_number;
+  temp.exp = exp;
+
+  command := new(Command)
+  command.typ = cm_arith;
+  command.value.Arith = temp
+
+  return command
+}
+
 //#if defined (COND_Command)
 //struct cond_com *
 //make_cond_node (type, op, left, right)
