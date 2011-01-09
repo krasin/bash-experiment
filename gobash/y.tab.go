@@ -1882,42 +1882,42 @@ case yyreduce:
 // #line 1075 "/Users/chet/src/bash/src/parse.y"
     {
 			  if ((yyvs.PeekN((1) - (3)).command).typ == cm_connection) {
-			    (yyval.command) = connect_async_list ((yyvs.PeekN((1) - (3)).command), nil, '&');
+			    (yyval.command) = gps.connect_async_list ((yyvs.PeekN((1) - (3)).command), nil, '&');
 			  } else {
-			    (yyval.command) = command_connect ((yyvs.PeekN((1) - (3)).command), nil, '&');
+			    (yyval.command) = gps.command_connect ((yyvs.PeekN((1) - (3)).command), nil, '&');
 			  }
     }
     break;
 
   case 136:
 // #line 1086 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), AND_AND); }
+    { (yyval.command) = gps.command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), AND_AND); }
     break;
 
   case 137:
 // #line 1088 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), OR_OR); }
+    { (yyval.command) = gps.command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), OR_OR); }
     break;
 
   case 138:
 // #line 1090 "/Users/chet/src/bash/src/parse.y"
     {
 			  if ((yyvs.PeekN((1) - (4)).command).typ == cm_connection) {
-			    (yyval.command) = connect_async_list ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), '&');
+			    (yyval.command) = gps.connect_async_list ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), '&');
 			  } else {
-			    (yyval.command) = command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), '&');
+			    (yyval.command) = gps.command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), '&');
 			  }
 			}
     break;
 
   case 139:
 // #line 1097 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), ';'); }
+    { (yyval.command) = gps.command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), ';'); }
     break;
 
   case 140:
 // #line 1099 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), ';'); }
+    { (yyval.command) = gps.command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), ';'); }
     break;
 
   case 141:
@@ -1960,9 +1960,9 @@ case yyreduce:
 // #line 1140 "/Users/chet/src/bash/src/parse.y"
     {
 			  if ((yyvs.PeekN((1) - (2)).command).typ == cm_connection) {
-			    (yyval.command) = connect_async_list ((yyvs.PeekN((1) - (2)).command), nil, '&');
+			    (yyval.command) = gps.connect_async_list ((yyvs.PeekN((1) - (2)).command), nil, '&');
 			  } else {
-			    (yyval.command) = command_connect ((yyvs.PeekN((1) - (2)).command), nil, '&');
+			    (yyval.command) = gps.command_connect ((yyvs.PeekN((1) - (2)).command), nil, '&');
 			  }
 			  if (gps.need_here_doc != 0) {
 			    gps.gather_here_documents ();
@@ -1994,28 +1994,28 @@ case yyreduce:
 
   case 152:
 // #line 1171 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), AND_AND); }
+    { (yyval.command) = gps.command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), AND_AND); }
     break;
 
   case 153:
 // #line 1173 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), OR_OR); }
+    { (yyval.command) = gps.command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), OR_OR); }
     break;
 
   case 154:
 // #line 1175 "/Users/chet/src/bash/src/parse.y"
     {
 			  if ((yyvs.PeekN((1) - (3)).command).typ == cm_connection) {
-			    (yyval.command) = connect_async_list ((yyvs.PeekN((1) - (3)).command), (yyvs.PeekN((3) - (3)).command), '&');
+			    (yyval.command) = gps.connect_async_list ((yyvs.PeekN((1) - (3)).command), (yyvs.PeekN((3) - (3)).command), '&');
 			  } else {
-			    (yyval.command) = command_connect ((yyvs.PeekN((1) - (3)).command), (yyvs.PeekN((3) - (3)).command), '&');
+			    (yyval.command) = gps.command_connect ((yyvs.PeekN((1) - (3)).command), (yyvs.PeekN((3) - (3)).command), '&');
 			  }
     }
     break;
 
   case 155:
 // #line 1182 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = command_connect ((yyvs.PeekN((1) - (3)).command), (yyvs.PeekN((3) - (3)).command), ';'); }
+    { (yyval.command) = gps.command_connect ((yyvs.PeekN((1) - (3)).command), (yyvs.PeekN((3) - (3)).command), ';'); }
     break;
 
   case 156:
@@ -2091,7 +2091,7 @@ case yyreduce:
 
   case 163:
 // #line 1235 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), '|'); }
+    { (yyval.command) = gps.command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), '|'); }
     break;
 
   case 164:
@@ -2120,7 +2120,7 @@ case yyreduce:
 			    tc.redirects = r;
 			  }
 
-			  (yyval.command) = command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), '|');
+			  (yyval.command) = gps.command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), '|');
 			}
     break;
 

@@ -128,19 +128,13 @@ func (gps *ParserState) make_command(typ command_type, value interface{}) *Comma
   return temp
 }
 
-//Command *
-//command_connect (com1, com2, connector)
-//     Command *com1, *com2;
-//     int connector;
-//{
-//  CONNECTION *temp;
-//
-//  temp = (CONNECTION *)xmalloc (sizeof (CONNECTION));
-//  temp.connector = connector;
-//  temp.first = com1;
-//  temp.second = com2;
-//  return (make_command (cm_connection, (SimpleCom *)temp));
-//}
+func (gps *ParserState) command_connect(com1, com2 *Command, connector int) *Command {
+  temp := new(Connection)
+  temp.connector = connector;
+  temp.first = com1;
+  temp.second = com2;
+  return gps.make_command (cm_connection, temp)
+}
 
 func (gps *ParserState) make_for_or_select(typ command_type, name *word_desc, map_list *word_list, action *Command, lineno int) *Command {
   temp := new(ForCom)
@@ -607,48 +601,40 @@ func (gps *ParserState) clean_simple_command (command *Command) *Command {
   return (command);
 }
 
-///* The Yacc grammar productions have a problem, in that they take a
-//   list followed by an ampersand (`&') and do a simple command connection,
-//   making the entire list effectively asynchronous, instead of just
-//   the last command.  This means that when the list is executed, all
-//   the commands have stdin set to /dev/null when job control is not
-//   active, instead of just the last.  This is wrong, and needs fixing
-//   up.  This function takes the `&' and applies it to the last command
-//   in the list.  This is done only for lists connected by `;'; it makes
-//   `;' bind `tighter' than `&'. */
-//Command *
-//connect_async_list (command, command2, connector)
-//     Command *command, *command2;
-//     int connector;
-//{
-//  Command *t, *t1, *t2;
-//
-//  t1 = command;
-//  t = command.value.Connection.second;
-//
-//  if (!t || (command.flags & CMD_WANT_SUBSHELL) ||
-//      command.value.Connection.connector != ';')
-//    {
-//      t = command_connect (command, command2, connector);
-//      return t;
-//    }
-//
-//  /* This is just defensive programming.  The Yacc precedence rules
-//     will generally hand this function a command where t points directly
-//     to the command we want (e.g. given a ; b ; c ; d &, t1 will point
-//     to the `a ; b ; c' list and t will be the `d').  We only want to do
-//     this if the list is not being executed as a unit in the background
-//     with `( ... )', so we have to check for CMD_WANT_SUBSHELL.  That's
-//     the only way to tell. */
-//  for (((t.flags & CMD_WANT_SUBSHELL) == 0) && t.typ == cm_connection &&
-//	 t.value.Connection.connector == ';')
-//    {
-//      t1 = t;
-//      t = t.value.Connection.second;
-//    }
-//  /* Now we have t pointing to the last command in the list, and
-//     t1.value.Connection.second == t. */
-//  t2 = command_connect (t, command2, connector);
-//  t1.value.Connection.second = t2;
-//  return command;
-//}
+/* The Yacc grammar productions have a problem, in that they take a
+   list followed by an ampersand (`&') and do a simple command connection,
+   making the entire list effectively asynchronous, instead of just
+   the last command.  This means that when the list is executed, all
+   the commands have stdin set to /dev/null when job control is not
+   active, instead of just the last.  This is wrong, and needs fixing
+   up.  This function takes the `&' and applies it to the last command
+   in the list.  This is done only for lists connected by `;'; it makes
+   `;' bind `tighter' than `&'. */
+func (gps *ParserState) connect_async_list(command *Command, command2 *Command, connector int) *Command {
+  t1 := command;
+  t := command.value.Connection.second;
+
+  if t == nil || (command.flags & CMD_WANT_SUBSHELL != 0) ||
+      command.value.Connection.connector != ';'  {
+      t = gps.command_connect (command, command2, connector);
+      return t;
+    }
+
+  /* This is just defensive programming.  The Yacc precedence rules
+     will generally hand this function a command where t points directly
+     to the command we want (e.g. given a ; b ; c ; d &, t1 will point
+     to the `a ; b ; c' list and t will be the `d').  We only want to do
+     this if the list is not being executed as a unit in the background
+     with `( ... )', so we have to check for CMD_WANT_SUBSHELL.  That's
+     the only way to tell. */
+  for ((t.flags & CMD_WANT_SUBSHELL) == 0) && t.typ == cm_connection &&
+	 t.value.Connection.connector == ';'    {
+      t1 = t;
+      t = t.value.Connection.second;
+    }
+  /* Now we have t pointing to the last command in the list, and
+     t1.value.Connection.second == t. */
+  t2 := gps.command_connect (t, command2, connector);
+  t1.value.Connection.second = t2;
+  return command;
+}
