@@ -617,20 +617,14 @@ func (gps *ParserState) make_subshell_command(command *Command) *Command {
   return gps.make_command(cm_subshell, temp)
 }
 
-//Command *
-//make_coproc_command (name, command)
-//     char *name;
-//     Command *command;
-//{
-//  CoprocCom *temp;
-//
-//  temp = (CoprocCom *)xmalloc (sizeof (CoprocCom));
-//  temp.name = savestring (name);
-//  temp.command = command;
-//  temp.flags = CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
-//  return (make_command (cm_coproc, (SimpleCom *)temp));
-//}
-//
+func (gps *ParserState) make_coproc_command(name string, command *Command) *Command {
+  temp := new(CoprocCom)
+  temp.name = name
+  temp.command = command;
+  temp.flags = CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
+  return gps.make_command(cm_coproc, temp)
+}
+
 /* Reverse the word list and redirection list in the simple command
    has just been parsed.  It seems simpler to do this here the one
    time then by any other method that I can think of. */

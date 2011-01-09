@@ -1692,7 +1692,7 @@ case yyreduce:
   case 102:
 // #line 939 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_coproc_command ("COPROC", (yyvs.PeekN((2) - (2)).command));
+			  (yyval.command) = gps.make_coproc_command ("COPROC", (yyvs.PeekN((2) - (2)).command));
 			  (yyval.command).flags |= CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
 			}
     break;
@@ -1711,7 +1711,7 @@ case yyreduce:
 			    }  else {
 			    tc.redirects = (yyvs.PeekN((3) - (3)).redirect);
 			  }
-			  (yyval.command) = make_coproc_command ("COPROC", (yyvs.PeekN((2) - (3)).command));
+			  (yyval.command) = gps.make_coproc_command ("COPROC", (yyvs.PeekN((2) - (3)).command));
 			  (yyval.command).flags |= CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
 			}
     break;
@@ -1719,7 +1719,7 @@ case yyreduce:
   case 104:
 // #line 961 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_coproc_command ((yyvs.PeekN((2) - (3)).word).word, (yyvs.PeekN((3) - (3)).command));
+			  (yyval.command) = gps.make_coproc_command ((yyvs.PeekN((2) - (3)).word).word, (yyvs.PeekN((3) - (3)).command));
 			  (yyval.command).flags |= CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
 			}
     break;
@@ -1738,7 +1738,7 @@ case yyreduce:
 			    }			  else {
 			    tc.redirects = (yyvs.PeekN((4) - (4)).redirect);
 				}
-			  (yyval.command) = make_coproc_command ((yyvs.PeekN((2) - (4)).word).word, (yyvs.PeekN((3) - (4)).command));
+			  (yyval.command) = gps.make_coproc_command ((yyvs.PeekN((2) - (4)).word).word, (yyvs.PeekN((3) - (4)).command));
 			  (yyval.command).flags |= CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
 			}
     break;
@@ -1746,7 +1746,7 @@ case yyreduce:
   case 106:
 // #line 983 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_coproc_command ("COPROC", gps.clean_simple_command ((yyvs.PeekN((2) - (2)).command)));
+			  (yyval.command) = gps.make_coproc_command ("COPROC", gps.clean_simple_command ((yyvs.PeekN((2) - (2)).command)));
 			  (yyval.command).flags |= CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
 			}
     break;
