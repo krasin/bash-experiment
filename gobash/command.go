@@ -175,7 +175,17 @@ func reverseRedirectList(list *Redirect) *Redirect {
 	return prev;
 }
 
+func reversePatternListList(list *PatternList) *PatternList {
+	var prev *PatternList
 
+	for list != nil {
+		next := list.next;
+		list.next = prev;
+		prev = list;
+		list = next;
+	}
+	return prev;
+}
 
 func makeWordList(x *word_desc, l *word_list) *word_list {
 	w := new(word_list)

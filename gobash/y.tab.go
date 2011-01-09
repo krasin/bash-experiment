@@ -1609,7 +1609,7 @@ case yyreduce:
   case 93:
 // #line 872 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_case_command ((yyvs.PeekN((2) - (6)).word), nil, gps.word_lineno[gps.word_top]);
+			  (yyval.command) = gps.make_case_command ((yyvs.PeekN((2) - (6)).word), nil, gps.word_lineno[gps.word_top]);
 			  if (gps.word_top > 0) { gps.word_top-- }
 			}
     break;
@@ -1617,7 +1617,7 @@ case yyreduce:
   case 94:
 // #line 877 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_case_command ((yyvs.PeekN((2) - (7)).word), (yyvs.PeekN((5) - (7)).pattern), gps.word_lineno[gps.word_top]);
+			  (yyval.command) = gps.make_case_command ((yyvs.PeekN((2) - (7)).word), (yyvs.PeekN((5) - (7)).pattern), gps.word_lineno[gps.word_top]);
 			  if (gps.word_top > 0) { gps.word_top-- }
 			}
     break;
@@ -1625,7 +1625,7 @@ case yyreduce:
   case 95:
 // #line 882 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_case_command ((yyvs.PeekN((2) - (6)).word), (yyvs.PeekN((5) - (6)).pattern), gps.word_lineno[gps.word_top]);
+			  (yyval.command) = gps.make_case_command ((yyvs.PeekN((2) - (6)).word), (yyvs.PeekN((5) - (6)).pattern), gps.word_lineno[gps.word_top]);
 			  if (gps.word_top > 0) { gps.word_top-- }
 			}
     break;

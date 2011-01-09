@@ -210,23 +210,15 @@ func (gps *ParserState) make_arith_for_command(exprs *word_list, action *Command
 //  temp.command = command;
 //  return (make_command (cm_group, (SimpleCom *)temp));
 //}
-//
-//Command *
-//make_case_command (word, clauses, lineno)
-//     word_desc *word;
-//     PatternList *clauses;
-//     int lineno;
-//{
-//  CaseCom *temp;
-//
-//  temp = (CaseCom *)xmalloc (sizeof (CaseCom));
-//  temp.flags = 0;
-//  temp.line = lineno;
-//  temp.word = word;
-//  temp.clauses = REVERSE_LIST (clauses, PatternList *);
-//  return (make_command (cm_case, (SimpleCom *)temp));
-//}
-//
+
+func (gps *ParserState) make_case_command(word *word_desc, clauses *PatternList, lineno int) *Command {
+  temp := new(CaseCom)
+  temp.line = lineno
+  temp.word = word
+  temp.clauses = reversePatternListList(clauses)
+  return gps.make_command(cm_case, temp)
+}
+
 //PatternList *
 //make_pattern_list (patterns, action)
 //     word_list *patterns;
