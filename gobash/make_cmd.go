@@ -604,6 +604,12 @@ func makeRedirection(source Redirectee, instruction r_instruction, dest_and_file
 //  temp.source_file = 0;
 //  return (make_command (cm_function_def, (SimpleCom *)temp));
 //}
+
+func (gps *ParserState) make_function_def(name *word_desc, command *Command, lineno int, lstart int) *Command {
+	// TODO(krasin): implement this.
+	panic("make_function_def is not implemented. Sorry")
+}
+
 //
 //Command *
 //make_subshell_command (command)

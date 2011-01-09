@@ -1632,17 +1632,17 @@ case yyreduce:
 
   case 96:
 // #line 889 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_function_def ((yyvs.PeekN((1) - (5)).word), (yyvs.PeekN((5) - (5)).command), function_dstart, function_bstart); }
+    { (yyval.command) = gps.make_function_def ((yyvs.PeekN((1) - (5)).word), (yyvs.PeekN((5) - (5)).command), function_dstart, function_bstart); }
     break;
 
   case 97:
 // #line 892 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_function_def ((yyvs.PeekN((2) - (6)).word), (yyvs.PeekN((6) - (6)).command), function_dstart, function_bstart); }
+    { (yyval.command) = gps.make_function_def ((yyvs.PeekN((2) - (6)).word), (yyvs.PeekN((6) - (6)).command), function_dstart, function_bstart); }
     break;
 
   case 98:
 // #line 895 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_function_def ((yyvs.PeekN((2) - (4)).word), (yyvs.PeekN((4) - (4)).command), function_dstart, function_bstart); }
+    { (yyval.command) = gps.make_function_def ((yyvs.PeekN((2) - (4)).word), (yyvs.PeekN((4) - (4)).command), function_dstart, function_bstart); }
     break;
 
   case 99:
