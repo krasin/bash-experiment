@@ -1684,7 +1684,7 @@ case yyreduce:
   case 101:
 // #line 932 "/Users/chet/src/bash/src/parse.y"
     {
-			  (yyval.command) = make_subshell_command ((yyvs.PeekN((2) - (3)).command));
+			  (yyval.command) = gps.make_subshell_command ((yyvs.PeekN((2) - (3)).command));
 			  (yyval.command).flags |= CMD_WANT_SUBSHELL;
 			}
     break;

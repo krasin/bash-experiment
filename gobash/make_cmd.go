@@ -610,19 +610,13 @@ func (gps *ParserState) make_function_def(name *word_desc, command *Command, lin
 	panic("make_function_def is not implemented. Sorry")
 }
 
-//
-//Command *
-//make_subshell_command (command)
-//     Command *command;
-//{
-//  SubshellCom *temp;
-//
-//  temp = (SubshellCom *)xmalloc (sizeof (SubshellCom));
-//  temp.command = command;
-//  temp.flags = CMD_WANT_SUBSHELL;
-//  return (make_command (cm_subshell, (SimpleCom *)temp));
-//}
-//
+func (gps *ParserState) make_subshell_command(command *Command) *Command {
+  temp := new(SubshellCom)
+  temp.command = command;
+  temp.flags = CMD_WANT_SUBSHELL;
+  return gps.make_command(cm_subshell, temp)
+}
+
 //Command *
 //make_coproc_command (name, command)
 //     char *name;
