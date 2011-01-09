@@ -1803,22 +1803,22 @@ case yyreduce:
 
   case 118:
 // #line 1024 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.pattern) = make_pattern_list ((yyvs.PeekN((2) - (4)).word_list), (yyvs.PeekN((4) - (4)).command)); }
+    { (yyval.pattern) = gps.make_pattern_list ((yyvs.PeekN((2) - (4)).word_list), (yyvs.PeekN((4) - (4)).command)); }
     break;
 
   case 119:
 // #line 1026 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.pattern) = make_pattern_list ((yyvs.PeekN((2) - (4)).word_list), nil); }
+    { (yyval.pattern) = gps.make_pattern_list ((yyvs.PeekN((2) - (4)).word_list), nil); }
     break;
 
   case 120:
 // #line 1028 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.pattern) = make_pattern_list ((yyvs.PeekN((3) - (5)).word_list), (yyvs.PeekN((5) - (5)).command)); }
+    { (yyval.pattern) = gps.make_pattern_list ((yyvs.PeekN((3) - (5)).word_list), (yyvs.PeekN((5) - (5)).command)); }
     break;
 
   case 121:
 // #line 1030 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.pattern) = make_pattern_list ((yyvs.PeekN((3) - (5)).word_list), nil); }
+    { (yyval.pattern) = gps.make_pattern_list ((yyvs.PeekN((3) - (5)).word_list), nil); }
     break;
 
   case 122:

@@ -214,21 +214,13 @@ func (gps *ParserState) make_case_command(word *word_desc, clauses *PatternList,
   return gps.make_command(cm_case, temp)
 }
 
-//PatternList *
-//make_pattern_list (patterns, action)
-//     word_list *patterns;
-//     Command *action;
-//{
-//  PatternList *temp;
-//
-//  temp = (PatternList *)xmalloc (sizeof (PatternList));
-//  temp.patterns = REVERSE_LIST (patterns, word_list *);
-//  temp.action = action;
-//  temp.next = NULL;
-//  temp.flags = 0;
-//  return (temp);
-//}
-//
+func (gps *ParserState) make_pattern_list(patterns *word_list, action *Command) *PatternList {
+  temp := new(PatternList)
+  temp.patterns = reverseWordList(patterns)
+  temp.action = action;
+  return temp
+}
+
 func (gps *ParserState) make_if_command(test *Command, true_case *Command, false_case *Command) *Command {
   temp := new(IfCom)
   temp.test = test;
