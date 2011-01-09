@@ -1949,7 +1949,7 @@ case yyreduce:
 			  }
 			  if ((gps.parser_state & PST_CMDSUBST != 0) && gps.current_token == gps.shell_eof_token) {
 			      gps.global_command = (yyvs.PeekN((1) - (1)).command);
-			      rewind_input_string ();
+			      gps.rewind_input_string ();
 			      yyparseState = yyacceptlab; continue;
 			    }
     }
@@ -1968,7 +1968,7 @@ case yyreduce:
 			  }
 			  if ((gps.parser_state & PST_CMDSUBST != 0) && gps.current_token == gps.shell_eof_token)   {
 			      gps.global_command = (yyvs.PeekN((1) - (2)).command);
-			      rewind_input_string ();
+			      gps.rewind_input_string ();
 			      yyparseState = yyacceptlab; continue;
 			    }
 			}
@@ -1983,7 +1983,7 @@ case yyreduce:
 			  }
 			  if ((gps.parser_state & PST_CMDSUBST != 0) && gps.current_token == gps.shell_eof_token)  {
 			      gps.global_command = (yyvs.PeekN((1) - (2)).command);
-			      rewind_input_string ();
+			      gps.rewind_input_string ();
 			      yyparseState = yyacceptlab; continue;
 			    }
 			}
@@ -2423,6 +2423,12 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  /* need to do more validation on xchars value for sanity -- test cases. */
 //  bash_input.location.string -= xchars;
 //}
+
+func (gps *ParserState) rewind_input_string() {
+  // TODO(krasin): implement this
+  panic("rewind_input_string is not implemented")
+}
+
 //
 ///* **************************************************************** */
 ///*								    */
@@ -3135,7 +3141,7 @@ func (gps *ParserState) yylex() int {
     {
       gps.current_token = yacc_EOF;
       if (bash_input.typ == st_string) {
-	rewind_input_string ();
+	gps.rewind_input_string ();
 	}
   }
   rser_state &= ^PST_EOFTOKEN;
