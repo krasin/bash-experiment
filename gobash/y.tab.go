@@ -1865,8 +1865,8 @@ case yyreduce:
 // #line 1059 "/Users/chet/src/bash/src/parse.y"
     {
 			  (yyval.command) = (yyvs.PeekN((2) - (2)).command);
-			  if (gps.need_here_doc) {
-			    gather_here_documents ();
+			  if (gps.need_here_doc != 0) {
+			    gps.gather_here_documents ();
 			}
     }
     break;
@@ -1944,8 +1944,8 @@ case yyreduce:
 // #line 1127 "/Users/chet/src/bash/src/parse.y"
     {
 			  (yyval.command) = (yyvs.PeekN((1) - (1)).command);
-			  if (gps.need_here_doc) {
-			    gather_here_documents ();
+			  if (gps.need_here_doc != 0) {
+			    gps.gather_here_documents ();
 			  }
 			  if ((gps.parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
 			    {
@@ -1964,8 +1964,8 @@ case yyreduce:
 			  } else {
 			    (yyval.command) = command_connect ((yyvs.PeekN((1) - (2)).command), nil, '&');
 			  }
-			  if (gps.need_here_doc) {
-			    gather_here_documents ();
+			  if (gps.need_here_doc != 0) {
+			    gps.gather_here_documents ();
 			  }
 			  if ((gps.parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
 			    {
@@ -1980,8 +1980,8 @@ case yyreduce:
 // #line 1156 "/Users/chet/src/bash/src/parse.y"
     {
 			  (yyval.command) = (yyvs.PeekN((1) - (2)).command);
-			  if (gps.need_here_doc) {
-			    gather_here_documents ();
+			  if (gps.need_here_doc != 0) {
+			    gps.gather_here_documents ();
 			  }
 			  if ((gps.parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
 			    {
@@ -2676,13 +2676,13 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  if (pushed_string_list.expand_alias)
 //    gps.parser_state |= PST_ALEXPNEXT;
 //  else
-//    gps.parser_state &= ~PST_ALEXPNEXT;
+//    gps.parser_state &= ^PST_ALEXPNEXT;
 //
 //  t = pushed_string_list;
 //  pushed_string_list = pushed_string_list.next;
 //
 //  if (t.expander)
-//    t.expander.flags &= ~AL_BEINGEXPANDED;
+//    t.expander.flags &= ^AL_BEINGEXPANDED;
 //
 //
 //  set_line_mbstate ();
@@ -2697,7 +2697,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //    {
 //      t1 = t.next;
 //      if (t.expander)
-//	t.expander.flags &= ~AL_BEINGEXPANDED;
+//	t.expander.flags &= ^AL_BEINGEXPANDED;
 //      t = t1;
 //    }
 //  pushed_string_list = nil;
@@ -3151,22 +3151,19 @@ func (gps *ParserState) yylex() int {
 ///* When non-zero, we have read the required tokens
 //   which allow ESAC to be the next one read. */
 //static int esacs_needed_count;
-//
-//void
-//gather_here_documents ()
-//{
-//  int r;
-//
-//  r = 0;
-//  while (gps.need_here_doc)
-//    {
-//      gps.parser_state |= PST_HEREDOC;
-//      make_here_document (gps.redir_stack[r++], line_number);
-//      gps.parser_state &= ~PST_HEREDOC;
-//      gps.need_here_doc--;
-//    }
-//}
-//
+
+func (gps *ParserState) gather_here_documents() {
+  r := 0;
+  for gps.need_here_doc != 0 {
+      gps.parser_state |= PST_HEREDOC;
+      redir := gps.redir_stack[r]
+      r++
+      gps.make_here_document(redir, line_number)
+      gps.parser_state &= ^PST_HEREDOC;
+      gps.need_here_doc--;
+    }
+}
+
 ///* When non-zero, an open-brace used to create a group is awaiting a close
 //   brace partner. */
 //static int open_brace_count;
@@ -3357,7 +3354,7 @@ func (gps *ParserState) yylex() int {
 //      esacs_needed_count--;
 //      if (STREQ (tokstr, "esac"))
 //	{
-//	  gps.parser_state &= ~PST_CASEPAT;
+//	  gps.parser_state &= ^PST_CASEPAT;
 //	  return (ESAC);
 //	}
 //    }
@@ -3365,7 +3362,7 @@ func (gps *ParserState) yylex() int {
 //  /* The start of a shell function definition. */
 //  if (gps.parser_state & PST_ALLOWOPNBRC)
 //    {
-//      gps.parser_state &= ~PST_ALLOWOPNBRC;
+//      gps.parser_state &= ^PST_ALLOWOPNBRC;
 //      if (tokstr[0] == '{' && tokstr[1] == '\0')		/* } */
 //	{
 //	  open_brace_count++;
@@ -3499,12 +3496,13 @@ func (gps *ParserState) yylex() int {
 //    {
 //      /* If we're about to return an unquoted newline, we can go and collect
 //	 the text of any pending here document. */
-//      if (gps.need_here_doc)
-//	gather_here_documents ();
+//      if (gps.need_here_doc != 0) {
+//      	gps.gather_here_documents ();
+//        }
 //
-//      gps.parser_state &= ~PST_ALEXPNEXT;
+//      gps.parser_state &= ^PST_ALEXPNEXT;
 //
-//      gps.parser_state &= ~PST_ASSIGNOK;
+//      gps.parser_state &= ^PST_ASSIGNOK;
 //
 //      return (character);
 //    }
@@ -3518,9 +3516,9 @@ func (gps *ParserState) yylex() int {
 //      /* Turn off alias tokenization iff this character sequence would
 //	 not leave us ready to read a command. */
 //      if (character == '<' || character == '>')
-//	gps.parser_state &= ~PST_ALEXPNEXT;
+//	gps.parser_state &= ^PST_ALEXPNEXT;
 //
-//      gps.parser_state &= ~PST_ASSIGNOK;
+//      gps.parser_state &= ^PST_ASSIGNOK;
 //
 //      peek_char = shell_getc (1);
 //      if (character == peek_char)
@@ -3546,7 +3544,7 @@ func (gps *ParserState) yylex() int {
 //
 //	    case ';':
 //	      gps.parser_state |= PST_CASEPAT;
-//	      gps.parser_state &= ~PST_ALEXPNEXT;
+//	      gps.parser_state &= ^PST_ALEXPNEXT;
 //
 //	      peek_char = shell_getc (1);
 //	      if MBTEST(peek_char == '&')
@@ -3595,7 +3593,7 @@ func (gps *ParserState) yylex() int {
 //      else if MBTEST(character == ';' && peek_char == '&')
 //	{
 //	  gps.parser_state |= PST_CASEPAT;
-//	  gps.parser_state &= ~PST_ALEXPNEXT;
+//	  gps.parser_state &= ^PST_ALEXPNEXT;
 //	  return (SEMI_AND);
 //	}
 //
@@ -3607,7 +3605,7 @@ func (gps *ParserState) yylex() int {
 //      if MBTEST(character == ')' && last_read_token == '(' && token_before_that == WORD)
 //	{
 //	  gps.parser_state |= PST_ALLOWOPNBRC;
-//	  gps.parser_state &= ~PST_ALEXPNEXT;
+//	  gps.parser_state &= ^PST_ALEXPNEXT;
 //	  gps.function_dstart = line_number;
 //	}
 //
@@ -3618,10 +3616,10 @@ func (gps *ParserState) yylex() int {
 //	gps.parser_state |= PST_SUBSHELL;
 //      /*(*/
 //      else if MBTEST((gps.parser_state & PST_CASEPAT) && character == ')')
-//	gps.parser_state &= ~PST_CASEPAT;
+//	gps.parser_state &= ^PST_CASEPAT;
 //      /*(*/
 //      else if MBTEST((gps.parser_state & PST_SUBSHELL) && character == ')')
-//	gps.parser_state &= ~PST_SUBSHELL;
+//	gps.parser_state &= ^PST_SUBSHELL;
 //
 //      return (character);
 //    }
@@ -3732,7 +3730,7 @@ func (gps *ParserState) yylex() int {
 //	  ret[retind++] = ch;
 //
 //	  if (ch == '\n')
-//	    tflags &= ~LEX_INCOMMENT;
+//	    tflags &= ^LEX_INCOMMENT;
 //
 //	  continue;
 //	}
@@ -3745,7 +3743,7 @@ func (gps *ParserState) yylex() int {
 //
 //      if (tflags & LEX_PASSNEXT)		/* last char was backslash */
 //	{
-//	  tflags &= ~LEX_PASSNEXT;
+//	  tflags &= ^LEX_PASSNEXT;
 //	  if (qc != '\'' && ch == '\n')	/* double-quoted \<newline> disappears. */
 //	    {
 //	      if (retind > 0)
@@ -3876,7 +3874,7 @@ func (gps *ParserState) yylex() int {
 //	  if (open == ch)	/* undo previous increment */
 //	    count--;
 //	  if (ch == '(')		/* ) */
-//	    nestret = parse_comsub (0, '(', ')', &nestlen, (rflags|P_COMMAND) & ~P_DQUOTE);
+//	    nestret = parse_comsub (0, '(', ')', &nestlen, (rflags|P_COMMAND) & ^P_DQUOTE);
 //	  else if (ch == '{')		/* } */
 //	    nestret = parse_matched_pair (0, '{', '}', &nestlen, P_FIRSTCLOSE|rflags);
 //	  else if (ch == '[')		/* ] */
@@ -3889,7 +3887,7 @@ func (gps *ParserState) yylex() int {
 //      if MBTEST(ch == '$')
 //	tflags |= LEX_WASDOL;
 //      else
-//	tflags &= ~LEX_WASDOL;
+//	tflags &= ^LEX_WASDOL;
 //    }
 //
 //  ret[retind] = '\0';
@@ -3955,7 +3953,7 @@ func (gps *ParserState) yylex() int {
 //	{
 //	  if ((tflags & LEX_HEREDELIM) && heredelim)
 //	    {
-//	      tflags &= ~LEX_HEREDELIM;
+//	      tflags &= ^LEX_HEREDELIM;
 //	      tflags |= LEX_INHEREDOC;
 //	      lex_firstind = retind + 1;
 //	    }
@@ -4005,7 +4003,7 @@ func (gps *ParserState) yylex() int {
 //	  if ((tflags & LEX_INCOMMENT) && ch == '\n')
 //{
 ///*itrace("parse_comsub:%d: lex_incomment -> 0 ch = `%c'", line_number, ch);*/
-//	    tflags &= ~LEX_INCOMMENT;
+//	    tflags &= ^LEX_INCOMMENT;
 //}
 //
 //	  continue;
@@ -4014,7 +4012,7 @@ func (gps *ParserState) yylex() int {
 //      if (tflags & LEX_PASSNEXT)		/* last char was backslash */
 //	{
 ///*itrace("parse_comsub:%d: lex_passnext -> 0 ch = `%c' (%d)", line_number, ch, __LINE__);*/
-//	  tflags &= ~LEX_PASSNEXT;
+//	  tflags &= ^LEX_PASSNEXT;
 //	  if (qc != '\'' && ch == '\n')	/* double-quoted \<newline> disappears. */
 //	    {
 //	      if (retind > 0)
@@ -4033,7 +4031,7 @@ func (gps *ParserState) yylex() int {
 //	 we either start or continue a word. */
 //      if MBTEST(shellbreak (ch))
 //	{
-//	  tflags &= ~LEX_INWORD;
+//	  tflags &= ^LEX_INWORD;
 ///*itrace("parse_comsub:%d: lex_inword -> 0 ch = `%c' (%d)", line_number, ch, __LINE__);*/
 //	}
 //      else
@@ -4075,7 +4073,7 @@ func (gps *ParserState) yylex() int {
 //	  else if (heredelim && (tflags & LEX_PASSNEXT) == 0 && ch == '\n')
 //	    {
 //	      tflags |= LEX_INHEREDOC;
-//	      tflags &= ~LEX_HEREDELIM;
+//	      tflags &= ^LEX_HEREDELIM;
 //	      lex_firstind = retind + 1;
 //	    }
 //#endif
@@ -4091,7 +4089,7 @@ func (gps *ParserState) yylex() int {
 //	      if (ch == '\n')
 //		{
 //		  tflags |= LEX_INHEREDOC;
-//		  tflags &= ~LEX_HEREDELIM;
+//		  tflags &= ^LEX_HEREDELIM;
 //		  lex_firstind = retind + 1;
 //		}
 //	      else
@@ -4153,10 +4151,10 @@ func (gps *ParserState) yylex() int {
 //}
 //	      else if (STREQN (ret + retind - 4, "esac", 4))
 //{
-//		tflags &= ~LEX_INCASE;
+//		tflags &= ^LEX_INCASE;
 ///*itrace("parse_comsub:%d: found `esac', lex_incase -> 0 lex_reswdok -> 0", line_number);*/
 //}	        
-//	      tflags &= ~LEX_RESWDOK;
+//	      tflags &= ^LEX_RESWDOK;
 //	    }
 //	  else if MBTEST((tflags & LEX_CKCOMMENT) && ch == '#' && (lex_rwlen == 0 || ((tflags & LEX_INWORD) && lex_wlen == 0)))
 //	    ;	/* don't modify LEX_RESWDOK if we're starting a comment */
@@ -4167,12 +4165,12 @@ func (gps *ParserState) yylex() int {
 //	       leave LEX_RESWDOK alone.  If we read anything else, we want to
 //	       turn off LEX_RESWDOK, since we're going to read a pattern list. */
 //{
-//	    tflags &= ~LEX_RESWDOK;
+//	    tflags &= ^LEX_RESWDOK;
 ///*itrace("parse_comsub:%d: lex_incase == 1 found `%c', lex_reswordok -> 0", line_number, ch);*/
 //}
 //	  else if MBTEST(shellbreak (ch) == 0)
 //{
-//	    tflags &= ~LEX_RESWDOK;
+//	    tflags &= ^LEX_RESWDOK;
 ///*itrace("parse_comsub:%d: found `%c', lex_reswordok -> 0", line_number, ch);*/
 //}
 //	}
@@ -4226,7 +4224,7 @@ func (gps *ParserState) yylex() int {
 //	}
 //#if 0
 //      else if MBTEST((tflags & LEX_INCASE) && ch == close && close == ')')
-//        tflags &= ~LEX_INCASE;		/* XXX */
+//        tflags &= ^LEX_INCASE;		/* XXX */
 //#endif
 //      else if MBTEST(ch == close && (tflags & LEX_INCASE) == 0)		/* ending delimiter */
 //{
@@ -4296,7 +4294,7 @@ func (gps *ParserState) yylex() int {
 //	  if ((tflags & LEX_INCASE) == 0 && open == ch)	/* undo previous increment */
 //	    count--;
 //	  if (ch == '(')		/* ) */
-//	    nestret = parse_comsub (0, '(', ')', &nestlen, (rflags|P_COMMAND) & ~P_DQUOTE);
+//	    nestret = parse_comsub (0, '(', ')', &nestlen, (rflags|P_COMMAND) & ^P_DQUOTE);
 //	  else if (ch == '{')		/* } */
 //	    nestret = parse_matched_pair (0, '{', '}', &nestlen, P_FIRSTCLOSE|rflags);
 //	  else if (ch == '[')		/* ] */
@@ -4309,7 +4307,7 @@ func (gps *ParserState) yylex() int {
 //      if MBTEST(ch == '$')
 //	tflags |= LEX_WASDOL;
 //      else
-//	tflags &= ~LEX_WASDOL;
+//	tflags &= ^LEX_WASDOL;
 //    }
 //
 //  ret[retind] = '\0';
@@ -5113,7 +5111,7 @@ func (gps *ParserState) yylex() int {
 //      if (result == RE_READ_TOKEN)
 //	return (RE_READ_TOKEN);
 //      else if (result == NO_EXPANSION)
-//	gps.parser_state &= ~PST_ALEXPNEXT;
+//	gps.parser_state &= ^PST_ALEXPNEXT;
 //    }
 //
 //  /* If not in Posix.2 mode, check for reserved words after alias
@@ -5573,7 +5571,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //  token = saved_token;
 //  token_buffer_size = orig_token_size;
 //
-//  gps.parser_state &= ~PST_COMPASSIGN;
+//  gps.parser_state &= ^PST_COMPASSIGN;
 //
 //  if (wl == &parse_string_error)
 //    {
