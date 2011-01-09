@@ -234,19 +234,13 @@ func (gps *ParserState) make_case_command(word *word_desc, clauses *PatternList,
 //  return (temp);
 //}
 //
-//Command *
-//make_if_command (test, true_case, false_case)
-//     Command *test, *true_case, *false_case;
-//{
-//  IF_COM *temp;
-//
-//  temp = (IF_COM *)xmalloc (sizeof (IF_COM));
-//  temp.flags = 0;
-//  temp.test = test;
-//  temp.true_case = true_case;
-//  temp.false_case = false_case;
-//  return (make_command (cm_if, (SimpleCom *)temp));
-//}
+func (gps *ParserState) make_if_command(test *Command, true_case *Command, false_case *Command) *Command {
+  temp := new(IfCom)
+  temp.test = test;
+  temp.true_case = true_case;
+  temp.false_case = false_case;
+  return gps.make_command(cm_if, temp)
+}
 
 func (gps *ParserState) make_until_or_while(which command_type, test *Command, action *Command) *Command {
   temp := new(WhileCom)

@@ -1753,17 +1753,17 @@ case yyreduce:
 
   case 107:
 // #line 990 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_if_command ((yyvs.PeekN((2) - (5)).command), (yyvs.PeekN((4) - (5)).command), nil); }
+    { (yyval.command) = gps.make_if_command ((yyvs.PeekN((2) - (5)).command), (yyvs.PeekN((4) - (5)).command), nil); }
     break;
 
   case 108:
 // #line 992 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_if_command ((yyvs.PeekN((2) - (7)).command), (yyvs.PeekN((4) - (7)).command), (yyvs.PeekN((6) - (7)).command)); }
+    { (yyval.command) = gps.make_if_command ((yyvs.PeekN((2) - (7)).command), (yyvs.PeekN((4) - (7)).command), (yyvs.PeekN((6) - (7)).command)); }
     break;
 
   case 109:
 // #line 994 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_if_command ((yyvs.PeekN((2) - (6)).command), (yyvs.PeekN((4) - (6)).command), (yyvs.PeekN((5) - (6)).command)); }
+    { (yyval.command) = gps.make_if_command ((yyvs.PeekN((2) - (6)).command), (yyvs.PeekN((4) - (6)).command), (yyvs.PeekN((5) - (6)).command)); }
     break;
 
   case 110:
@@ -1783,17 +1783,17 @@ case yyreduce:
 
   case 113:
 // #line 1011 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_if_command ((yyvs.PeekN((2) - (4)).command), (yyvs.PeekN((4) - (4)).command), nil); }
+    { (yyval.command) = gps.make_if_command ((yyvs.PeekN((2) - (4)).command), (yyvs.PeekN((4) - (4)).command), nil); }
     break;
 
   case 114:
 // #line 1013 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_if_command ((yyvs.PeekN((2) - (6)).command), (yyvs.PeekN((4) - (6)).command), (yyvs.PeekN((6) - (6)).command)); }
+    { (yyval.command) = gps.make_if_command ((yyvs.PeekN((2) - (6)).command), (yyvs.PeekN((4) - (6)).command), (yyvs.PeekN((6) - (6)).command)); }
     break;
 
   case 115:
 // #line 1015 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_if_command ((yyvs.PeekN((2) - (5)).command), (yyvs.PeekN((4) - (5)).command), (yyvs.PeekN((5) - (5)).command)); }
+    { (yyval.command) = gps.make_if_command ((yyvs.PeekN((2) - (5)).command), (yyvs.PeekN((4) - (5)).command), (yyvs.PeekN((5) - (5)).command)); }
     break;
 
   case 117:
