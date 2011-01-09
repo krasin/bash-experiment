@@ -1669,12 +1669,10 @@ case yyreduce:
 			     redirection.  The two are semantically equivalent,
 			     though -- the only difference is in how the
 			     command printing code displays the redirections. */
-			  if (tc.redirects)
-			    {
-			      Redirect *t;
-			      for t = tc.redirects; t.next; t = t.next {
+			  if (tc.redirects != nil) {
+			      var t *Redirect
+			      for t = tc.redirects; t.next != nil; t = t.next {
 			      }
-				;
 			      t.next = (yyvs.PeekN((2) - (2)).redirect);
 			    } else {
 			    tc.redirects = (yyvs.PeekN((2) - (2)).redirect);
@@ -1705,15 +1703,14 @@ case yyreduce:
 			  var tc *Command
 
 			  tc = (yyvs.PeekN((2) - (3)).command);
-			  if (tc.redirects)
-			    {
-			      Redirect *t;
-			      for t = tc.redirects; t.next; t = t.next {}
-				;
+			  if tc.redirects != nil {
+			      var t *Redirect
+			      for t = tc.redirects; t.next != nil; t = t.next {}
+
 			      t.next = (yyvs.PeekN((3) - (3)).redirect);
 			    }  else {
 			    tc.redirects = (yyvs.PeekN((3) - (3)).redirect);
-				}
+			  }
 			  (yyval.command) = make_coproc_command ("COPROC", (yyvs.PeekN((2) - (3)).command));
 			  (yyval.command).flags |= CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
 			}
@@ -1733,11 +1730,10 @@ case yyreduce:
 			  var tc *Command
 
 			  tc = (yyvs.PeekN((3) - (4)).command);
-			  if (tc.redirects)
-			    {
-			      Redirect *t;
-			      for t = tc.redirects; t.next; t = t.next {}
-				;
+			  if tc.redirects != nil {
+			      var t *Redirect
+			      for t = tc.redirects; t.next != nil; t = t.next {}
+
 			      t.next = (yyvs.PeekN((4) - (4)).redirect);
 			    }			  else {
 			    tc.redirects = (yyvs.PeekN((4) - (4)).redirect);
