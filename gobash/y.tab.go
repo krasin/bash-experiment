@@ -134,7 +134,6 @@ const MAX_CASE_NEST = 128
 // extern int current_command_number;
 // extern int sourcelevel, parse_and_execute_level;
 // extern int posixly_correct;
-// extern int last_command_exit_value;
 // extern pid_t last_command_subst_pid;
 // extern char *shell_name, *current_host_name;
 // extern char *dist_version;
@@ -147,6 +146,8 @@ const MAX_CASE_NEST = 128
 type ParserState struct {
 
 global_command *Command
+
+last_command_exit_value int
 
 /* Non-zero means we expand aliases in commands. */
 expand_aliases int
@@ -1528,7 +1529,7 @@ case yyreduce:
   case 83:
 // #line 818 "/Users/chet/src/bash/src/parse.y"
     {
-				  (yyval.command) = make_arith_for_command ((yyvs.PeekN((2) - (7)).word_list), (yyvs.PeekN((6) - (7)).command), arith_for_lineno);
+				  (yyval.command) = gps.make_arith_for_command ((yyvs.PeekN((2) - (7)).word_list), (yyvs.PeekN((6) - (7)).command), arith_for_lineno);
 				  if (gps.word_top > 0) { gps.word_top--; }
 				}
     break;
@@ -1536,7 +1537,7 @@ case yyreduce:
   case 84:
 // #line 823 "/Users/chet/src/bash/src/parse.y"
     {
-				  (yyval.command) = make_arith_for_command ((yyvs.PeekN((2) - (7)).word_list), (yyvs.PeekN((6) - (7)).command), arith_for_lineno);
+				  (yyval.command) = gps.make_arith_for_command ((yyvs.PeekN((2) - (7)).word_list), (yyvs.PeekN((6) - (7)).command), arith_for_lineno);
 				  if (gps.word_top > 0) { gps.word_top--; }
 				}
     break;
@@ -1544,7 +1545,7 @@ case yyreduce:
   case 85:
 // #line 828 "/Users/chet/src/bash/src/parse.y"
     {
-				  (yyval.command) = make_arith_for_command ((yyvs.PeekN((2) - (5)).word_list), (yyvs.PeekN((4) - (5)).command), arith_for_lineno);
+				  (yyval.command) = gps.make_arith_for_command ((yyvs.PeekN((2) - (5)).word_list), (yyvs.PeekN((4) - (5)).command), arith_for_lineno);
 				  if (gps.word_top > 0) { gps.word_top--; }
 				}
     break;
@@ -1552,7 +1553,7 @@ case yyreduce:
   case 86:
 // #line 833 "/Users/chet/src/bash/src/parse.y"
     {
-				  (yyval.command) = make_arith_for_command ((yyvs.PeekN((2) - (5)).word_list), (yyvs.PeekN((4) - (5)).command), arith_for_lineno);
+				  (yyval.command) = gps.make_arith_for_command ((yyvs.PeekN((2) - (5)).word_list), (yyvs.PeekN((4) - (5)).command), arith_for_lineno);
 				  if (gps.word_top > 0) { gps.word_top--; }
 				}
     break;

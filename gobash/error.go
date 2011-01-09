@@ -14,7 +14,9 @@ package gobash
    You should have received a copy of the GNU General Public License along with Bash.  If not, see <http://www.gnu.org/licenses/>. */
 
 import (
+	"fmt"
 	"log"
+	"os"
 )
 
 //extern int executing_line_number __P((void));
@@ -44,9 +46,9 @@ import (
 //	line = (print_lineno && interactive_shell == 0) ? executing_line_number() : -1;
 //
 //	if (line > 0)
-//		fprintf(stderr, "%s:%s%d: ", ename, gnu_error_format ? "" : _(" line "), line);
+//		fmt.Fprintf(os.Stderr, "%s:%s%d: ", ename, gnu_error_format ? "" : _(" line "), line);
 //	else
-//		fprintf(stderr, "%s: ", ename);
+//		fmt.Fprintf(os.Stderr, "%s: ", ename);
 //}
 //
 ///* Return the name of the shell or the shell script for error reporting. */
@@ -107,8 +109,8 @@ func programming_error(fmt string, v ...interface{}) {
 //
 //	SH_VA_START(args, format);
 //
-//	vfprintf(stderr, format, args);
-//	fprintf(stderr, "\n");
+//	fmt.Fprintf(os.Stderr, format, args);
+//	fmt.Fprintf(os.Stderr, "\n");
 //
 //	va_end(args);
 //	if (exit_immediately_on_error)
@@ -130,8 +132,8 @@ func programming_error(fmt string, v ...interface{}) {
 //
 //	SH_VA_START(args, format);
 //
-//	vfprintf(stderr, format, args);
-//	fprintf(stderr, "\n");
+//	fmt.Fprintf(os.Stderr, format, args);
+//	fmt.Fprintf(os.Stderr, "\n");
 //
 //	va_end(args);
 //	sh_exit(2);
@@ -152,8 +154,8 @@ func programming_error(fmt string, v ...interface{}) {
 //
 //	SH_VA_START(args, format);
 //
-//	vfprintf(stderr, format, args);
-//	fprintf(stderr, "\n");
+//	fmt.Fprintf(os.Stderr, format, args);
+//	fmt.Fprintf(os.Stderr, "\n");
 //
 //	va_end(args);
 //}
@@ -170,12 +172,12 @@ func programming_error(fmt string, v ...interface{}) {
 //	va_list args;
 //
 //	error_prolog(1);
-//	fprintf(stderr, _("warning: "));
+//	fmt.Fprintf(os.Stderr, _("warning: "));
 //
 //	SH_VA_START(args, format);
 //
-//	vfprintf(stderr, format, args);
-//	fprintf(stderr, "\n");
+//	fmt.Fprintf(os.Stderr, format, args);
+//	fmt.Fprintf(os.Stderr, "\n");
 //
 //	va_end(args);
 //}
@@ -197,54 +199,40 @@ func programming_error(fmt string, v ...interface{}) {
 //
 //	SH_VA_START(args, format);
 //
-//	vfprintf(stderr, format, args);
-//	fprintf(stderr, ": %s\n", strerror(e));
+//	fmt.Fprintf(os.Stderr, format, args);
+//	fmt.Fprintf(os.Stderr, ": %s\n", strerror(e));
 //
 //	va_end(args);
 //}
 //
-///* An error from the parser takes the general form
-//
-//   shell_name: input file name: line number: message
-//
-//   The input file name and line number are omitted if the shell is currently interactive.  If the shell is not currently interactive, the input file name is inserted only if it
-//   is different from the shell name. */
-//void
-//#if defined (PREFER_STDARG)
-//parser_error(int lineno, const char *format, ...)
-//#else
-//parser_error(lineno, format, va_alist)
-//	 int lineno;
-//	 const char *format;
-//	 va_dcl
-//#endif
-//{
-//	va_list args;
-//	char *ename, *iname;
-//
-//	ename = get_name_for_error();
-//	iname = yy_input_name();
-//
-//	if (interactive)
-//		fprintf(stderr, "%s: ", ename);
-//	else if (interactive_shell)
-//		fprintf(stderr, "%s: %s:%s%d: ", ename, iname, gnu_error_format ? "" : _(" line "), lineno);
-//	else if (STREQ(ename, iname))
-//		fprintf(stderr, "%s:%s%d: ", ename, gnu_error_format ? "" : _(" line "), lineno);
-//	else
-//		fprintf(stderr, "%s: %s:%s%d: ", ename, iname, gnu_error_format ? "" : _(" line "), lineno);
-//
-//	SH_VA_START(args, format);
-//
-//	vfprintf(stderr, format, args);
-//	fprintf(stderr, "\n");
-//
-//	va_end(args);
-//
-//	if (exit_immediately_on_error)
-//		exit_shell(last_command_exit_value = 2);
-//}
-//
+/* An error from the parser takes the general form
+
+   shell_name: input file name: line number: message
+
+   The input file name and line number are omitted if the shell is currently interactive.  If the shell is not currently interactive, the input file name is inserted only if it
+   is different from the shell name. */
+func (gps *ParserState) parser_error(lineno int, format string, args ...interface{}) {
+	// TODO(krasin): use get_name_for_error and yy_input_name
+	ename := "(NOT IMPLEMENTED)NAME_FOR_ERROR" // get_name_for_error();
+	iname := "(NOT IMPLEMENTED)INPUT_NAME" // yy_input_name();
+
+	if ename == iname {
+		fmt.Fprintf(os.Stderr, "%s:%d: ", ename, lineno);
+	} else {
+		fmt.Fprintf(os.Stderr, "%s: %s:%d: ", ename, iname, lineno);
+        }
+
+	fmt.Fprintf(os.Stderr, format, args...);
+	fmt.Fprintf(os.Stderr, "\n");
+
+        // TODO: use option exit_immediately_on_error here
+	if true { //(exit_immediately_on_error) {
+		os.Exit(2)
+		//TODO(krasin): use exit_shell
+		//exit_shell(last_command_exit_value = 2);
+        }
+}
+
 //#ifdef DEBUG
 //void
 //#if defined (PREFER_STDARG)
@@ -257,12 +245,12 @@ func programming_error(fmt string, v ...interface{}) {
 //{
 //	va_list args;
 //
-//	fprintf(stderr, "TRACE: pid %ld: ", (long)getpid());
+//	fmt.Fprintf(os.Stderr, "TRACE: pid %ld: ", (long)getpid());
 //
 //	SH_VA_START(args, format);
 //
-//	vfprintf(stderr, format, args);
-//	fprintf(stderr, "\n");
+//	fmt.Fprintf(os.Stderr, format, args);
+//	fmt.Fprintf(os.Stderr, "\n");
 //
 //	va_end(args);
 //

@@ -24,6 +24,8 @@ package gobash
 import (
 	"fmt"
 	"os"
+	"strings"
+	"unicode"
 )
 
 //extern int line_number, current_command_line_count, parser_state;
@@ -167,103 +169,48 @@ func (gps *ParserState) make_for_command(name *word_desc, map_list *word_list, a
 //  return (nil);
 //#endif
 //}
-//
-//#if defined (ArithForCommand)
-//static word_list *
-//make_arith_for_expr (s)
-//     char *s;
-//{
-//  word_list *result;
-//  word_desc *wd;
-//
-//  if (s == 0 || *s == '\0')
-//    return (nil);
-//  wd = make_word (s);
-//  wd.flags |= W_NOGLOB|W_NOSPLIT|W_QUOTED|W_DQUOTE;	/* no word splitting or globbing */
-//  result = make_word_list (wd, nil);
-//  return result;
-//}
-//#endif
-//
-///* Note that this function calls dispose_words on EXPRS, since it doesn't
-//   use the word list directly.  We free it here rather than at the caller
-//   because no other function in this file requires that the caller free
-//   any arguments. */
-//Command *
-//make_arith_for_command (exprs, action, lineno)
-//     word_list *exprs;
-//     Command *action;
-//     int lineno;
-//{
-//#if defined (ArithForCommand)
-//  ArithForCOM *temp;
-//  word_list *init, *test, *step;
-//  char *s, *t, *start;
-//  int nsemi;
-//
-//  init = test = step = nil;
-//  /* Parse the string into the three component sub-expressions. */
-//  start = t = s = exprs.word.word;
-//  for (nsemi = 0; ;)
-//    {
-//      /* skip whitespace at the start of each sub-expression. */
-//      for (whitespace (*s))
-//	s++;
-//      start = s;
-//      /* skip to the semicolon or EOS */
-//      for (*s && *s != ';')
-//	s++;
-//
-//      t = (s > start) ? substring (start, 0, s - start) : nil;
-//
-//      nsemi++;
-//      switch (nsemi)
-//	{
-//	case 1:
-//	  init = make_arith_for_expr (t);
-//	  break;
-//	case 2:
-//	  test = make_arith_for_expr (t);
-//	  break;
-//	case 3:
-//	  step = make_arith_for_expr (t);
-//	  break;
-//	}
-//
-//      FREE (t);
-//      if (*s == '\0')
-//	break;
-//      s++;	/* skip over semicolon */
-//    }
-//
-//  if (nsemi != 3)
-//    {
-//      if (nsemi < 3)
-//	parser_error (lineno, _("syntax error: arithmetic expression required"));
-//      else
-//	parser_error (lineno, _("syntax error: `;' unexpected"));
-//      parser_error (lineno, _("syntax error: `((%s))'"), exprs.word.word);
-//      last_command_exit_value = 2;
-//      return (nil);
-//    }
-//
-//  temp = (ArithForCOM *)xmalloc (sizeof (ARITH_ForCom));
-//  temp.flags = 0;
-//  temp.line = lineno;
-//  temp.init = init ? init : make_arith_for_expr ("1");
-//  temp.test = test ? test : make_arith_for_expr ("1");
-//  temp.step = step ? step : make_arith_for_expr ("1");
-//  temp.action = action;
-//
-//  dispose_words (exprs);
-//  return (make_command (cm_arith_for, (SimpleCom *)temp));
-//#else
-//  dispose_words (exprs);
-//  last_command_exit_value = 2;
-//  return (nil);
-//#endif /* ArithForCommand */
-//}
-//
+
+func make_arith_for_expr(s string) *word_list {
+  if s == "" {
+    return nil
+  }
+  wd := make_word(s)
+  wd.flags |= W_NOGLOB|W_NOSPLIT|W_QUOTED|W_DQUOTE;	/* no word splitting or globbing */
+  result := make_word_list (wd, nil);
+  return result;
+}
+
+func (gps *ParserState) make_arith_for_command(exprs *word_list, action *Command, lineno int) *Command {
+  chunks := strings.Split(exprs.word.word, ";", -1)
+  if len(chunks) != 3 {
+    if len(chunks) < 3 {
+      gps.parser_error(lineno, "syntax error: arithmetic expression required")
+    } else {
+      gps.parser_error(lineno, "syntax error: `;' unexpected")
+    }
+    gps.parser_error (lineno, "syntax error: `((%s))'", exprs.word.word)
+    gps.last_command_exit_value = 2;
+    return nil
+  }
+
+  make_expr := func(x string) *word_list {
+    expr := make_arith_for_expr(strings.TrimLeftFunc(x, unicode.IsSpace))
+    if expr == nil {
+      expr = make_arith_for_expr("1")
+    }
+    return expr
+  }
+
+  temp := new(ArithForCom)
+  temp.line = lineno;
+  temp.init = make_expr(chunks[0])
+  temp.test = make_expr(chunks[1])
+  temp.step = make_expr(chunks[2])
+  temp.action = action;
+
+  return gps.make_command(cm_arith_for, temp)
+}
+
 //Command *
 //make_group_command (command)
 //     Command *command;
@@ -628,7 +575,6 @@ func makeRedirection(source Redirectee, instruction r_instruction, dest_and_file
 //           w.word[wlen] = '\0';
 // 	  if (all_digits (w.word) && legal_number (w.word, &lfd) && lfd == (int)lfd)
 // 	    {
-// 	      dispose_word (w);
 // 	      temp.instruction = (instruction == r_duplicating_input_word) ? r_move_input : r_move_output;
 // 	      temp.redirectee.dest = lfd;
 // 	    }
