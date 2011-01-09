@@ -2079,7 +2079,7 @@ case yyreduce:
 			  (yyval.command).flags |= (yyvs.PeekN((1) - (2)).number);
 			  /* XXX - let's cheat and push a newline back */
 			  if ((yyvs.PeekN((2) - (2)).number) == '\n') {
-			    token_to_read = '\n';
+			    gps.token_to_read = '\n';
 			  }
 			}
     break;
@@ -2096,7 +2096,7 @@ case yyreduce:
 			  var tc *Command
 			  var rd Redirectee
 			  var sd Redirectee
-			  var t *Redirect
+			  var r *Redirect
 
 			  if (yyvs.PeekN((1) - (4)).command).typ == cm_simple {
 				tc = (yyvs.PeekN((1) - (4)).command).value.Simple
@@ -2106,12 +2106,11 @@ case yyreduce:
 			  sd.dest = 2;
 			  rd.dest = 1;
 			  r = makeRedirection (sd, r_duplicating_output, rd, 0);
-			  if (tc.redirects)
-			    {
-			      Redirect *t;
-			      for t = tc.redirects; t.next; t = t.next {}
+			  if tc.redirects != nil {
+			      var t *Redirect
+			      for t = tc.redirects; t.next != nil; t = t.next {}
 			      t.next = r;
-			    } else {
+			  } else {
 			    tc.redirects = r;
 			  }
 
@@ -3114,8 +3113,8 @@ func (gps *ParserState) rewind_input_string() {
 //  restore_parser_state (&ps);
 //  bind_variable ("_", last_lastarg, 0);
 //
-//  if (token_to_read == '\n')	/* reset_parser was called */
-//    token_to_read = 0;
+//  if (gps.token_to_read == '\n')	/* reset_parser was called */
+//    gps.token_to_read = 0;
 //}
 //
 ///* Place to remember the token.  We try to keep the buffer
@@ -3425,7 +3424,7 @@ func (gps *ParserState) gather_here_documents() {
 //
 //  gps.current_token = '\n';		/* XXX */
 //  last_read_token = '\n';
-//  token_to_read = '\n';
+//  gps.token_to_read = '\n';
 //}
 //
 ///* Read the next token.  Command can be READ (normal operation) or
@@ -3444,15 +3443,15 @@ func (gps *ParserState) gather_here_documents() {
 //      return ('\n');
 //    }
 //
-//  if (token_to_read)
+//  if (gps.token_to_read)
 //    {
-//      result = token_to_read;
-//      if (token_to_read == WORD || token_to_read == ASSIGNMENT_WORD)
+//      result = gps.token_to_read;
+//      if (gps.token_to_read == WORD || gps.token_to_read == ASSIGNMENT_WORD)
 //	{
 //	  gps.yylval.word = word_desc_to_read;
 //	  word_desc_to_read = nil;
 //	}
-//      token_to_read = 0;
+//      gps.token_to_read = 0;
 //      return (result);
 //    }
 //
@@ -3466,7 +3465,7 @@ func (gps *ParserState) gather_here_documents() {
 //	  cond_error ();
 //	  return (-1);
 //	}
-//      token_to_read = COND_END;
+//      gps.token_to_read = COND_END;
 //      gps.parser_state &= ~(PST_CONDEXPR|PST_CONDCMD);
 //      return (COND_CMD);
 //    }
