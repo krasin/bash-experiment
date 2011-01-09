@@ -1529,7 +1529,7 @@ case yyreduce:
   case 83:
 // #line 818 "/Users/chet/src/bash/src/parse.y"
     {
-				  (yyval.command) = gps.make_arith_for_command ((yyvs.PeekN((2) - (7)).word_list), (yyvs.PeekN((6) - (7)).command), arith_for_lineno);
+				  (yyval.command) = gps.make_arith_for_command ((yyvs.PeekN((2) - (7)).word_list), (yyvs.PeekN((6) - (7)).command), gps.arith_for_lineno);
 				  if (gps.word_top > 0) { gps.word_top--; }
 				}
     break;
@@ -1537,7 +1537,7 @@ case yyreduce:
   case 84:
 // #line 823 "/Users/chet/src/bash/src/parse.y"
     {
-				  (yyval.command) = gps.make_arith_for_command ((yyvs.PeekN((2) - (7)).word_list), (yyvs.PeekN((6) - (7)).command), arith_for_lineno);
+				  (yyval.command) = gps.make_arith_for_command ((yyvs.PeekN((2) - (7)).word_list), (yyvs.PeekN((6) - (7)).command), gps.arith_for_lineno);
 				  if (gps.word_top > 0) { gps.word_top--; }
 				}
     break;
@@ -1545,7 +1545,7 @@ case yyreduce:
   case 85:
 // #line 828 "/Users/chet/src/bash/src/parse.y"
     {
-				  (yyval.command) = gps.make_arith_for_command ((yyvs.PeekN((2) - (5)).word_list), (yyvs.PeekN((4) - (5)).command), arith_for_lineno);
+				  (yyval.command) = gps.make_arith_for_command ((yyvs.PeekN((2) - (5)).word_list), (yyvs.PeekN((4) - (5)).command), gps.arith_for_lineno);
 				  if (gps.word_top > 0) { gps.word_top--; }
 				}
     break;
@@ -1553,7 +1553,7 @@ case yyreduce:
   case 86:
 // #line 833 "/Users/chet/src/bash/src/parse.y"
     {
-				  (yyval.command) = gps.make_arith_for_command ((yyvs.PeekN((2) - (5)).word_list), (yyvs.PeekN((4) - (5)).command), arith_for_lineno);
+				  (yyval.command) = gps.make_arith_for_command ((yyvs.PeekN((2) - (5)).word_list), (yyvs.PeekN((4) - (5)).command), gps.arith_for_lineno);
 				  if (gps.word_top > 0) { gps.word_top--; }
 				}
     break;
@@ -4396,7 +4396,7 @@ func (gps *ParserState) yylex() int {
 //
 //  if (last_read_token == FOR)
 //    {
-//      arith_for_lineno = line_number;
+//      gps.arith_for_lineno = line_number;
 //      cmdtyp = parse_arith_cmd (&wval, 0);
 //      if (cmdtyp == 1)
 //	{
