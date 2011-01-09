@@ -1947,13 +1947,12 @@ case yyreduce:
 			  if (gps.need_here_doc != 0) {
 			    gps.gather_here_documents ();
 			  }
-			  if ((gps.parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
-			    {
+			  if ((gps.parser_state & PST_CMDSUBST != 0) && gps.current_token == gps.shell_eof_token) {
 			      gps.global_command = (yyvs.PeekN((1) - (1)).command);
 			      rewind_input_string ();
 			      yyparseState = yyacceptlab; continue;
 			    }
-			}
+    }
     break;
 
   case 150:
@@ -1967,8 +1966,7 @@ case yyreduce:
 			  if (gps.need_here_doc != 0) {
 			    gps.gather_here_documents ();
 			  }
-			  if ((gps.parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
-			    {
+			  if ((gps.parser_state & PST_CMDSUBST != 0) && gps.current_token == gps.shell_eof_token)   {
 			      gps.global_command = (yyvs.PeekN((1) - (2)).command);
 			      rewind_input_string ();
 			      yyparseState = yyacceptlab; continue;
@@ -1983,8 +1981,7 @@ case yyreduce:
 			  if (gps.need_here_doc != 0) {
 			    gps.gather_here_documents ();
 			  }
-			  if ((gps.parser_state & PST_CMDSUBST) && current_token == shell_eof_token)
-			    {
+			  if ((gps.parser_state & PST_CMDSUBST != 0) && gps.current_token == gps.shell_eof_token)  {
 			      gps.global_command = (yyvs.PeekN((1) - (2)).command);
 			      rewind_input_string ();
 			      yyparseState = yyacceptlab; continue;
@@ -2031,7 +2028,7 @@ case yyreduce:
   case 158:
 // #line 1191 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvs.PeekN((2) - (2)).command)) {
+			  if ((yyvs.PeekN((2) - (2)).command) != nil) {
 			    (yyvs.PeekN((2) - (2)).command).flags |= CMD_INVERT_RETURN;
 			  }
 			  (yyval.command) = (yyvs.PeekN((2) - (2)).command);
@@ -2041,7 +2038,7 @@ case yyreduce:
   case 159:
 // #line 1197 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvs.PeekN((2) - (2)).command)) {
+			  if ((yyvs.PeekN((2) - (2)).command) != nil) {
 			    (yyvs.PeekN((2) - (2)).command).flags |= (yyvs.PeekN((1) - (2)).number);
 			  }
 			  (yyval.command) = (yyvs.PeekN((2) - (2)).command);
@@ -2051,7 +2048,7 @@ case yyreduce:
   case 160:
 // #line 1203 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvs.PeekN((3) - (3)).command)) {
+			  if ((yyvs.PeekN((3) - (3)).command) != nil) {
 			    (yyvs.PeekN((3) - (3)).command).flags |= (yyvs.PeekN((1) - (3)).number)|CMD_INVERT_RETURN;
 			  }
 			  (yyval.command) = (yyvs.PeekN((3) - (3)).command);
@@ -2061,7 +2058,7 @@ case yyreduce:
   case 161:
 // #line 1209 "/Users/chet/src/bash/src/parse.y"
     {
-			  if ((yyvs.PeekN((3) - (3)).command)) {
+			  if ((yyvs.PeekN((3) - (3)).command) != nil) {
 			    (yyvs.PeekN((3) - (3)).command).flags |= (yyvs.PeekN((2) - (3)).number)|CMD_INVERT_RETURN;
 			  }
 			  (yyval.command) = (yyvs.PeekN((3) - (3)).command);
@@ -2071,15 +2068,13 @@ case yyreduce:
   case 162:
 // #line 1215 "/Users/chet/src/bash/src/parse.y"
     {
-			  var x ELEMENT
+			  x := new(ELEMENT)
 
 			  /* Boy, this is unclean.  `time' by itself can
 			     time a null command.  We cheat and push a
 			     newline back if the list_terminator was a newline
 			     to avoid the double-newline problem (one to
 			     terminate this, one to terminate the command) */
-			  x.word = 0;
-			  x.redirect = 0;
 			  (yyval.command) = gps.make_simple_command (x, nil);
 			  (yyval.command).flags |= (yyvs.PeekN((1) - (2)).number);
 			  /* XXX - let's cheat and push a newline back */
@@ -2574,7 +2569,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  ret[0] = last_read_token;
 //  ret[1] = token_before_that;
 //  ret[2] = two_tokens_ago;
-//  ret[3] = current_token;
+//  ret[3] = gps.current_token;
 //  return ret;
 //}
 //
@@ -2587,7 +2582,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  last_read_token = ts[0];
 //  token_before_that = ts[1];
 //  two_tokens_ago = ts[2];
-//  current_token = ts[3];
+//  gps.current_token = ts[3];
 //}
 //
 ///*
@@ -3133,19 +3128,19 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 func (gps *ParserState) yylex() int {
   two_tokens_ago = token_before_that;
   token_before_that = last_read_token;
-  last_read_token = current_token;
-  current_token = read_token (READ);
+  last_read_token = gps.current_token;
+  gps.current_token = read_token (READ);
 
-  if ((gps.parser_state & PST_EOFTOKEN) && current_token == shell_eof_token)
+  if ((gps.parser_state & PST_EOFTOKEN) && gps.current_token == gps.shell_eof_token)
     {
-      current_token = yacc_EOF;
+      gps.current_token = yacc_EOF;
       if (bash_input.typ == st_string) {
 	rewind_input_string ();
 	}
   }
   rser_state &= ^PST_EOFTOKEN;
 
-  return (current_token);
+  return (gps.current_token);
 }
 
 ///* When non-zero, we have read the required tokens
@@ -3422,7 +3417,7 @@ func (gps *ParserState) gather_here_documents() {
 //
 //  word_desc_to_read = nil;
 //
-//  current_token = '\n';		/* XXX */
+//  gps.current_token = '\n';		/* XXX */
 //  last_read_token = '\n';
 //  token_to_read = '\n';
 //}
@@ -4341,7 +4336,7 @@ func (gps *ParserState) gather_here_documents() {
 //
 //  /*(*/
 //  gps.parser_state |= PST_CMDSUBST|PST_EOFTOKEN;	/* allow instant ')' */ /*(*/
-//  shell_eof_token = ')';
+//  gps.shell_eof_token = ')';
 //  parse_string (string, "command substitution", sflags, &ep);
 //
 //  restore_parser_state (&ps);
@@ -5273,7 +5268,7 @@ func (gps *ParserState) gather_here_documents() {
 //
 //  t = nil;
 //  /* This stuff is dicy and needs closer inspection */
-//  switch (current_token)
+//  switch (gps.current_token)
 //    {
 //    case WORD:
 //    case ASSIGNMENT_WORD:
@@ -5374,8 +5369,8 @@ func (gps *ParserState) gather_here_documents() {
 //
 //  /* If the line of input we're reading is not null, try to find the
 //     objectionable token.  First, try to figure out what token the
-//     parser's complaining about by looking at current_token. */
-//  if (current_token != 0 && !gps.EOF_Reached && (msg = error_token_from_token (current_token)))
+//     parser's complaining about by looking at gps.current_token. */
+//  if (gps.current_token != 0 && !gps.EOF_Reached && (msg = error_token_from_token (gps.current_token)))
 //    {
 //      parser_error (line_number, _("syntax error near unexpected token `%s'"), msg);
 //
@@ -5488,10 +5483,10 @@ func (gps *ParserState) handle_eof_input_unit() {
 //      if (tok != WORD && tok != ASSIGNMENT_WORD)
 //	{
 //	  line_number = orig_line_number + line_number - 1;
-//	  orig_current_token = current_token;
-//	  current_token = tok;
+//	  orig_current_token = gps.current_token;
+//	  gps.current_token = tok;
 //	  yyerror (NULL);	/* does the right thing */
-//	  current_token = orig_current_token;
+//	  gps.current_token = orig_current_token;
 //	  if (wl)
 //	    dispose_words (wl);
 //	  wl = &parse_string_error;
@@ -5555,7 +5550,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //	}
 //      if (tok != WORD && tok != ASSIGNMENT_WORD)
 //	{
-//	  current_token = tok;	/* for error reporting */
+//	  gps.current_token = tok;	/* for error reporting */
 //	  if (tok == yacc_EOF)	/* ( */
 //	    parser_error (orig_line_number, _("unexpected EOF while looking for matching `)'"));
 //	  else
