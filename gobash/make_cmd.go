@@ -155,20 +155,9 @@ func (gps *ParserState) make_for_command(name *word_desc, map_list *word_list, a
   return gps.make_for_or_select(cm_for, name, map_list, action, lineno)
 }
 
-//Command *
-//make_select_command (name, map_list, action, lineno)
-//     word_desc *name;
-//     word_list *map_list;
-//     Command *action;
-//     int lineno;
-//{
-//#if defined (SelectCommand)
-//  return (make_for_or_select (cm_select, name, map_list, action, lineno));
-//#else
-//  last_command_exit_value = 2;
-//  return (nil);
-//#endif
-//}
+func (gps *ParserState) make_select_command(name *word_desc, map_list *word_list, action *Command, lineno int) *Command {
+	return gps.make_for_or_select(cm_select, name, map_list, action, lineno)
+}
 
 func make_arith_for_expr(s string) *word_list {
   if s == "" {
