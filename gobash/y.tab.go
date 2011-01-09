@@ -1632,17 +1632,17 @@ case yyreduce:
 
   case 96:
 // #line 889 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = gps.make_function_def ((yyvs.PeekN((1) - (5)).word), (yyvs.PeekN((5) - (5)).command), function_dstart, function_bstart); }
+    { (yyval.command) = gps.make_function_def ((yyvs.PeekN((1) - (5)).word), (yyvs.PeekN((5) - (5)).command), gps.function_dstart, gps.function_bstart); }
     break;
 
   case 97:
 // #line 892 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = gps.make_function_def ((yyvs.PeekN((2) - (6)).word), (yyvs.PeekN((6) - (6)).command), function_dstart, function_bstart); }
+    { (yyval.command) = gps.make_function_def ((yyvs.PeekN((2) - (6)).word), (yyvs.PeekN((6) - (6)).command), gps.function_dstart, gps.function_bstart); }
     break;
 
   case 98:
 // #line 895 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = gps.make_function_def ((yyvs.PeekN((2) - (4)).word), (yyvs.PeekN((4) - (4)).command), function_dstart, function_bstart); }
+    { (yyval.command) = gps.make_function_def ((yyvs.PeekN((2) - (4)).word), (yyvs.PeekN((4) - (4)).command), gps.function_dstart, gps.function_bstart); }
     break;
 
   case 99:
@@ -3373,7 +3373,7 @@ func (gps *ParserState) yylex() int {
 //      if (tokstr[0] == '{' && tokstr[1] == '\0')		/* } */
 //	{
 //	  open_brace_count++;
-//	  function_bstart = line_number;
+//	  gps.function_bstart = line_number;
 //	  return ('{');					/* } */
 //	}
 //    }
@@ -3612,7 +3612,7 @@ func (gps *ParserState) yylex() int {
 //	{
 //	  gps.parser_state |= PST_ALLOWOPNBRC;
 //	  gps.parser_state &= ~PST_ALEXPNEXT;
-//	  function_dstart = line_number;
+//	  gps.function_dstart = line_number;
 //	}
 //
 //      /* case pattern lists may be preceded by an optional left paren.  If
@@ -5178,7 +5178,7 @@ func (gps *ParserState) yylex() int {
 //    {
 //    case FUNCTION:
 //      gps.parser_state |= PST_ALLOWOPNBRC;
-//      function_dstart = line_number;
+//      gps.function_dstart = line_number;
 //      break;
 //    case CASE:
 //    case SELECT:
