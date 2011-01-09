@@ -1768,7 +1768,7 @@ case yyreduce:
 
   case 110:
 // #line 999 "/Users/chet/src/bash/src/parse.y"
-    { (yyval.command) = make_group_command ((yyvs.PeekN((2) - (3)).command)); }
+    { (yyval.command) = gps.make_group_command ((yyvs.PeekN((2) - (3)).command)); }
     break;
 
   case 111:

@@ -200,16 +200,11 @@ func (gps *ParserState) make_arith_for_command(exprs *word_list, action *Command
   return gps.make_command(cm_arith_for, temp)
 }
 
-//Command *
-//make_group_command (command)
-//     Command *command;
-//{
-//  GroupCom *temp;
-//
-//  temp = (GroupCom *)xmalloc (sizeof (GroupCom));
-//  temp.command = command;
-//  return (make_command (cm_group, (SimpleCom *)temp));
-//}
+func (gps *ParserState) make_group_command(command *Command) *Command {
+  temp := new(GroupCom)
+  temp.command = command;
+  return gps.make_command(cm_group, temp)
+}
 
 func (gps *ParserState) make_case_command(word *word_desc, clauses *PatternList, lineno int) *Command {
   temp := new(CaseCom)
