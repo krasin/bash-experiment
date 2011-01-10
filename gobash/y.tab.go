@@ -3425,7 +3425,7 @@ func (gps *ParserState) read_token (command int) (result int) {
       gps.parser_state |= PST_CONDEXPR;
       gps.yylval.command = gps.parse_cond_command ();
       if (gps.cond_token != COND_END) {
-	  cond_error ();
+	  gps.cond_error()
 	  return (-1);
       }
       gps.token_to_read = COND_END;
@@ -4450,24 +4450,21 @@ tokword:
 //  return rval;
 //}
 //
-//static void
-//cond_error ()
-//{
-//  char *etext;
-//
-//  if (gps.EOF_Reached && gps.cond_token != COND_ERROR)		/* [[ */
-//    parser_error (gps.cond_lineno, _("unexpected EOF while looking for `]]'"));
-//  else if (gps.cond_token != COND_ERROR)
-//    {
-//      if (etext = error_token_from_token (gps.cond_token))
-//	{
-//	  parser_error (gps.cond_lineno, _("syntax error in conditional expression: unexpected token `%s'"), etext);
-//	}
-//      else
-//	parser_error (gps.cond_lineno, _("syntax error in conditional expression"));
-//    }
-//}
-//
+func (gps *ParserState) cond_error() {
+  if (gps.EOF_Reached && gps.cond_token != COND_ERROR) {		/* [[ */
+    parser_error (gps.cond_lineno, "unexpected EOF while looking for `]]'");
+  } else {
+    if (gps.cond_token != COND_ERROR) {
+      etext := error_token_from_token(gps.cond_token)
+      if etext != "" {
+        parser_error (gps.cond_lineno, "syntax error in conditional expression: unexpected token `%s'", etext);
+      } else {
+        parser_error (gps.cond_lineno, "syntax error in conditional expression");
+      }
+    }
+  }
+}
+
 //static CondCom *
 //cond_expr ()
 //{
