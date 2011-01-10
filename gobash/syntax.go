@@ -1,3 +1,4 @@
+package gobash
 /* syntax.h -- Syntax definitions for the shell */
 
 /* Copyright (C) 2000, 2001, 2005, 2008,2009 Free Software Foundation, Inc.
@@ -13,91 +14,90 @@
    You should have received a copy of the GNU General Public License along with Bash.  If not, see
    <http://www.gnu.org/licenses/>. */
 
-#ifndef _SYNTAX_H_
-#define _SYNTAX_H_
-
 /* Defines for use by mksyntax.c */
 
-#define slashify_in_quotes "\\`$\"\n"
-#define slashify_in_here_document "\\`$"
+const slashify_in_quotes = "\\`$\"\n"
+const slashify_in_here_document = "\\`$"
 
-#define shell_meta_chars   "()<>;&|"
-#define shell_break_chars  "()<>;&| \t\n"
+const shell_meta_chars = "()<>;&|"
+const shell_break_chars = "()<>;&| \t\n"
 
-#define shell_quote_chars	"\"`'"
+const shell_quote_chars = "\"`'"
 
-#if defined (PROCESS_SUBSTITUTION)
-#  define shell_exp_chars		"$<>"
-#else
-#  define shell_exp_chars		"$"
-#endif
+const shell_exp_chars =	"$"
 
-#if defined (EXTENDED_GLOB)
-#  define ext_glob_chars	"@*+?!"
-#else
-#  define ext_glob_chars	""
-#endif
-#define shell_glob_chars	"*?[]^"
+const ext_glob_chars = "@*+?!"
+const shell_glob_chars	= "*?[]^"
 
 /* Defines shared by mksyntax.c and the rest of the shell code. */
 
 /* Values for character flags in syntax tables */
 
-#define CWORD		0x0000		/* nothing special; an ordinary character */
-#define CSHMETA		0x0001		/* shell meta character */
-#define CSHBRK		0x0002		/* shell break character */
-#define CBACKQ		0x0004		/* back quote */
-#define CQUOTE		0x0008		/* shell quote character */
-#define CSPECL		0x0010		/* special character that needs quoting */
-#define CEXP		0x0020		/* shell expansion character */
-#define CBSDQUOTE	0x0040		/* characters escaped by backslash in double quotes */
-#define CBSHDOC		0x0080		/* characters escaped by backslash in here doc */
-#define CGLOB		0x0100		/* globbing characters */
-#define CXGLOB		0x0200		/* extended globbing characters */
-#define CXQUOTE		0x0400		/* cquote + backslash */
-#define CSPECVAR	0x0800		/* single-character shell variable name */
-#define CSUBSTOP	0x1000		/* values of OP for ${word[:]OPstuff} */
-#define CBLANK		0x2000		/* whitespace (blank) character */
+const CWORD = 0x0000 /* nothing special; an ordinary character */
+const CSHMETA = 0x0001 /* shell meta character */
+const CSHBRK = 0x0002 /* shell break character */
+const CBACKQ = 0x0004 /* back quote */
+const CQUOTE = 0x0008 /* shell quote character */
+const CSPECL = 0x0010 /* special character that needs quoting */
+const CEXP = 0x0020 /* shell expansion character */
+const CBSDQUOTE = 0x0040 /* characters escaped by backslash in double quotes */
+const CBSHDOC = 0x0080 /* characters escaped by backslash in here doc */
+const CGLOB = 0x0100 /* globbing characters */
+const CXGLOB = 0x0200 /* extended globbing characters */
+const CXQUOTE = 0x0400 /* cquote + backslash */
+const CSPECVAR = 0x0800 /* single-character shell variable name */
+const CSUBSTOP = 0x1000 /* values of OP for ${word[:]OPstuff} */
+const CBLANK = 0x2000 /* whitespace (blank) character */
 
-/* Defines for use by the rest of the shell. */
-extern int sh_syntaxtab[];
-extern int sh_syntabsiz;
+func shellmeta(c int) bool {
+	return sh_syntaxtab[c] & CSHMETA != 0
+}
 
-#define shellmeta(c)	(sh_syntaxtab[(unsigned char)(c)] & CSHMETA)
-#define shellbreak(c)	(sh_syntaxtab[(unsigned char)(c)] & CSHBRK)
-#define shellquote(c)	(sh_syntaxtab[(unsigned char)(c)] & CQUOTE)
-#define shellxquote(c)	(sh_syntaxtab[(unsigned char)(c)] & CXQUOTE)
+func shellbreak(c int) bool {
+	return sh_syntaxtab[c] & CSHBRK != 0
+}
 
-#define shellblank(c)	(sh_syntaxtab[(unsigned char)(c)] & CBLANK)
+func shellquote(c int) bool {
+	return sh_syntaxtab[c] & CQUOTE != 0
+}
 
-#define issyntype(c, t)	((sh_syntaxtab[(unsigned char)(c)] & (t)) != 0)
-#define notsyntype(c,t) ((sh_syntaxtab[(unsigned char)(c)] & (t)) == 0)
+func shellxquote(c int) bool {
+	return sh_syntaxtab[c] & CXQUOTE != 0
+}
 
-#if defined (PROCESS_SUBSTITUTION)
-#  define shellexp(c)	((c) == '$' || (c) == '<' || (c) == '>')
-#else
-#  define shellexp(c)	((c) == '$')
-#endif
+func shellblank(c int) bool {
+	return sh_syntaxtab[c] & CBLANK != 0
+}
 
-#if defined (EXTENDED_GLOB)
-#  define PATTERN_CHAR(c) \
-	((c) == '@' || (c) == '*' || (c) == '+' || (c) == '?' || (c) == '!')
-#else
-#  define PATTERN_CHAR(c) 0
-#endif
+func issyntype(c int, t int) bool {
+	return sh_syntaxtab[c] & t != 0
+}
 
-#define GLOB_CHAR(c) \
-	((c) == '*' || (c) == '?' || (c) == '[' || (c) == ']' || (c) == '^')
+func notsyntype(c int,t int) bool {
+  return sh_syntaxtab[c] & t == 0
+}
 
-#define CTLESC '\001'
-#define CTLNUL '\177'
+func shellexp(c int) bool {
+	return (c) == '$'
+}
 
-#if !defined (HAVE_ISBLANK) && !defined (isblank)
-#  define isblank(x)	((x) == ' ' || (x) == '\t')
-#endif
+func PATTERN_CHAR(c int) bool {
+	return (c) == '@' || (c) == '*' || (c) == '+' || (c) == '?' || (c) == '!'
+}
 
-int sh_syntabsiz = 256;
-int sh_syntaxtab[256] = {
+func GLOB_CHAR(c int) bool {
+	return (c) == '*' || (c) == '?' || (c) == '[' || (c) == ']' || (c) == '^'
+}
+
+const CTLESC = '\001'
+const CTLNUL = '\177'
+
+func isblank(x int) bool {
+  return x == ' ' || x == '\t'
+}
+
+const sh_syntabsiz = 256
+var sh_syntaxtab = [256]int {
 	CWORD,						/* 0 */
 	CSPECL,						/* CTLESC */
 	CWORD,						/* 2 */
@@ -354,6 +354,5 @@ int sh_syntaxtab[256] = {
 	CWORD,						/* 253 */
 	CWORD,						/* 254 */
 	CWORD,						/* 255 */
-};
+}
 
-#endif /* _SYNTAX_H_ */
