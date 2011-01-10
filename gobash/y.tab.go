@@ -698,6 +698,7 @@ const (
 	yybackup yyparseState = iota
 	yydefault yyparseState = iota
 	yyreduce yyparseState = iota
+	yyerrorlab yyparseState = iota
 	yyerrlab yyparseState = iota
 	yyerrlab1 yyparseState = iota
 	yyacceptlab yyparseState = iota
