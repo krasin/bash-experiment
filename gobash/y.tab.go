@@ -3169,11 +3169,11 @@ func (gps *ParserState) gather_here_documents() {
 //	      if (word_token_alist[i].token == TIME && time_command_acceptable () == 0) \
 //		break; \
 //	      if (word_token_alist[i].token == ESAC) \
-//		gps.parser_state &= ~(PST_CASEPAT|PST_CASESTMT); \
+//		gps.parser_state &= ^(PST_CASEPAT|PST_CASESTMT); \
 //	      else if (word_token_alist[i].token == CASE) \
 //		gps.parser_state |= PST_CASESTMT; \
 //	      else if (word_token_alist[i].token == COND_END) \
-//		gps.parser_state &= ~(PST_CONDCMD|PST_CONDEXPR); \
+//		gps.parser_state &= ^(PST_CONDCMD|PST_CONDEXPR); \
 //	      else if (word_token_alist[i].token == COND_START) \
 //		gps.parser_state |= PST_CONDCMD; \
 //	      else if (word_token_alist[i].token == '{') \
@@ -3430,7 +3430,7 @@ func (gps *ParserState) gather_here_documents() {
 //	  return (-1);
 //	}
 //      gps.token_to_read = COND_END;
-//      gps.parser_state &= ~(PST_CONDEXPR|PST_CONDCMD);
+//      gps.parser_state &= ^(PST_CONDEXPR|PST_CONDCMD);
 //      return (COND_CMD);
 //    }
 //
@@ -3925,7 +3925,7 @@ func (gps *ParserState) gather_here_documents() {
 //		tind++;
 //	      if (STREQN (ret + tind, heredelim, hdlen))
 //		{
-//		  tflags &= ~(LEX_STRIPDOC|LEX_INHEREDOC);
+//		  tflags &= ^(LEX_STRIPDOC|LEX_INHEREDOC);
 ///*itrace("parse_comsub:%d: found here doc end `%s'", gps.line_number, ret + tind);*/
 //		  heredelim = 0;
 //		  lex_firstind = -1;
@@ -3946,7 +3946,7 @@ func (gps *ParserState) gather_here_documents() {
 //	    tind++;
 //	  if (retind-tind == hdlen && STREQN (ret + tind, heredelim, hdlen))
 //	    {
-//	      tflags &= ~(LEX_STRIPDOC|LEX_INHEREDOC);
+//	      tflags &= ^(LEX_STRIPDOC|LEX_INHEREDOC);
 ///*itrace("parse_comsub:%d: found here doc end `%s'", gps.line_number, ret + tind);*/
 //	      heredelim = 0;
 //	      lex_firstind = -1;
@@ -4625,7 +4625,7 @@ func (gps *ParserState) gather_here_documents() {
 //      tok = read_token (READ);
 //      if (gps.parser_state & PST_EXTPAT)
 //	extended_glob = global_extglob;
-//      gps.parser_state &= ~(PST_REGEXP|PST_EXTPAT);
+//      gps.parser_state &= ^(PST_REGEXP|PST_EXTPAT);
 //
 //      if (tok == WORD)
 //	{
@@ -5470,7 +5470,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //  shell_input_line_terminator = orig_input_terminator;
 //
 //  if (flags & 1)
-//    gps.parser_state &= ~(PST_COMPASSIGN|PST_REPARSE);
+//    gps.parser_state &= ^(PST_COMPASSIGN|PST_REPARSE);
 //
 //  if (wl == &parse_string_error)
 //    {
