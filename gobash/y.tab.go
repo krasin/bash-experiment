@@ -51,6 +51,8 @@ import (
 	"os"
 )
 
+const EOF = -1
+
 /* Identify Bison output.  */
 const YYBISON = 1
 
@@ -3407,7 +3409,7 @@ func (gps *ParserState) read_token (command int) (result int) {
       return ('\n');
   }
 
-  if (gps.token_to_read) {
+  if (gps.token_to_read != 0) {
       result = gps.token_to_read;
       if (gps.token_to_read == WORD || gps.token_to_read == ASSIGNMENT_WORD) {
 	  gps.yylval.word = gps.word_desc_to_read;
