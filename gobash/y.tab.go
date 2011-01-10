@@ -146,7 +146,19 @@ const MAX_CASE_NEST = 128
 // extern int bash_input_fd_changed;
 // 
 
+type StringSaver struct {
+  next *StringSaver
+  expand_alias int /* Value to set expand_alias to when string is popped. */
+  saved_line []byte
+  expander *alias_t /* alias that caused this line to be pushed. */
+  saved_line_size int
+  saved_line_index int
+  saved_line_terminator int
+}
+
 type ParserState struct {
+
+pushed_string_list *StringSaver
 
 global_command *Command
 
@@ -2613,16 +2625,6 @@ func (gps *ParserState) rewind_input_string() {
 // * implement alias expansion on a per-token basis.
 // */
 //
-//typedef struct string_saver {
-//  struct string_saver *next;
-//  int expand_alias;  /* Value to set expand_alias to when string is popped. */
-//  char *saved_line;
-//  alias_t *expander;   /* alias that caused this line to be pushed. */
-//  int saved_line_size, saved_line_index, saved_line_terminator;
-//} STRING_SAVER;
-//
-//STRING_SAVER *pushed_string_list = nil;
-//
 ///*
 // * Push the current gps.shell_input_line onto a stack of such lines and make S
 // * the current input.  Used when expanding aliases.  EXPAND is used to set
@@ -2637,7 +2639,7 @@ func (gps *ParserState) rewind_input_string() {
 //     int expand;
 //     alias_t *ap;
 //{
-//  STRING_SAVER *temp = (STRING_SAVER *)xmalloc (sizeof (STRING_SAVER));
+//  StringSaver *temp = (StringSaver *)xmalloc (sizeof (StringSaver));
 //
 //  temp.expand_alias = expand;
 //  temp.saved_line = gps.shell_input_line;
@@ -2645,8 +2647,8 @@ func (gps *ParserState) rewind_input_string() {
 //  temp.saved_line_index = gps.shell_input_line_index;
 //  temp.saved_line_terminator = shell_input_line_terminator;
 //  temp.expander = ap;
-//  temp.next = pushed_string_list;
-//  pushed_string_list = temp;
+//  temp.next = gps.pushed_string_list;
+//  gps.pushed_string_list = temp;
 //
 //  if (ap) {
 //    ap.flags |= AL_BEINGEXPANDED;
@@ -2669,21 +2671,21 @@ func (gps *ParserState) rewind_input_string() {
 //static void
 //pop_string ()
 //{
-//  STRING_SAVER *t;
+//  StringSaver *t;
 //
-//  gps.shell_input_line = pushed_string_list.saved_line;
-//  gps.shell_input_line_index = pushed_string_list.saved_line_index;
-//  gps.shell_input_line_size = pushed_string_list.saved_line_size;
-//  shell_input_line_terminator = pushed_string_list.saved_line_terminator;
+//  gps.shell_input_line = gps.pushed_string_list.saved_line;
+//  gps.shell_input_line_index = gps.pushed_string_list.saved_line_index;
+//  gps.shell_input_line_size = gps.pushed_string_list.saved_line_size;
+//  shell_input_line_terminator = gps.pushed_string_list.saved_line_terminator;
 //
-//  if (pushed_string_list.expand_alias) {
+//  if (gps.pushed_string_list.expand_alias) {
 //    gps.parser_state |= PST_ALEXPNEXT;
 //  } else {
 //    gps.parser_state &= ^PST_ALEXPNEXT;
 //  }
 // 
-//  t = pushed_string_list;
-//  pushed_string_list = pushed_string_list.next;
+//  t = gps.pushed_string_list;
+//  gps.pushed_string_list = gps.pushed_string_list.next;
 //
 //  if (t.expander) {
 //    t.expander.flags &= ^AL_BEINGEXPANDED;
@@ -2695,9 +2697,9 @@ func (gps *ParserState) rewind_input_string() {
 //static void
 //free_string_list ()
 //{
-//  STRING_SAVER *t, *t1;
+//  StringSaver *t, *t1;
 //
-//  for (t = pushed_string_list; t; )
+//  for (t = gps.pushed_string_list; t; )
 //    {
 //      t1 = t.next;
 //      if (t.expander) {
@@ -2705,7 +2707,7 @@ func (gps *ParserState) rewind_input_string() {
 //      }
 //      t = t1;
 //    }
-//  pushed_string_list = nil;
+//  gps.pushed_string_list = nil;
 //}
 //
 //
@@ -2935,7 +2937,7 @@ func (gps *ParserState) rewind_input_string() {
 //     off and get another line.  We let the code down below handle it. */
 //
 //  if (!gps.shell_input_line || ((!gps.shell_input_line[gps.shell_input_line_index]) &&
-//			    (pushed_string_list == nil))) {
+//			    (gps.pushed_string_list == nil))) {
 //      gps.line_number++;
 //
 //    restart_read:
@@ -3022,12 +3024,12 @@ func (gps *ParserState) rewind_input_string() {
 //  }
 //
 //  /* If UC is NULL, we have reached the end of the current input string.  If
-//     pushed_string_list is non-empty, it's time to pop to the previous string
+//     gps.pushed_string_list is non-empty, it's time to pop to the previous string
 //     because we have fully consumed the result of the last alias expansion.
 //     Do it transparently; just return the next character of the string popped
 //     to. */
 //pop_alias:
-//  if (!uc && (pushed_string_list != nil)) {
+//  if (!uc && (gps.pushed_string_list != nil)) {
 //      pop_string ();
 //      uc = gps.shell_input_line[gps.shell_input_line_index];
 //      if (uc) {
@@ -3199,7 +3201,7 @@ func (gps *ParserState) gather_here_documents() {
 //       It is eligible for expansion if EXPAND_ALIASES is set, and
 //       the token is unquoted and the last token read was a command
 //       separator (or expand_next_token is set), and we are currently
-//       processing an alias (pushed_string_list is non-empty) and this
+//       processing an alias (gps.pushed_string_list is non-empty) and this
 //       token is not the same as the current or any previously
 //       processed alias.
 //
@@ -3386,7 +3388,7 @@ func (gps *ParserState) reset_parser() {
 
   gps.parser_state = 0;
 
-  if (pushed_string_list) {
+  if (gps.pushed_string_list != nil) {
     free_string_list ();
   }
 
