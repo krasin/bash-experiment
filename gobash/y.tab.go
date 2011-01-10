@@ -46,7 +46,9 @@ package gobash
    USER NAME SPACE" below.  */
 
 import (
+	"fmt"
 	"math"
+	"os"
 )
 
 /* Identify Bison output.  */
@@ -2161,7 +2163,8 @@ case yyerrlab:
   /* If not already recovering from an error, report this error.  */
   if (yyerrstatus == 0)    {
       gps.yynerrs++
-      yyerror (("syntax error"));
+      //yyerror (("syntax error"));
+      fmt.Fprintf(os.Stderr, "syntax error\n")
     }
 
 
