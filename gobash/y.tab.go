@@ -3471,7 +3471,7 @@ func (gps *ParserState) read_token (command int) (result int) {
       return (character);
   }
 
-  if (gps.parser_state & PST_REGEXP) {
+  if (gps.parser_state & PST_REGEXP != 0) {
     goto tokword;
   }
 
