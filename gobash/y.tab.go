@@ -244,12 +244,15 @@ line_number int
 cond_lineno int
 cond_token int
 
+dstack *dstack
+
 } // ParserState
 
 func newParserState() *ParserState {
 	state := new(ParserState)
 	state.extended_quote = 1
 	state.word_top = -1
+	state.dstack = new(dstack)
 	return state
 }
 
@@ -3368,36 +3371,36 @@ func (gps *ParserState) gather_here_documents() {
 //  return (-1);
 //}
 //
-///* Called from shell.c when Control-C is typed at top level.  Or
-//   by the error rule at top level. */
-//void
-//reset_parser ()
-//{
-//  dstack.delimiter_depth = 0;	/* No delimiters found so far. */
-//  open_brace_count = 0;
-//
-//  /* Reset to global value of extended glob */
-//  if (gps.parser_state & PST_EXTPAT)
-//    extended_glob = global_extglob;
-//
-//  gps.parser_state = 0;
-//
-//  if (pushed_string_list) {
-//    free_string_list ();
-//  }
-//
-//  if (shell_input_line) {
-//      shell_input_line = nil;
-//      shell_input_line_size = shell_input_line_index = 0;
-//    }
-//
-//  gps.word_desc_to_read = nil;
-//
-//  gps.current_token = '\n';		/* XXX */
-//  gps.last_read_token = '\n';
-//  gps.token_to_read = '\n';
-//}
-//
+/* Called from shell.c when Control-C is typed at top level.  Or
+   by the error rule at top level. */
+func (gps *ParserState) reset_parser() {
+  gps.dstack.delimiter_depth = 0;	/* No delimiters found so far. */
+  open_brace_count = 0;
+
+  /* Reset to global value of extended glob */
+  if (gps.parser_state & PST_EXTPAT != 0) {
+    extended_glob = global_extglob;
+  }
+
+  gps.parser_state = 0;
+
+  if (pushed_string_list) {
+    free_string_list ();
+  }
+
+  if (shell_input_line) {
+      shell_input_line = nil;
+      shell_input_line_size = 0
+      shell_input_line_index = 0;
+  }
+
+  gps.word_desc_to_read = nil;
+
+  gps.current_token = '\n';		/* XXX */
+  gps.last_read_token = '\n';
+  gps.token_to_read = '\n';
+}
+
 /* Read the next token.  Command can be READ (normal operation) or
    RESET (to normalize state). */
 func (gps *ParserState) read_token (command int) (result int) {
