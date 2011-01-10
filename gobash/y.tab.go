@@ -2694,27 +2694,21 @@ func (gps *ParserState) rewind_input_string() {
 //  set_line_mbstate ();
 //}
 //
-//static void
-//free_string_list ()
-//{
-//  StringSaver *t, *t1;
-//
-//  for (t = gps.pushed_string_list; t; )
-//    {
-//      t1 = t.next;
-//      if (t.expander) {
-//	  t.expander.flags &= ^AL_BEINGEXPANDED;
-//      }
-//      t = t1;
-//    }
-//  gps.pushed_string_list = nil;
-//}
-//
-//
+func (gps *ParserState) free_string_list () {
+  for t := gps.pushed_string_list; t != nil; {
+      t1 := t.next;
+      if (t.expander != nil) {
+	  t.expander.flags &= ^AL_BEINGEXPANDED;
+      }
+      t = t1;
+  }
+  gps.pushed_string_list = nil;
+}
+
 //void
 //free_pushed_string_input ()
 //{
-//  free_string_list ();
+//  gps.free_string_list ();
 //}
 //
 ///* Return a line of text, taken from wherever yylex () reads input.
@@ -3389,7 +3383,7 @@ func (gps *ParserState) reset_parser() {
   gps.parser_state = 0;
 
   if (gps.pushed_string_list != nil) {
-    free_string_list ();
+    gps.free_string_list ();
   }
 
   if (gps.shell_input_line != nil) {
