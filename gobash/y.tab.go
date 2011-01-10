@@ -127,11 +127,14 @@ const NO_EXPANSION = -100
    index is decremented after a case, select, or for command is parsed. */
 const MAX_CASE_NEST = 128
 
-// #  define last_shell_getc_is_singlebyte \
-// 	((gps.shell_input_line_index > 1) \
-// 		? shell_input_line_property[gps.shell_input_line_index - 1] \
-// 		: 1)
-// #  define MBTEST(x)	((x) && last_shell_getc_is_singlebyte)
+func (gps *ParserState) last_shell_getc_is_singlebyte() bool {
+	return gps.shell_input_line_index <= 1 ||
+		gps.shell_input_line_property[gps.shell_input_line_index - 1] != 0
+}
+
+func (gps *ParserState) MBTEST(x bool) bool {
+	return x && gps.last_shell_getc_is_singlebyte()
+}
 // 
 // 
 // extern int current_command_number;
@@ -198,6 +201,7 @@ need_here_doc int
 /* Where shell input comes from.  History expansion is performed on each
    line when the shell is interactive. */
 shell_input_line []byte
+shell_input_line_property []int
 shell_input_line_index int
 shell_input_line_size int	/* Amount allocated for shell_input_line. */
 shell_input_line_len int	/* strlen (shell_input_line) */
@@ -3031,7 +3035,7 @@ func (gps *ParserState) free_string_list () {
 //      }
 //  }
 //
-//  if MBTEST(uc == '\\' && remove_quoted_newline && gps.shell_input_line[gps.shell_input_line_index] == '\n') {
+//  if gps.MBTEST(uc == '\\' && remove_quoted_newline && gps.shell_input_line[gps.shell_input_line_index] == '\n') {
 //	gps.line_number++;
 //	/* XXX - what do we do here if we're expanding an alias whose definition
 //	   ends with a newline?  Recall that we inhibit the appending of a
@@ -3450,7 +3454,7 @@ func (gps *ParserState) read_token (command int) (result int) {
       return (yacc_EOF);
   }
 
-  if MBTEST(character == '#') {
+  if gps.MBTEST(character == '#') {
       /* A comment.  Discard until EOL or EOF, and then return a newline. */
       discard_until ('\n');
       shell_getc (0);
@@ -3476,7 +3480,7 @@ func (gps *ParserState) read_token (command int) (result int) {
   }
 
   /* Shell meta-characters. */
-  if MBTEST(shellmeta (character) && ((gps.parser_state & PST_DBLPAREN) == 0)) {
+  if gps.MBTEST(shellmeta (character) && ((gps.parser_state & PST_DBLPAREN) == 0)) {
       /* Turn off alias tokenization iff this character sequence would
 	 not leave us ready to read a command. */
       if (character == '<' || character == '>') {
@@ -3494,9 +3498,9 @@ func (gps *ParserState) read_token (command int) (result int) {
 		 look ahead one more character. */
 	      peek_char = shell_getc (1);
               switch {
-	      case MBTEST(peek_char == '-'):
+	      case gps.MBTEST(peek_char == '-'):
 		return (LESS_LESS_MINUS);
-	      case MBTEST(peek_char == '<'):
+	      case gps.MBTEST(peek_char == '<'):
 		return (LESS_LESS_LESS);
 	      default:
 		  shell_ungetc (peek_char);
@@ -3511,7 +3515,7 @@ func (gps *ParserState) read_token (command int) (result int) {
 	      gps.parser_state &= ^PST_ALEXPNEXT;
 
 	      peek_char = shell_getc (1);
-	      if MBTEST(peek_char == '&') {
+	      if gps.MBTEST(peek_char == '&') {
 		return (SEMI_SEMI_AND);
 	      } else {
 		  shell_ungetc (peek_char);
@@ -3532,27 +3536,27 @@ func (gps *ParserState) read_token (command int) (result int) {
 	        return result;
               }
 	    }
-      case MBTEST(character == '<' && peek_char == '&'):
+      case gps.MBTEST(character == '<' && peek_char == '&'):
 	return (LESS_AND);
-      case MBTEST(character == '>' && peek_char == '&'):
+      case gps.MBTEST(character == '>' && peek_char == '&'):
 	return (GREATER_AND);
-      case MBTEST(character == '<' && peek_char == '>'):
+      case gps.MBTEST(character == '<' && peek_char == '>'):
 	return (LESS_GREATER);
-      case MBTEST(character == '>' && peek_char == '|'):
+      case gps.MBTEST(character == '>' && peek_char == '|'):
 	return (GREATER_BAR);
-      case MBTEST(character == '&' && peek_char == '>'):
+      case gps.MBTEST(character == '&' && peek_char == '>'):
 	{
 	  peek_char = shell_getc (1);
-	  if MBTEST(peek_char == '>') {
+	  if gps.MBTEST(peek_char == '>') {
 	    return (AND_GREATER_GREATER);
 	  } else {
 	      shell_ungetc (peek_char);
 	      return (AND_GREATER);
 	  }
 	}
-      case MBTEST(character == '|' && peek_char == '&'):
+      case gps.MBTEST(character == '|' && peek_char == '&'):
 	return (BAR_AND);
-      case MBTEST(character == ';' && peek_char == '&'):
+      case gps.MBTEST(character == ';' && peek_char == '&'):
 	{
 	  gps.parser_state |= PST_CASEPAT;
 	  gps.parser_state &= ^PST_ALEXPNEXT;
@@ -3565,7 +3569,7 @@ func (gps *ParserState) read_token (command int) (result int) {
       /* If we look like we are reading the start of a function
 	 definition, then let the reader know about it so that
 	 we will do the right thing with `{'. */
-      if MBTEST(character == ')' && gps.last_read_token == '(' && gps.token_before_that == WORD)
+      if gps.MBTEST(character == ')' && gps.last_read_token == '(' && gps.token_before_that == WORD)
 	{
 	  gps.parser_state |= PST_ALLOWOPNBRC;
 	  gps.parser_state &= ^PST_ALEXPNEXT;
@@ -3576,13 +3580,13 @@ func (gps *ParserState) read_token (command int) (result int) {
 	 we're not trying to parse a case pattern list, the left paren
 	 indicates a subshell. */
       switch {
-      case MBTEST(character == '(' && (gps.parser_state & PST_CASEPAT) == 0): /* ) */
+      case gps.MBTEST(character == '(' && (gps.parser_state & PST_CASEPAT) == 0): /* ) */
 	gps.parser_state |= PST_SUBSHELL;
       /*(*/
-      case MBTEST((gps.parser_state & PST_CASEPAT) && character == ')'):
+      case gps.MBTEST((gps.parser_state & PST_CASEPAT) && character == ')'):
 	gps.parser_state &= ^PST_CASEPAT;
       /*(*/
-      case MBTEST((gps.parser_state & PST_SUBSHELL) && character == ')'):
+      case gps.MBTEST((gps.parser_state & PST_SUBSHELL) && character == ')'):
 	gps.parser_state &= ^PST_SUBSHELL;
       }
 
@@ -3590,7 +3594,7 @@ func (gps *ParserState) read_token (command int) (result int) {
     }
 
   /* Hack <&- (close stdin) case.  Also <&N- (dup and close). */
-  if MBTEST(character == '-' && (gps.last_read_token == LESS_AND || gps.last_read_token == GREATER_AND)) {
+  if gps.MBTEST(character == '-' && (gps.last_read_token == LESS_AND || gps.last_read_token == GREATER_AND)) {
     return (character);
   }
 
@@ -3705,7 +3709,7 @@ tokword:
 //      /* Not exactly right yet, should handle shell metacharacters, too.  If
 //	 any changes are made to this test, make analogous changes to subst.c:
 //	 extract_delimited_string(). */
-//      else if MBTEST((tflags & LEX_CKCOMMENT) && (tflags & LEX_INCOMMENT) == 0 && ch == '#' && (retind == 0 || ret[retind-1] == '\n' || shellblank (ret[retind - 1])))
+//      else if gps.MBTEST((tflags & LEX_CKCOMMENT) && (tflags & LEX_INCOMMENT) == 0 && ch == '#' && (retind == 0 || ret[retind-1] == '\n' || shellblank (ret[retind - 1])))
 //	tflags |= LEX_INCOMMENT;
 //
 //      if (tflags & LEX_PASSNEXT)		/* last char was backslash */
@@ -3719,7 +3723,7 @@ tokword:
 //	    }
 //
 //	  RESIZE_MALLOCED_BUFFER (ret, retind, 2, retsize, 64);
-//	  if MBTEST(ch == CTLESC || ch == CTLNUL)
+//	  if gps.MBTEST(ch == CTLESC || ch == CTLNUL)
 //	    ret[retind++] = CTLESC;
 //	  ret[retind++] = ch;
 //	  continue;
@@ -3728,25 +3732,25 @@ tokword:
 //	 we've already prepended CTLESC to single-quoted results of $'...'.
 //	 We may want to do this for other CTLESC-quoted characters in
 //	 reparse, too. */
-//      else if MBTEST((gps.parser_state & PST_REPARSE) && open == '\'' && (ch == CTLESC || ch == CTLNUL))
+//      else if gps.MBTEST((gps.parser_state & PST_REPARSE) && open == '\'' && (ch == CTLESC || ch == CTLNUL))
 //	{
 //	  RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
 //	  ret[retind++] = ch;
 //	  continue;
 //	}
-//      else if MBTEST(ch == CTLESC || ch == CTLNUL)	/* special shell escapes */
+//      else if gps.MBTEST(ch == CTLESC || ch == CTLNUL)	/* special shell escapes */
 //	{
 //	  RESIZE_MALLOCED_BUFFER (ret, retind, 2, retsize, 64);
 //	  ret[retind++] = CTLESC;
 //	  ret[retind++] = ch;
 //	  continue;
 //	}
-//      else if MBTEST(ch == close)		/* ending delimiter */
+//      else if gps.MBTEST(ch == close)		/* ending delimiter */
 //	count--;
 //      /* handle nested ${...} specially. */
-//      else if MBTEST(open != close && (tflags & LEX_WASDOL) && open == '{' && ch == open) /* } */
+//      else if gps.MBTEST(open != close && (tflags & LEX_WASDOL) && open == '{' && ch == open) /* } */
 //	count++;
-//      else if MBTEST(((flags & P_FIRSTCLOSE) == 0) && ch == open)	/* nested begin */
+//      else if gps.MBTEST(((flags & P_FIRSTCLOSE) == 0) && ch == open)	/* nested begin */
 //	count++;
 //
 //      /* Add this character. */
@@ -3759,12 +3763,12 @@ tokword:
 //
 //      if (open == '\'')			/* '' inside grouping construct */
 //	{
-//	  if MBTEST((flags & P_ALLOWESC) && ch == '\\')
+//	  if gps.MBTEST((flags & P_ALLOWESC) && ch == '\\')
 //	    tflags |= LEX_PASSNEXT;
 //	  continue;
 //	}
 //
-//      if MBTEST(ch == '\\')			/* backslashes */
+//      if gps.MBTEST(ch == '\\')			/* backslashes */
 //	tflags |= LEX_PASSNEXT;
 //
 //#if 0
@@ -3772,7 +3776,7 @@ tokword:
 //         problem is that Posix says the single quotes are semi-special:
 //         within a double-quoted ${...} construct "an even number of
 //         unescaped double-quotes or single-quotes, if any, shall occur." */
-//      if MBTEST(open == '{' && (flags & P_DQUOTE) && ch == '\'')	/* } */
+//      if gps.MBTEST(open == '{' && (flags & P_DQUOTE) && ch == '\'')	/* } */
 //	continue;
 //#endif
 //
@@ -3780,18 +3784,18 @@ tokword:
 //	 inside old-style command substitution. */
 //      if (open != close)		/* a grouping construct */
 //	{
-//	  if MBTEST(shellquote (ch))
+//	  if gps.MBTEST(shellquote (ch))
 //	    {
 //	      /* '', ``, or "" inside $(...) or other grouping construct. */
 //	      push_delimiter (dstack, ch);
-//	      if MBTEST((tflags & LEX_WASDOL) && ch == '\'')	/* $'...' inside group */
+//	      if gps.MBTEST((tflags & LEX_WASDOL) && ch == '\'')	/* $'...' inside group */
 //		nestret = parse_matched_pair (ch, ch, ch, &nestlen, P_ALLOWESC|rflags);
 //	      else
 //		nestret = parse_matched_pair (ch, ch, ch, &nestlen, rflags);
 //	      pop_delimiter (dstack);
 //	      CHECK_NESTRET_ERROR ();
 //
-//	      if MBTEST((tflags & LEX_WASDOL) && ch == '\'' && (extended_quote || (rflags & P_DQUOTE) == 0))
+//	      if gps.MBTEST((tflags & LEX_WASDOL) && ch == '\'' && (extended_quote || (rflags & P_DQUOTE) == 0))
 //		{
 //		  /* Translate $'...' here. */
 //		  ttrans = ansiexpand (nestret, 0, nestlen - 1, &ttranslen);
@@ -3808,7 +3812,7 @@ tokword:
 //		    }
 //		  retind -= 2;		/* back up before the $' */
 //		}
-//	      else if MBTEST((tflags & LEX_WASDOL) && ch == '"' && (extended_quote || (rflags & P_DQUOTE) == 0))
+//	      else if gps.MBTEST((tflags & LEX_WASDOL) && ch == '"' && (extended_quote || (rflags & P_DQUOTE) == 0))
 //		{
 //		  /* Locale expand $"..." here. */
 //		  ttrans = localeexpand (nestret, 0, nestlen - 1, start_lineno, &ttranslen);
@@ -3826,7 +3830,7 @@ tokword:
 //      /* Parse an old-style command substitution within double quotes as a
 //	 single word. */
 //      /* XXX - sh and ksh93 don't do this - XXX */
-//      else if MBTEST(open == '"' && ch == '`')
+//      else if gps.MBTEST(open == '"' && ch == '`')
 //	{
 //	  nestret = parse_matched_pair (0, '`', '`', &nestlen, rflags);
 //
@@ -3834,7 +3838,7 @@ tokword:
 //	  APPEND_NESTRET ();
 //
 //	}
-//      else if MBTEST(open != '`' && (tflags & LEX_WASDOL) && (ch == '(' || ch == '{' || ch == '['))	/* ) } ] */
+//      else if gps.MBTEST(open != '`' && (tflags & LEX_WASDOL) && (ch == '(' || ch == '{' || ch == '['))	/* ) } ] */
 //	/* check for $(), $[], or ${} inside quoted string. */
 //	{
 //parse_dollar_word:
@@ -3851,7 +3855,7 @@ tokword:
 //	  APPEND_NESTRET ();
 //
 //	}
-//      if MBTEST(ch == '$')
+//      if gps.MBTEST(ch == '$')
 //	tflags |= LEX_WASDOL;
 //      else
 //	tflags &= ^LEX_WASDOL;
@@ -3988,7 +3992,7 @@ tokword:
 //	    }
 //
 //	  RESIZE_MALLOCED_BUFFER (ret, retind, 2, retsize, 64);
-//	  if MBTEST(ch == CTLESC || ch == CTLNUL)
+//	  if gps.MBTEST(ch == CTLESC || ch == CTLNUL)
 //	    ret[retind++] = CTLESC;
 //	  ret[retind++] = ch;
 //	  continue;
@@ -3996,7 +4000,7 @@ tokword:
 //
 //      /* If this is a shell break character, we are not in a word.  If not,
 //	 we either start or continue a word. */
-//      if MBTEST(shellbreak (ch))
+//      if gps.MBTEST(shellbreak (ch))
 //	{
 //	  tflags &= ^LEX_INWORD;
 ///*itrace("parse_comsub:%d: lex_inword -> 0 ch = `%c' (%d)", gps.line_number, ch, __LINE__);*/
@@ -4017,7 +4021,7 @@ tokword:
 //	}
 //
 //      /* Skip whitespace */
-//      if MBTEST(shellblank (ch) && lex_rwlen == 0)
+//      if gps.MBTEST(shellblank (ch) && lex_rwlen == 0)
 //        {
 //	  /* Add this character. */
 //	  RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
@@ -4065,7 +4069,7 @@ tokword:
 //	}
 //
 //      /* Meta-characters that can introduce a reserved word.  Not perfect yet. */
-//      if MBTEST((tflags & LEX_RESWDOK) == 0 && (tflags & LEX_CKCASE) && (tflags & LEX_INCOMMENT) == 0 && (shellmeta(ch) || ch == '\n'))
+//      if gps.MBTEST((tflags & LEX_RESWDOK) == 0 && (tflags & LEX_CKCASE) && (tflags & LEX_INCOMMENT) == 0 && (shellmeta(ch) || ch == '\n'))
 //	{
 //	  /* Add this character. */
 //	  RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
@@ -4101,7 +4105,7 @@ tokword:
 //      /* If we can read a reserved word, try to read one. */
 //      if (tflags & LEX_RESWDOK)
 //	{
-//	  if MBTEST(islower (ch))
+//	  if gps.MBTEST(islower (ch))
 //	    {
 //	      /* Add this character. */
 //	      RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
@@ -4109,7 +4113,7 @@ tokword:
 //	      lex_rwlen++;
 //	      continue;
 //	    }
-//	  else if MBTEST(lex_rwlen == 4 && shellbreak (ch))
+//	  else if gps.MBTEST(lex_rwlen == 4 && shellbreak (ch))
 //	    {
 //	      if (STREQN (ret + retind - 4, "case", 4))
 //{
@@ -4123,9 +4127,9 @@ tokword:
 //}	        
 //	      tflags &= ^LEX_RESWDOK;
 //	    }
-//	  else if MBTEST((tflags & LEX_CKCOMMENT) && ch == '#' && (lex_rwlen == 0 || ((tflags & LEX_INWORD) && lex_wlen == 0)))
+//	  else if gps.MBTEST((tflags & LEX_CKCOMMENT) && ch == '#' && (lex_rwlen == 0 || ((tflags & LEX_INWORD) && lex_wlen == 0)))
 //	    ;	/* don't modify LEX_RESWDOK if we're starting a comment */
-//	  else if MBTEST((tflags & LEX_INCASE) && ch != '\n')
+//	  else if gps.MBTEST((tflags & LEX_INCASE) && ch != '\n')
 //	    /* If we can read a reserved word and we're in case, we're at the
 //	       point where we can read a new pattern list or an esac.  We
 //	       handle the esac case above.  If we read a newline, we want to
@@ -4135,7 +4139,7 @@ tokword:
 //	    tflags &= ^LEX_RESWDOK;
 ///*itrace("parse_comsub:%d: lex_incase == 1 found `%c', lex_reswordok -> 0", gps.line_number, ch);*/
 //}
-//	  else if MBTEST(shellbreak (ch) == 0)
+//	  else if gps.MBTEST(shellbreak (ch) == 0)
 //{
 //	    tflags &= ^LEX_RESWDOK;
 ///*itrace("parse_comsub:%d: found `%c', lex_reswordok -> 0", gps.line_number, ch);*/
@@ -4143,7 +4147,7 @@ tokword:
 //	}
 //
 //      /* Might be the start of a here-doc delimiter */
-//      if MBTEST((tflags & LEX_INCOMMENT) == 0 && (tflags & LEX_CKCASE) && ch == '<')
+//      if gps.MBTEST((tflags & LEX_INCOMMENT) == 0 && (tflags & LEX_CKCASE) && ch == '<')
 //	{
 //	  /* Add this character. */
 //	  RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
@@ -4176,13 +4180,13 @@ tokword:
 //	  else
 //	    ch = peekc;		/* fall through and continue XXX */
 //	}
-//      else if MBTEST((tflags & LEX_CKCOMMENT) && (tflags & LEX_INCOMMENT) == 0 && ch == '#' && (((tflags & LEX_RESWDOK) && lex_rwlen == 0) || ((tflags & LEX_INWORD) && lex_wlen == 0)))
+//      else if gps.MBTEST((tflags & LEX_CKCOMMENT) && (tflags & LEX_INCOMMENT) == 0 && ch == '#' && (((tflags & LEX_RESWDOK) && lex_rwlen == 0) || ((tflags & LEX_INWORD) && lex_wlen == 0)))
 //{
 ///*itrace("parse_comsub:%d: lex_incomment -> 1 (%d)", gps.line_number, __LINE__);*/
 //	tflags |= LEX_INCOMMENT;
 //}
 //
-//      if MBTEST(ch == CTLESC || ch == CTLNUL)	/* special shell escapes */
+//      if gps.MBTEST(ch == CTLESC || ch == CTLNUL)	/* special shell escapes */
 //	{
 //	  RESIZE_MALLOCED_BUFFER (ret, retind, 2, retsize, 64);
 //	  ret[retind++] = CTLESC;
@@ -4190,15 +4194,15 @@ tokword:
 //	  continue;
 //	}
 //#if 0
-//      else if MBTEST((tflags & LEX_INCASE) && ch == close && close == ')')
+//      else if gps.MBTEST((tflags & LEX_INCASE) && ch == close && close == ')')
 //        tflags &= ^LEX_INCASE;		/* XXX */
 //#endif
-//      else if MBTEST(ch == close && (tflags & LEX_INCASE) == 0)		/* ending delimiter */
+//      else if gps.MBTEST(ch == close && (tflags & LEX_INCASE) == 0)		/* ending delimiter */
 //{
 //	count--;
 ///*itrace("parse_comsub:%d: found close: count = %d", gps.line_number, count);*/
 //}
-//      else if MBTEST(((flags & P_FIRSTCLOSE) == 0) && (tflags & LEX_INCASE) == 0 && ch == open)	/* nested begin */
+//      else if gps.MBTEST(((flags & P_FIRSTCLOSE) == 0) && (tflags & LEX_INCASE) == 0 && ch == open)	/* nested begin */
 //{
 //	count++;
 ///*itrace("parse_comsub:%d: found open: count = %d", gps.line_number, count);*/
@@ -4212,21 +4216,21 @@ tokword:
 //      if (count == 0)
 //	break;
 //
-//      if MBTEST(ch == '\\')			/* backslashes */
+//      if gps.MBTEST(ch == '\\')			/* backslashes */
 //	tflags |= LEX_PASSNEXT;
 //
-//      if MBTEST(shellquote (ch))
+//      if gps.MBTEST(shellquote (ch))
 //        {
 //          /* '', ``, or "" inside $(...). */
 //          push_delimiter (dstack, ch);
-//          if MBTEST((tflags & LEX_WASDOL) && ch == '\'')	/* $'...' inside group */
+//          if gps.MBTEST((tflags & LEX_WASDOL) && ch == '\'')	/* $'...' inside group */
 //	    nestret = parse_matched_pair (ch, ch, ch, &nestlen, P_ALLOWESC|rflags);
 //	  else
 //	    nestret = parse_matched_pair (ch, ch, ch, &nestlen, rflags);
 //	  pop_delimiter (dstack);
 //	  CHECK_NESTRET_ERROR ();
 //
-//	  if MBTEST((tflags & LEX_WASDOL) && ch == '\'' && (extended_quote || (rflags & P_DQUOTE) == 0))
+//	  if gps.MBTEST((tflags & LEX_WASDOL) && ch == '\'' && (extended_quote || (rflags & P_DQUOTE) == 0))
 //	    {
 //	      /* Translate $'...' here. */
 //	      ttrans = ansiexpand (nestret, 0, nestlen - 1, &ttranslen);
@@ -4243,7 +4247,7 @@ tokword:
 //		}
 //	      retind -= 2;		/* back up before the $' */
 //	    }
-//	  else if MBTEST((tflags & LEX_WASDOL) && ch == '"' && (extended_quote || (rflags & P_DQUOTE) == 0))
+//	  else if gps.MBTEST((tflags & LEX_WASDOL) && ch == '"' && (extended_quote || (rflags & P_DQUOTE) == 0))
 //	    {
 //	      /* Locale expand $"..." here. */
 //	      ttrans = localeexpand (nestret, 0, nestlen - 1, start_lineno, &ttranslen);
@@ -4255,7 +4259,7 @@ tokword:
 //
 //	  APPEND_NESTRET ();
 //	}
-//      else if MBTEST((tflags & LEX_WASDOL) && (ch == '(' || ch == '{' || ch == '['))	/* ) } ] */
+//      else if gps.MBTEST((tflags & LEX_WASDOL) && (ch == '(' || ch == '{' || ch == '['))	/* ) } ] */
 //	/* check for $(), $[], or ${} inside command substitution. */
 //	{
 //	  if ((tflags & LEX_INCASE) == 0 && open == ch)	/* undo previous increment */
@@ -4271,7 +4275,7 @@ tokword:
 //	  APPEND_NESTRET ();
 //
 //	}
-//      if MBTEST(ch == '$')
+//      if gps.MBTEST(ch == '$')
 //	tflags |= LEX_WASDOL;
 //      else
 //	tflags &= ^LEX_WASDOL;
@@ -4419,7 +4423,7 @@ tokword:
 //  /* Check that the next character is the closing right paren.  If
 //     not, this is a syntax error. ( */
 //  c = shell_getc (0);
-//  if MBTEST(c != ')')
+//  if gps.MBTEST(c != ')')
 //    rval = 0;
 //
 //  tokstr = (char *)xmalloc (ttoklen + 4);
@@ -4763,7 +4767,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //
 //      /* Handle backslashes.  Quote lots of things when not inside of
 //	 double-quotes, quote some things inside of double-quotes. */
-//      if MBTEST(character == '\\')
+//      if gps.MBTEST(character == '\\')
 //	{
 //	  peek_char = shell_getc (0);
 //
@@ -4789,7 +4793,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //	}
 //
 //      /* Parse a matched pair of quote characters. */
-//      if MBTEST(shellquote (character))
+//      if gps.MBTEST(shellquote (character))
 //	{
 //	  push_delimiter (dstack, character);
 //	  ttok = parse_matched_pair (character, character, character, &ttoklen, (character == '`') ? P_COMMAND : 0);
@@ -4810,7 +4814,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //      /* When parsing a regexp as a single word inside a conditional command,
 //	 we need to special-case characters special to both the shell and
 //	 regular expressions.  Right now, that is only '(' and '|'. */ /*)*/
-//      if MBTEST((gps.parser_state & PST_REGEXP) && (character == '(' || character == '|'))		/*)*/
+//      if gps.MBTEST((gps.parser_state & PST_REGEXP) && (character == '(' || character == '|'))		/*)*/
 //	{
 //	  if (character == '|')
 //	    goto got_character;
@@ -4830,10 +4834,10 @@ func (gps *ParserState) parse_cond_command() *Command {
 //	}
 //
 //      /* Parse a ksh-style extended pattern matching specification. */
-//      if MBTEST(gps.extended_glob && PATTERN_CHAR (character))
+//      if gps.MBTEST(gps.extended_glob && PATTERN_CHAR (character))
 //	{
 //	  peek_char = shell_getc (1);
-//	  if MBTEST(peek_char == '(')		/* ) */
+//	  if gps.MBTEST(peek_char == '(')		/* ) */
 //	    {
 //	      push_delimiter (dstack, peek_char);
 //	      ttok = parse_matched_pair (cd, '(', ')', &ttoklen, 0);
@@ -4860,7 +4864,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //	{
 //	  peek_char = shell_getc (1);
 //	  /* $(...), <(...), >(...), $((...)), ${...}, and $[...] constructs */
-//	  if MBTEST(peek_char == '(' || \
+//	  if gps.MBTEST(peek_char == '(' || \
 //		((peek_char == '{' || peek_char == '[') && character == '$'))	/* ) ] } */
 //	    {
 //	      if (peek_char == '{')		/* } */
@@ -4892,7 +4896,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //	      goto next_character;
 //	    }
 //	  /* This handles $'...' and $"..." new-style quoted strings. */
-//	  else if MBTEST(character == '$' && (peek_char == '\'' || peek_char == '"'))
+//	  else if gps.MBTEST(character == '$' && (peek_char == '\'' || peek_char == '"'))
 //	    {
 //	      int first_line;
 //
@@ -4937,7 +4941,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //	    }
 //	  /* This could eventually be extended to recognize all of the
 //	     shell's single-character parameter expansions, and set flags.*/
-//	  else if MBTEST(character == '$' && peek_char == '$')
+//	  else if gps.MBTEST(character == '$' && peek_char == '$')
 //	    {
 //	      ttok = (char *)xmalloc (3);
 //	      ttok[0] = ttok[1] = '$';
@@ -4958,7 +4962,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //      /* Identify possible array subscript assignment; match [...].  If
 //	 gps.parser_state&PST_COMPASSIGN, we need to parse [sub]=words treating
 //	 `sub' as if it were enclosed in double quotes. */
-//      else if MBTEST(character == '[' &&		/* ] */
+//      else if gps.MBTEST(character == '[' &&		/* ] */
 //		     ((token_index > 0 && assignment_acceptable (gps.last_read_token) && token_is_ident (token, token_index)) ||
 //		      (token_index == 0 && (gps.parser_state&PST_COMPASSIGN))))
 //        {
@@ -4975,10 +4979,10 @@ func (gps *ParserState) parse_cond_command() *Command {
 //	  goto next_character;
 //        }
 //      /* Identify possible compound array variable assignment. */
-//      else if MBTEST(character == '=' && token_index > 0 && (assignment_acceptable (gps.last_read_token) || (gps.parser_state & PST_ASSIGNOK)) && token_is_assignment (token, token_index))
+//      else if gps.MBTEST(character == '=' && token_index > 0 && (assignment_acceptable (gps.last_read_token) || (gps.parser_state & PST_ASSIGNOK)) && token_is_assignment (token, token_index))
 //	{
 //	  peek_char = shell_getc (1);
-//	  if MBTEST(peek_char == '(')		/* ) */
+//	  if gps.MBTEST(peek_char == '(')		/* ) */
 //	    {
 //	      ttok = parse_compound_assignment (&ttoklen);
 //
@@ -5004,7 +5008,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //
 //      /* When not parsing a multi-character word construct, shell meta-
 //	 characters break words. */
-//      if MBTEST(shellbreak (character))
+//      if gps.MBTEST(shellbreak (character))
 //	{
 //	  shell_ungetc (character);
 //	  goto got_token;
@@ -5041,7 +5045,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //     is a `<', or a `&', or the character which ended this token is
 //     a '>' or '<', then, and ONLY then, is this input token a NUMBER.
 //     Otherwise, it is just a word, and should be returned as such. */
-//  if MBTEST(all_digit_token && (character == '<' || character == '>' || \
+//  if gps.MBTEST(all_digit_token && (character == '<' || character == '>' || \
 //		    gps.last_read_token == LESS_AND || \
 //		    gps.last_read_token == GREATER_AND))
 //      {
@@ -5060,7 +5064,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //  /* Posix.2 does not allow reserved words to be aliased, so check for all
 //     of them, including special cases, before expanding the current token
 //     as an alias. */
-//  if MBTEST(posixly_correct)
+//  if gps.MBTEST(posixly_correct)
 //    CHECK_FOR_RESERVED_WORD (token);
 //
 //  /* Aliases are expanded iff EXPAND_ALIASES is non-zero, and quoting
@@ -5076,7 +5080,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //
 //  /* If not in Posix.2 mode, check for reserved words after alias
 //     expansion. */
-//  if MBTEST(posixly_correct == 0)
+//  if gps.MBTEST(posixly_correct == 0)
 //    CHECK_FOR_RESERVED_WORD (token);
 //
 //  the_word = (word_desc *)xmalloc (sizeof (word_desc));
