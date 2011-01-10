@@ -3381,7 +3381,7 @@ func (gps *ParserState) reset_parser() {
 
   /* Reset to global value of extended glob */
   if (gps.parser_state & PST_EXTPAT != 0) {
-    gps.extended_glob = global_extglob;
+    gps.extended_glob = gps.global_extglob;
   }
 
   gps.parser_state = 0;
@@ -4635,7 +4635,7 @@ tokword:
 //	gps.extended_glob = 1;
 //      tok = read_token (READ);
 //      if (gps.parser_state & PST_EXTPAT)
-//	gps.extended_glob = global_extglob;
+//	gps.extended_glob = gps.global_extglob;
 //      gps.parser_state &= ^(PST_REGEXP|PST_EXTPAT);
 //
 //      if (tok == WORD)
@@ -4680,7 +4680,7 @@ tokword:
 //{
 //  CondCom *cexp;
 //
-//  global_extglob = gps.extended_glob;
+//  gps.global_extglob = gps.extended_glob;
 //  cexp = cond_expr ();
 //  return (make_cond_command (cexp));
 //}
