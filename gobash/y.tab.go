@@ -3123,7 +3123,7 @@ func (gps *ParserState) yylex() int {
 	gps.rewind_input_string ();
 	}
   }
-  rser_state &= ^PST_EOFTOKEN;
+  gps.parser_state &= ^PST_EOFTOKEN;
 
   return (gps.current_token);
 }
