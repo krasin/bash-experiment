@@ -2401,7 +2401,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //}
 //
 ///* Count the number of characters we've consumed from bash_input.location.string
-//   and read into shell_input_line, but have not returned from shell_getc.
+//   and read into gps.shell_input_line, but have not returned from shell_getc.
 //   That is the true input location.  Rewind bash_input.location.string by
 //   that number of characters, so it points to the last character actually
 //   consumed by the parser. */
@@ -2623,7 +2623,7 @@ func (gps *ParserState) rewind_input_string() {
 //STRING_SAVER *pushed_string_list = nil;
 //
 ///*
-// * Push the current shell_input_line onto a stack of such lines and make S
+// * Push the current gps.shell_input_line onto a stack of such lines and make S
 // * the current input.  Used when expanding aliases.  EXPAND is used to set
 // * the value of expand_next_token when the string is popped, so that the
 // * word after the alias in the original line is handled correctly when the
@@ -2639,7 +2639,7 @@ func (gps *ParserState) rewind_input_string() {
 //  STRING_SAVER *temp = (STRING_SAVER *)xmalloc (sizeof (STRING_SAVER));
 //
 //  temp.expand_alias = expand;
-//  temp.saved_line = shell_input_line;
+//  temp.saved_line = gps.shell_input_line;
 //  temp.saved_line_size = shell_input_line_size;
 //  temp.saved_line_index = shell_input_line_index;
 //  temp.saved_line_terminator = shell_input_line_terminator;
@@ -2651,7 +2651,7 @@ func (gps *ParserState) rewind_input_string() {
 //    ap.flags |= AL_BEINGEXPANDED;
 //  }
 //
-//  shell_input_line = s;
+//  gps.shell_input_line = s;
 //  shell_input_line_size = strlen (s);
 //  shell_input_line_index = 0;
 //  shell_input_line_terminator = '\0';
@@ -2670,7 +2670,7 @@ func (gps *ParserState) rewind_input_string() {
 //{
 //  STRING_SAVER *t;
 //
-//  shell_input_line = pushed_string_list.saved_line;
+//  gps.shell_input_line = pushed_string_list.saved_line;
 //  shell_input_line_index = pushed_string_list.saved_line_index;
 //  shell_input_line_size = pushed_string_list.saved_line_size;
 //  shell_input_line_terminator = pushed_string_list.saved_line_terminator;
@@ -2899,7 +2899,7 @@ func (gps *ParserState) rewind_input_string() {
 //#define pop_delimiter(ds)	ds.delimiter_depth--
 //
 ///* Return the next shell input character.  This always reads characters
-//   from shell_input_line; when that line is exhausted, it is time to
+//   from gps.shell_input_line; when that line is exhausted, it is time to
 //   read the next line.  This is called by read_token when the shell is
 //   processing normal command input. */
 //
@@ -2933,7 +2933,7 @@ func (gps *ParserState) rewind_input_string() {
 //     something on the pushed list of strings, then we don't want to go
 //     off and get another line.  We let the code down below handle it. */
 //
-//  if (!shell_input_line || ((!shell_input_line[shell_input_line_index]) &&
+//  if (!gps.shell_input_line || ((!gps.shell_input_line[shell_input_line_index]) &&
 //			    (pushed_string_list == nil))) {
 //      gps.line_number++;
 //
@@ -2960,7 +2960,7 @@ func (gps *ParserState) rewind_input_string() {
 //	      continue;
 //	  }
 //
-//	  RESIZE_MALLOCED_BUFFER (shell_input_line, i, 2, shell_input_line_size, 256);
+//	  RESIZE_MALLOCED_BUFFER (gps.shell_input_line, i, 2, shell_input_line_size, 256);
 //
 //	  if (c == EOF) {
 //	      if (bash_input.typ == st_stream) {
@@ -2971,30 +2971,30 @@ func (gps *ParserState) rewind_input_string() {
 //		shell_input_line_terminator = EOF;
 //            }
 //
-//	      shell_input_line[i] = '\0';
+//	      gps.shell_input_line[i] = '\0';
 //	      break;
 //	    }
 //
-//	  shell_input_line[i++] = c;
+//	  gps.shell_input_line[i++] = c;
 //
 //	  if (c == '\n') {
-//	      shell_input_line[--i] = '\0';
+//	      gps.shell_input_line[--i] = '\0';
 //	      current_command_line_count++;
 //	      break;
 //	    }
 //	}
 //
 //      shell_input_line_index = 0;
-//      shell_input_line_len = i;		/* == strlen (shell_input_line) */
+//      shell_input_line_len = i;		/* == strlen (gps.shell_input_line) */
 //
 //      set_line_mbstate ();
 //
-//      if (shell_input_line) {
+//      if (gps.shell_input_line) {
 //	  /* Lines that signify the end of the shell's input should not be
 //	     echoed. */
-//	  if (echo_input_at_read && (shell_input_line[0] ||
+//	  if (echo_input_at_read && (gps.shell_input_line[0] ||
 //				     shell_input_line_terminator != EOF))
-//	    fprintf (stderr, "%s\n", shell_input_line);
+//	    fprintf (stderr, "%s\n", gps.shell_input_line);
 //	} else {
 //	  shell_input_line_size = 0;
 //	  goto restart_read;
@@ -3004,17 +3004,17 @@ func (gps *ParserState) rewind_input_string() {
 //	 not already end in an EOF character.  */
 //      if (shell_input_line_terminator != EOF) {
 //	  if (shell_input_line_len + 3 > shell_input_line_size)
-//	    shell_input_line = (char *)xrealloc (shell_input_line,
+//	    gps.shell_input_line = (char *)xrealloc (gps.shell_input_line,
 //					1 + (shell_input_line_size += 2));
 //
-//	  shell_input_line[shell_input_line_len] = '\n';
-//	  shell_input_line[shell_input_line_len + 1] = '\0';
+//	  gps.shell_input_line[shell_input_line_len] = '\n';
+//	  gps.shell_input_line[shell_input_line_len + 1] = '\0';
 //
 //	  set_line_mbstate ();
 //	}
 //    }
 //
-//  uc = shell_input_line[shell_input_line_index];
+//  uc = gps.shell_input_line[shell_input_line_index];
 //
 //  if (uc) {
 //    shell_input_line_index++;
@@ -3028,13 +3028,13 @@ func (gps *ParserState) rewind_input_string() {
 //pop_alias:
 //  if (!uc && (pushed_string_list != nil)) {
 //      pop_string ();
-//      uc = shell_input_line[shell_input_line_index];
+//      uc = gps.shell_input_line[shell_input_line_index];
 //      if (uc) {
 //	  shell_input_line_index++;
 //      }
 //  }
 //
-//  if MBTEST(uc == '\\' && remove_quoted_newline && shell_input_line[shell_input_line_index] == '\n') {
+//  if MBTEST(uc == '\\' && remove_quoted_newline && gps.shell_input_line[shell_input_line_index] == '\n') {
 //	gps.line_number++;
 //	/* XXX - what do we do here if we're expanding an alias whose definition
 //	   ends with a newline?  Recall that we inhibit the appending of a
@@ -3053,14 +3053,14 @@ func (gps *ParserState) rewind_input_string() {
 ///* Put C back into the input for the shell.  This might need changes for
 //   HANDLE_MULTIBYTE around EOLs.  Since we (currently) never push back a
 //   character different than we read, shell_input_line_property doesn't need
-//   to change when manipulating shell_input_line.  The define for
+//   to change when manipulating gps.shell_input_line.  The define for
 //   last_shell_getc_is_singlebyte should take care of it, though. */
 //static void
 //shell_ungetc (c)
 //     int c;
 //{
-//  if (shell_input_line && shell_input_line_index) {
-//    shell_input_line[--shell_input_line_index] = c;
+//  if (gps.shell_input_line && shell_input_line_index) {
+//    gps.shell_input_line[--shell_input_line_index] = c;
 //  } else {
 //    eol_ungetc_lookahead = c;
 //  }
@@ -3389,8 +3389,8 @@ func (gps *ParserState) reset_parser() {
     free_string_list ();
   }
 
-  if (shell_input_line) {
-      shell_input_line = nil;
+  if (gps.shell_input_line) {
+      gps.shell_input_line = nil;
       shell_input_line_size = 0
       shell_input_line_index = 0;
   }
@@ -5275,7 +5275,7 @@ tokword:
 //  char *msg, *t;
 //  int token_end, i;
 //
-//  t = shell_input_line;
+//  t = gps.shell_input_line;
 //  i = shell_input_line_index;
 //  token_end = 0;
 //  msg = nil;
@@ -5317,7 +5317,7 @@ tokword:
 //  char *msg;
 //  int token_end;
 //
-//  msg = savestring (shell_input_line);
+//  msg = savestring (gps.shell_input_line);
 //  token_end = strlen (msg);
 //  while (token_end && msg[token_end - 1] == '\n')
 //    msg[--token_end] = '\0';
@@ -5358,7 +5358,7 @@ tokword:
 //  /* If looking at the current token doesn't prove fruitful, try to find the
 //     offending token by analyzing the text of the input line near the current
 //     input line index and report what we find. */
-//  if (shell_input_line && *shell_input_line)
+//  if (gps.shell_input_line && *gps.shell_input_line)
 //    {
 //      msg = error_token_from_text ();
 //      if (msg)
@@ -5660,9 +5660,9 @@ func (gps *ParserState) handle_eof_input_unit() {
 //  mbstate_t mbs, prevs;
 //  size_t mbclen;
 //
-//  if (shell_input_line == NULL)
+//  if (gps.shell_input_line == NULL)
 //    return;
-//  len = strlen (shell_input_line);	/* XXX - shell_input_line_len ? */
+//  len = strlen (gps.shell_input_line);	/* XXX - shell_input_line_len ? */
 //  shell_input_line_property = (char *)xmalloc (len + 1);
 //
 //  memset (&prevs, '\0', sizeof (mbstate_t));
@@ -5670,7 +5670,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //    {
 //      mbs = prevs;
 //
-//      c = shell_input_line[i];
+//      c = gps.shell_input_line[i];
 //      if (c == EOF)
 //	{
 //	  int j;
@@ -5679,7 +5679,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //	  break;
 //	}
 //
-//      mbclen = mbrlen (shell_input_line + previ, i - previ + 1, &mbs);
+//      mbclen = mbrlen (gps.shell_input_line + previ, i - previ + 1, &mbs);
 //      if (mbclen == 1 || mbclen == (size_t)-1)
 //	{
 //	  mbclen = 1;
