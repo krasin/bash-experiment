@@ -133,7 +133,6 @@ const MAX_CASE_NEST = 128
 // 		: 1)
 // #  define MBTEST(x)	((x) && last_shell_getc_is_singlebyte)
 // 
-// extern int extended_glob;
 // 
 // extern int current_command_number;
 // extern int sourcelevel, parse_and_execute_level;
@@ -155,6 +154,8 @@ last_command_exit_value int
 
 /* Non-zero means we expand aliases in commands. */
 expand_aliases int
+
+extended_glob int
 
 /* If non-zero, $'...' and $"..." are expanded when they appear within
    a ${...} expansion, even when the expansion appears within double
@@ -3100,7 +3101,7 @@ func (gps *ParserState) rewind_input_string() {
 //  restore_parser_state (&ps);
 //  bind_variable ("_", last_lastarg, 0);
 //
-//  if (gps.token_to_read == '\n') {	/* reset_parser was called */
+//  if (gps.token_to_read == '\n') {	/* gps.reset_parser was called */
 //    gps.token_to_read = 0;
 //  }
 //}
@@ -3380,7 +3381,7 @@ func (gps *ParserState) reset_parser() {
 
   /* Reset to global value of extended glob */
   if (gps.parser_state & PST_EXTPAT != 0) {
-    extended_glob = global_extglob;
+    gps.extended_glob = global_extglob;
   }
 
   gps.parser_state = 0;
@@ -3409,7 +3410,7 @@ func (gps *ParserState) read_token (command int) (result int) {
   var peek_char int /* Temporary look-ahead character. */
 
   if (command == RESET) {
-      reset_parser ();
+      gps.reset_parser ();
       return ('\n');
   }
 
@@ -4315,7 +4316,7 @@ tokword:
 //  parse_string (string, "command substitution", sflags, &ep);
 //
 //  restore_parser_state (&ps);
-//  reset_parser ();
+//  gps.reset_parser ();
 //
 //  /* Need to find how many characters parse_and_execute consumed, update
 //     *indp, if flags != 0, copy the portion of the string parsed into RET
@@ -4631,10 +4632,10 @@ tokword:
 //
 //      /* rhs */
 //      if (gps.parser_state & PST_EXTPAT)
-//	extended_glob = 1;
+//	gps.extended_glob = 1;
 //      tok = read_token (READ);
 //      if (gps.parser_state & PST_EXTPAT)
-//	extended_glob = global_extglob;
+//	gps.extended_glob = global_extglob;
 //      gps.parser_state &= ^(PST_REGEXP|PST_EXTPAT);
 //
 //      if (tok == WORD)
@@ -4679,7 +4680,7 @@ tokword:
 //{
 //  CondCom *cexp;
 //
-//  global_extglob = extended_glob;
+//  global_extglob = gps.extended_glob;
 //  cexp = cond_expr ();
 //  return (make_cond_command (cexp));
 //}
@@ -4840,7 +4841,7 @@ tokword:
 //	}
 //
 //      /* Parse a ksh-style extended pattern matching specification. */
-//      if MBTEST(extended_glob && PATTERN_CHAR (character))
+//      if MBTEST(gps.extended_glob && PATTERN_CHAR (character))
 //	{
 //	  peek_char = shell_getc (1);
 //	  if MBTEST(peek_char == '(')		/* ) */
@@ -5225,7 +5226,7 @@ tokword:
 //     const char *msg;
 //{
 //  report_syntax_error (nil);
-//  reset_parser ();
+//  gps.reset_parser ();
 //  return (0);
 //}
 //
