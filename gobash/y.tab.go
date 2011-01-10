@@ -3396,207 +3396,207 @@ func (gps *ParserState) gather_here_documents() {
 //  gps.token_to_read = '\n';
 //}
 //
-///* Read the next token.  Command can be READ (normal operation) or
-//   RESET (to normalize state). */
-//static int
-//read_token (command)
-//     int command;
-//{
-//  int character;		/* Current character. */
-//  int peek_char;		/* Temporary look-ahead character. */
-//  int result;			/* The thing to return. */
-//
-//  if (command == RESET) {
-//      reset_parser ();
-//      return ('\n');
-//    }
-//
-//  if (gps.token_to_read) {
-//      result = gps.token_to_read;
-//      if (gps.token_to_read == WORD || gps.token_to_read == ASSIGNMENT_WORD) {
-//	  gps.yylval.word = word_desc_to_read;
-//	  word_desc_to_read = nil;
-//	}
-//      gps.token_to_read = 0;
-//      return (result);
-//    }
-//
-//  if ((gps.parser_state & (PST_CONDCMD|PST_CONDEXPR)) == PST_CONDCMD) {
-//      cond_lineno = gps.line_number;
-//      gps.parser_state |= PST_CONDEXPR;
-//      gps.yylval.command = parse_cond_command ();
-//      if (cond_token != COND_END) {
-//	  cond_error ();
-//	  return (-1);
-//	}
-//      gps.token_to_read = COND_END;
-//      gps.parser_state &= ^(PST_CONDEXPR|PST_CONDCMD);
-//      return (COND_CMD);
-//    }
-//
-//  /* This is a place to jump back to once we have successfully expanded a
-//     token with an alias and pushed the string with push_string () */
-// re_read_token:
-//
-//  /* Read a single word from input.  Start by skipping blanks. */
-//  while ((character = shell_getc (1)) != EOF && shellblank (character))
-//    ;
-//
-//  if (character == EOF) {
-//      gps.EOF_Reached = true;
-//      return (yacc_EOF);
-//    }
-//
-//  if MBTEST(character == '#') {
-//      /* A comment.  Discard until EOL or EOF, and then return a newline. */
-//      discard_until ('\n');
-//      shell_getc (0);
-//      character = '\n';	/* this will take the next if statement and return. */
-//    }
-//
-//  if (character == '\n') {
-//      /* If we're about to return an unquoted newline, we can go and collect
-//	 the text of any pending here document. */
-//      if (gps.need_here_doc != 0) {
-//      	gps.gather_here_documents ();
-//        }
-//
-//      gps.parser_state &= ^PST_ALEXPNEXT;
-//
-//      gps.parser_state &= ^PST_ASSIGNOK;
-//
-//      return (character);
-//    }
-//
-//  if (gps.parser_state & PST_REGEXP) {
-//    goto tokword;
-//  }
-//
-//  /* Shell meta-characters. */
-//  if MBTEST(shellmeta (character) && ((gps.parser_state & PST_DBLPAREN) == 0)) {
-//      /* Turn off alias tokenization iff this character sequence would
-//	 not leave us ready to read a command. */
-//      if (character == '<' || character == '>') {
-//	  gps.parser_state &= ^PST_ALEXPNEXT;
-//      }
-//
-//      gps.parser_state &= ^PST_ASSIGNOK;
-//
-//      peek_char = shell_getc (1);
-//      if (character == peek_char) {
-//	  switch (character) {
-//	    case '<':
-//	      /* If '<' then we could be at "<<" or at "<<-".  We have to
-//		 look ahead one more character. */
-//	      peek_char = shell_getc (1);
-//	      if MBTEST(peek_char == '-')
-//		return (LESS_LESS_MINUS);
-//	      else if MBTEST(peek_char == '<')
-//		return (LESS_LESS_LESS);
-//	      else
-//		{
-//		  shell_ungetc (peek_char);
-//		  return (LESS_LESS);
-//		}
-//
-//	    case '>':
-//	      return (GREATER_GREATER);
-//
-//	    case ';':
-//	      gps.parser_state |= PST_CASEPAT;
-//	      gps.parser_state &= ^PST_ALEXPNEXT;
-//
-//	      peek_char = shell_getc (1);
-//	      if MBTEST(peek_char == '&')
-//		return (SEMI_SEMI_AND);
-//	      else
-//		{
-//		  shell_ungetc (peek_char);
-//		  return (SEMI_SEMI);
-//		}
-//
-//	    case '&':
-//	      return (AND_AND);
-//
-//	    case '|':
-//	      return (OR_OR);
-//
-//	    case '(':		/* ) */
-//	      result = parse_dparen (character);
-//	      if (result == -2)
-//	        break;
-//	      else
-//	        return result;
-//	    }
-//	}
-//      else if MBTEST(character == '<' && peek_char == '&')
-//	return (LESS_AND);
-//      else if MBTEST(character == '>' && peek_char == '&')
-//	return (GREATER_AND);
-//      else if MBTEST(character == '<' && peek_char == '>')
-//	return (LESS_GREATER);
-//      else if MBTEST(character == '>' && peek_char == '|')
-//	return (GREATER_BAR);
-//      else if MBTEST(character == '&' && peek_char == '>')
-//	{
-//	  peek_char = shell_getc (1);
-//	  if MBTEST(peek_char == '>')
-//	    return (AND_GREATER_GREATER);
-//	  else
-//	    {
-//	      shell_ungetc (peek_char);
-//	      return (AND_GREATER);
-//	    }
-//	}
-//      else if MBTEST(character == '|' && peek_char == '&')
-//	return (BAR_AND);
-//      else if MBTEST(character == ';' && peek_char == '&')
-//	{
-//	  gps.parser_state |= PST_CASEPAT;
-//	  gps.parser_state &= ^PST_ALEXPNEXT;
-//	  return (SEMI_AND);
-//	}
-//
-//      shell_ungetc (peek_char);
-//
-//      /* If we look like we are reading the start of a function
-//	 definition, then let the reader know about it so that
-//	 we will do the right thing with `{'. */
-//      if MBTEST(character == ')' && gps.last_read_token == '(' && gps.token_before_that == WORD)
-//	{
-//	  gps.parser_state |= PST_ALLOWOPNBRC;
-//	  gps.parser_state &= ^PST_ALEXPNEXT;
-//	  gps.function_dstart = gps.line_number;
-//	}
-//
-//      /* case pattern lists may be preceded by an optional left paren.  If
-//	 we're not trying to parse a case pattern list, the left paren
-//	 indicates a subshell. */
-//      if MBTEST(character == '(' && (gps.parser_state & PST_CASEPAT) == 0) /* ) */
-//	gps.parser_state |= PST_SUBSHELL;
-//      /*(*/
-//      else if MBTEST((gps.parser_state & PST_CASEPAT) && character == ')')
-//	gps.parser_state &= ^PST_CASEPAT;
-//      /*(*/
-//      else if MBTEST((gps.parser_state & PST_SUBSHELL) && character == ')')
-//	gps.parser_state &= ^PST_SUBSHELL;
-//
-//      return (character);
-//    }
-//
-//  /* Hack <&- (close stdin) case.  Also <&N- (dup and close). */
-//  if MBTEST(character == '-' && (gps.last_read_token == LESS_AND || gps.last_read_token == GREATER_AND))
-//    return (character);
-//
-//tokword:
-//  /* Okay, if we got this far, we have to read a word.  Read one,
-//     and then check it against the known ones. */
-//  result = read_token_word (character);
-//  if (result == RE_READ_TOKEN)
-//    goto re_read_token;
-//  return result;
-//}
-//
+/* Read the next token.  Command can be READ (normal operation) or
+   RESET (to normalize state). */
+static int
+read_token (command)
+     int command;
+{
+  int character;		/* Current character. */
+  int peek_char;		/* Temporary look-ahead character. */
+  int result;			/* The thing to return. */
+
+  if (command == RESET) {
+      reset_parser ();
+      return ('\n');
+    }
+
+  if (gps.token_to_read) {
+      result = gps.token_to_read;
+      if (gps.token_to_read == WORD || gps.token_to_read == ASSIGNMENT_WORD) {
+	  gps.yylval.word = word_desc_to_read;
+	  word_desc_to_read = nil;
+	}
+      gps.token_to_read = 0;
+      return (result);
+    }
+
+  if ((gps.parser_state & (PST_CONDCMD|PST_CONDEXPR)) == PST_CONDCMD) {
+      cond_lineno = gps.line_number;
+      gps.parser_state |= PST_CONDEXPR;
+      gps.yylval.command = parse_cond_command ();
+      if (cond_token != COND_END) {
+	  cond_error ();
+	  return (-1);
+	}
+      gps.token_to_read = COND_END;
+      gps.parser_state &= ^(PST_CONDEXPR|PST_CONDCMD);
+      return (COND_CMD);
+    }
+
+  /* This is a place to jump back to once we have successfully expanded a
+     token with an alias and pushed the string with push_string () */
+ re_read_token:
+
+  /* Read a single word from input.  Start by skipping blanks. */
+  while ((character = shell_getc (1)) != EOF && shellblank (character))
+    ;
+
+  if (character == EOF) {
+      gps.EOF_Reached = true;
+      return (yacc_EOF);
+    }
+
+  if MBTEST(character == '#') {
+      /* A comment.  Discard until EOL or EOF, and then return a newline. */
+      discard_until ('\n');
+      shell_getc (0);
+      character = '\n';	/* this will take the next if statement and return. */
+    }
+
+  if (character == '\n') {
+      /* If we're about to return an unquoted newline, we can go and collect
+	 the text of any pending here document. */
+      if (gps.need_here_doc != 0) {
+      	gps.gather_here_documents ();
+        }
+
+      gps.parser_state &= ^PST_ALEXPNEXT;
+
+      gps.parser_state &= ^PST_ASSIGNOK;
+
+      return (character);
+    }
+
+  if (gps.parser_state & PST_REGEXP) {
+    goto tokword;
+  }
+
+  /* Shell meta-characters. */
+  if MBTEST(shellmeta (character) && ((gps.parser_state & PST_DBLPAREN) == 0)) {
+      /* Turn off alias tokenization iff this character sequence would
+	 not leave us ready to read a command. */
+      if (character == '<' || character == '>') {
+	  gps.parser_state &= ^PST_ALEXPNEXT;
+      }
+
+      gps.parser_state &= ^PST_ASSIGNOK;
+
+      peek_char = shell_getc (1);
+      if (character == peek_char) {
+	  switch (character) {
+	    case '<':
+	      /* If '<' then we could be at "<<" or at "<<-".  We have to
+		 look ahead one more character. */
+	      peek_char = shell_getc (1);
+	      if MBTEST(peek_char == '-')
+		return (LESS_LESS_MINUS);
+	      else if MBTEST(peek_char == '<')
+		return (LESS_LESS_LESS);
+	      else
+		{
+		  shell_ungetc (peek_char);
+		  return (LESS_LESS);
+		}
+
+	    case '>':
+	      return (GREATER_GREATER);
+
+	    case ';':
+	      gps.parser_state |= PST_CASEPAT;
+	      gps.parser_state &= ^PST_ALEXPNEXT;
+
+	      peek_char = shell_getc (1);
+	      if MBTEST(peek_char == '&')
+		return (SEMI_SEMI_AND);
+	      else
+		{
+		  shell_ungetc (peek_char);
+		  return (SEMI_SEMI);
+		}
+
+	    case '&':
+	      return (AND_AND);
+
+	    case '|':
+	      return (OR_OR);
+
+	    case '(':		/* ) */
+	      result = parse_dparen (character);
+	      if (result == -2)
+	        break;
+	      else
+	        return result;
+	    }
+	}
+      else if MBTEST(character == '<' && peek_char == '&')
+	return (LESS_AND);
+      else if MBTEST(character == '>' && peek_char == '&')
+	return (GREATER_AND);
+      else if MBTEST(character == '<' && peek_char == '>')
+	return (LESS_GREATER);
+      else if MBTEST(character == '>' && peek_char == '|')
+	return (GREATER_BAR);
+      else if MBTEST(character == '&' && peek_char == '>')
+	{
+	  peek_char = shell_getc (1);
+	  if MBTEST(peek_char == '>')
+	    return (AND_GREATER_GREATER);
+	  else
+	    {
+	      shell_ungetc (peek_char);
+	      return (AND_GREATER);
+	    }
+	}
+      else if MBTEST(character == '|' && peek_char == '&')
+	return (BAR_AND);
+      else if MBTEST(character == ';' && peek_char == '&')
+	{
+	  gps.parser_state |= PST_CASEPAT;
+	  gps.parser_state &= ^PST_ALEXPNEXT;
+	  return (SEMI_AND);
+	}
+
+      shell_ungetc (peek_char);
+
+      /* If we look like we are reading the start of a function
+	 definition, then let the reader know about it so that
+	 we will do the right thing with `{'. */
+      if MBTEST(character == ')' && gps.last_read_token == '(' && gps.token_before_that == WORD)
+	{
+	  gps.parser_state |= PST_ALLOWOPNBRC;
+	  gps.parser_state &= ^PST_ALEXPNEXT;
+	  gps.function_dstart = gps.line_number;
+	}
+
+      /* case pattern lists may be preceded by an optional left paren.  If
+	 we're not trying to parse a case pattern list, the left paren
+	 indicates a subshell. */
+      if MBTEST(character == '(' && (gps.parser_state & PST_CASEPAT) == 0) /* ) */
+	gps.parser_state |= PST_SUBSHELL;
+      /*(*/
+      else if MBTEST((gps.parser_state & PST_CASEPAT) && character == ')')
+	gps.parser_state &= ^PST_CASEPAT;
+      /*(*/
+      else if MBTEST((gps.parser_state & PST_SUBSHELL) && character == ')')
+	gps.parser_state &= ^PST_SUBSHELL;
+
+      return (character);
+    }
+
+  /* Hack <&- (close stdin) case.  Also <&N- (dup and close). */
+  if MBTEST(character == '-' && (gps.last_read_token == LESS_AND || gps.last_read_token == GREATER_AND))
+    return (character);
+
+tokword:
+  /* Okay, if we got this far, we have to read a word.  Read one,
+     and then check it against the known ones. */
+  result = read_token_word (character);
+  if (result == RE_READ_TOKEN)
+    goto re_read_token;
+  return result;
+}
+
 ///*
 // * Match a $(...) or other grouping construct.  This has to handle embedded
 // * quoted strings ('', ``, "") and nested constructs.  It also must handle
