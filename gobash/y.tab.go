@@ -2093,7 +2093,7 @@ case yyreduce:
 // #line 1237 "/Users/chet/src/bash/src/parse.y"
     {
 			  /* Make cmd1 |& cmd2 equivalent to cmd1 2>&1 | cmd2 */
-			  var tc *Command
+			  var tc Redirectable
 			  var rd Redirectee
 			  var sd Redirectee
 			  var r *Redirect
@@ -2106,13 +2106,7 @@ case yyreduce:
 			  sd.dest = 2;
 			  rd.dest = 1;
 			  r = makeRedirection (sd, r_duplicating_output, rd, 0);
-			  if tc.redirects != nil {
-			      var t *Redirect
-			      for t = tc.redirects; t.next != nil; t = t.next {}
-			      t.next = r;
-			  } else {
-			    tc.redirects = r;
-			  }
+			  tc.AddRedirect(r)
 
 			  (yyval.command) = gps.command_connect ((yyvs.PeekN((1) - (4)).command), (yyvs.PeekN((4) - (4)).command), '|');
 			}

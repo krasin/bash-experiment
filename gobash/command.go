@@ -260,6 +260,10 @@ type CommandValue struct {
     Coproc *CoprocCom
 }
 
+type Redirectable interface {
+	AddRedirect(r *Redirect)
+}
+
 /* What a command looks like. */
 type Command struct {
   typ command_type /* FOR CASE WHILE IF Connection or SIMPLE. */
@@ -267,6 +271,19 @@ type Command struct {
   line int /* line number the command starts on */
   redirects *Redirect /* Special redirects for FOR CASE, etc. */
   value CommandValue
+}
+
+func (cmd *Command) AddRedirect(r *Redirect) {
+  if r == nil {
+    panic("AddRedirect: r == nil")
+  }
+  if cmd.redirects != nil {
+      var t *Redirect
+      for t = cmd.redirects; t.next != nil; t = t.next {}
+      t.next = r;
+  } else {
+    cmd.redirects = r;
+  }
 }
 
 /* Structure used to represent the Connection type. */
@@ -380,6 +397,20 @@ type SimpleCom struct {
 				   variable assignments, etc. */
   redirects *Redirect /* Redirections to perform. */
 }
+
+func (cmd *SimpleCom) AddRedirect(r *Redirect) {
+  if r == nil {
+    panic("AddRedirect: r == nil")
+  }
+  if cmd.redirects != nil {
+      var t *Redirect
+      for t = cmd.redirects; t.next != nil; t = t.next {}
+      t.next = r;
+  } else {
+    cmd.redirects = r;
+  }
+}
+
 
 /* The "function definition" command. */
 type FunctionDef struct {
