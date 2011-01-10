@@ -161,6 +161,10 @@ expand_aliases int
    quotes. */
 extended_quote int
 
+/* When non-zero, an open-brace used to create a group is awaiting a close
+   brace partner. */
+open_brace_count int
+
 /* The number of lines read from input while creating the current command. */
 current_command_line_count int
 
@@ -3147,10 +3151,7 @@ func (gps *ParserState) gather_here_documents() {
     }
 }
 
-///* When non-zero, an open-brace used to create a group is awaiting a close
-//   brace partner. */
-//static int open_brace_count;
-//
+
 //#define command_token_position(token) \
 //  (((token) == ASSIGNMENT_WORD) || (gps.parser_state&PST_REDIRLIST) || \
 //   ((token) != SEMI_SEMI && (token) != SEMI_AND && (token) != SEMI_SEMI_AND && reserved_word_acceptable(token)))
@@ -3182,9 +3183,9 @@ func (gps *ParserState) gather_here_documents() {
 //	      else if (word_token_alist[i].token == COND_START) \
 //		gps.parser_state |= PST_CONDCMD; \
 //	      else if (word_token_alist[i].token == '{') \
-//		open_brace_count++; \
-//	      else if (word_token_alist[i].token == '}' && open_brace_count) \
-//		open_brace_count--; \
+//		gps.open_brace_count++; \
+//	      else if (word_token_alist[i].token == '}' && gps.open_brace_count) \
+//		gps.open_brace_count--; \
 //	      return (word_token_alist[i].token); \
 //	    } \
 //      } \
@@ -3338,7 +3339,7 @@ func (gps *ParserState) gather_here_documents() {
 //  if (gps.parser_state & PST_ALLOWOPNBRC) {
 //      gps.parser_state &= ^PST_ALLOWOPNBRC;
 //      if (tokstr[0] == '{' && tokstr[1] == '\0') {		/* } */
-//	  open_brace_count++;
+//	  gps.open_brace_count++;
 //	  gps.function_bstart = gps.line_number;
 //	  return ('{');					/* } */
 //	}
@@ -3350,12 +3351,12 @@ func (gps *ParserState) gather_here_documents() {
 //    return (DO);
 //  }
 //  if (gps.last_read_token == ARITH_FOR_EXPRS && tokstr[0] == '{' && tokstr[1] == '\0') {	/* } */
-//      open_brace_count++;
+//      gps.open_brace_count++;
 //      return ('{');			/* } */
 //    }
 //
-//  if (open_brace_count && reserved_word_acceptable (gps.last_read_token) && tokstr[0] == '}' && !tokstr[1]) {
-//      open_brace_count--;		/* { */
+//  if (gps.open_brace_count && reserved_word_acceptable (gps.last_read_token) && tokstr[0] == '}' && !tokstr[1]) {
+//      gps.open_brace_count--;		/* { */
 //      return ('}');
 //    }
 //
@@ -3375,7 +3376,7 @@ func (gps *ParserState) gather_here_documents() {
    by the error rule at top level. */
 func (gps *ParserState) reset_parser() {
   gps.dstack.delimiter_depth = 0;	/* No delimiters found so far. */
-  open_brace_count = 0;
+  gps.open_brace_count = 0;
 
   /* Reset to global value of extended glob */
   if (gps.parser_state & PST_EXTPAT != 0) {
