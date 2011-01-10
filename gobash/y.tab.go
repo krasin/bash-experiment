@@ -3113,7 +3113,7 @@ func (gps *ParserState) yylex() int {
   gps.two_tokens_ago = gps.token_before_that;
   gps.token_before_that = gps.last_read_token;
   gps.last_read_token = gps.current_token;
-  gps.current_token = read_token (READ);
+  gps.current_token = gps.read_token (READ);
 
   if ((gps.parser_state & PST_EOFTOKEN != 0) && gps.current_token == gps.shell_eof_token) {
       gps.current_token = yacc_EOF;
