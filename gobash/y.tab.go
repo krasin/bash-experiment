@@ -710,10 +710,9 @@ const (
 | yyparse.  |
 `----------*/
 
-func (gps *ParserState) Yyparse () {
+func (gps *ParserState) Yyparse () (yyresult int) {
   var yystate int
   var yyn int
-  var yyresult int
   /* Number of tokens to shift before error messages enabled.  */
   var yyerrstatus int
   /* Look-ahead token as an internal (translated) token number.  */
@@ -2262,9 +2261,10 @@ case yyreturn:
   for !yyss.IsEmpty() {
       popStack(1);
   }
-  return  (yyresult);
+  return;
 }
 }
+  return;
 }
 
 
