@@ -2133,7 +2133,7 @@ case yyreduce:
       default: break;
     }
 
-  YYPOPSTACK (yylen);
+  popStack(yylen)
   yylen = 0;
 
   yyvs.Push(yyval)
@@ -2166,13 +2166,11 @@ case yyerrlab:
 
 
 
-  if (yyerrstatus == 3)
-    {
+  if (yyerrstatus == 3)  {
       /* If just tried and failed to reuse look-ahead token after an
 	 error, discard it.  */
 
-      if (gps.yychar <= YYEOF)
-	{
+      if (gps.yychar <= YYEOF)	{
 	  /* Return failure if at end of input.  */
 	  if (gps.yychar == YYEOF) {
 	    yyparseState = yyabortlab; continue;
@@ -2194,7 +2192,7 @@ case yyerrorlab:
 
   /* Do not reclaim the symbols of the rule which action triggered
      this YYERROR.  */
-  YYPOPSTACK (yylen);
+  popStack(yylen);
   yylen = 0;
   yystate = yyss.Peek();
   yyparseState = yyerrlab1; continue;
@@ -2208,11 +2206,9 @@ case yyerrlab1:
 
   for {
       yyn = yypact[yystate];
-      if (yyn != YYPACT_NINF)
-	{
+      if (yyn != YYPACT_NINF) {
 	  yyn += YYTERROR;
-	  if (0 <= yyn && yyn <= YYLAST && yycheck[yyn] == YYTERROR)
-	    {
+	  if (0 <= yyn && yyn <= YYLAST && yycheck[yyn] == YYTERROR) {
 	      yyn = yytable[yyn];
 	      if (0 < yyn) {
 		break;
@@ -2226,7 +2222,7 @@ case yyerrlab1:
       }
 
 
-      YYPOPSTACK (1);
+      popStack(1);
       yystate = yyss.Peek()
     }
 
@@ -2258,11 +2254,10 @@ case yyabortlab:
 case yyreturn:
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
-  YYPOPSTACK (yylen);
-  while (!yyss.IsEmpty())
-    {
-      YYPOPSTACK (1);
-    }
+  popStack(yylen);
+  for !yyss.IsEmpty() {
+      popStack(1);
+  }
   return  (yyresult);
 }
 }
@@ -2361,8 +2356,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  string = bash_input.location.string;
 //
 //  /* If the string doesn't exist, or is empty, EOF found. */
-//  if (string && *string)
-//    {
+//  if (string && *string) {
 //      c = *string++;
 //      bash_input.location.string = string;
 //      return (c);
@@ -2403,9 +2397,9 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //  /* number of unconsumed characters in the input -- XXX need to take newlines
 //     into account, e.g., $(...\n) */
 //  xchars = shell_input_line_len - shell_input_line_index;
-//  if (bash_input.location.string[-1] == '\n')
+//  if (bash_input.location.string[-1] == '\n') {
 //    xchars++;
-//
+//  }
 //  /* XXX - how to reflect bash_input.location.string back to string passed to
 //     parse_and_execute or xparse_dolparen?  xparse_dolparen needs to know how
 //     far into the string we parsed.  parse_and_execute knows where bash_input.
@@ -2441,8 +2435,7 @@ func (gps *ParserState) rewind_input_string() {
 //  int result;
 //
 //  result = EOF;
-//  if (bash_input.location.file)
-//    {
+//  if (bash_input.location.file) {
 //      result = getc_with_restart (bash_input.location.file);
 //    }
 //  return (result);
@@ -2489,26 +2482,27 @@ func (gps *ParserState) rewind_input_string() {
 //
 //  saver.bstream = nil;
 //  /* If we have a buffered stream, clear out buffers[fd]. */
-//  if (bash_input.typ == st_bstream && bash_input.location.buffered_fd >= 0)
+//  if (bash_input.typ == st_bstream && bash_input.location.buffered_fd >= 0) {
 //    saver.bstream = set_buffered_stream (bash_input.location.buffered_fd,
 //    					  nil);
+//  }
 //
 //  saver.line = line_number;
 //  bash_input.name = nil;
 //  saver.next = stream_list;
 //  stream_list = saver;
 //  gps.EOF_Reached = false;
-//  if (reset_lineno)
+//  if (reset_lineno) {
 //    line_number = 0;
+//  }
 //}
 //
 //void
 //pop_stream ()
 //{
-//  if (!stream_list)
+//  if (!stream_list) {
 //    gps.EOF_Reached = true;
-//  else
-//    {
+//  } else {
 //      STREAM_SAVER *saver = stream_list;
 //
 //      gps.EOF_Reached = false;
@@ -2524,13 +2518,10 @@ func (gps *ParserState) rewind_input_string() {
 //      /* If the input file descriptor was changed while this was on the
 //	 save stack, update the buffered fd to the new file descriptor and
 //	 re-establish the buffer <-> bash_input fd correspondence. */
-//      if (bash_input.typ == st_bstream && bash_input.location.buffered_fd >= 0)
-//	{
-//	  if (bash_input_fd_changed)
-//	    {
+//      if (bash_input.typ == st_bstream && bash_input.location.buffered_fd >= 0) {
+//	  if (bash_input_fd_changed) {
 //	      bash_input_fd_changed = 0;
-//	      if (default_buffered_input >= 0)
-//		{
+//	      if (default_buffered_input >= 0) {
 //		  bash_input.location.buffered_fd = default_buffered_input;
 //		  saver.bstream.b_fd = default_buffered_input;
 //		  SET_CLOSE_ON_EXEC (default_buffered_input);
@@ -2552,9 +2543,11 @@ func (gps *ParserState) rewind_input_string() {
 //{
 //  STREAM_SAVER *s;
 //
-//  for (s = stream_list; s; s = s.next)
-//    if (s.bash_input.typ == typ)
+//  for (s = stream_list; s; s = s.next) {
+//    if (s.bash_input.typ == typ) {
 //      return 1;
+//    }
+//  }
 //  return 0;
 //}
 //
@@ -2576,8 +2569,9 @@ func (gps *ParserState) rewind_input_string() {
 //restore_token_state (ts)
 //     int *ts;
 //{
-//  if (ts == 0)
+//  if (ts == 0) {
 //    return;
+//  }
 //  last_read_token = ts[0];
 //  token_before_that = ts[1];
 //  two_tokens_ago = ts[2];
@@ -2640,8 +2634,9 @@ func (gps *ParserState) rewind_input_string() {
 //  temp.next = pushed_string_list;
 //  pushed_string_list = temp;
 //
-//  if (ap)
+//  if (ap) {
 //    ap.flags |= AL_BEINGEXPANDED;
+//  }
 //
 //  shell_input_line = s;
 //  shell_input_line_size = strlen (s);
@@ -2667,17 +2662,18 @@ func (gps *ParserState) rewind_input_string() {
 //  shell_input_line_size = pushed_string_list.saved_line_size;
 //  shell_input_line_terminator = pushed_string_list.saved_line_terminator;
 //
-//  if (pushed_string_list.expand_alias)
+//  if (pushed_string_list.expand_alias) {
 //    gps.parser_state |= PST_ALEXPNEXT;
-//  else
+//  } else {
 //    gps.parser_state &= ^PST_ALEXPNEXT;
-//
+//  }
+// 
 //  t = pushed_string_list;
 //  pushed_string_list = pushed_string_list.next;
 //
-//  if (t.expander)
+//  if (t.expander) {
 //    t.expander.flags &= ^AL_BEINGEXPANDED;
-//
+//  }
 //
 //  set_line_mbstate ();
 //}
@@ -2690,8 +2686,9 @@ func (gps *ParserState) rewind_input_string() {
 //  for (t = pushed_string_list; t; )
 //    {
 //      t1 = t.next;
-//      if (t.expander)
-//	t.expander.flags &= ^AL_BEINGEXPANDED;
+//      if (t.expander) {
+//	  t.expander.flags &= ^AL_BEINGEXPANDED;
+//      }
 //      t = t1;
 //    }
 //  pushed_string_list = nil;
@@ -2725,19 +2722,15 @@ func (gps *ParserState) rewind_input_string() {
 //      c = yy_getc ();
 //
 //      /* Ignore null bytes in input. */
-//      if (c == 0)
-//	{
-//#if 0
-//	  internal_warning ("read_a_line: ignored null byte in input");
-//#endif
+//      if (c == 0) {
 //	  continue;
 //	}
 //
 //      /* If there is no more input, then we return NULL. */
-//      if (c == EOF)
-//	{
-//	  if (indx == 0)
+//      if (c == EOF) {
+//	  if (indx == 0) {
 //	    return (nil);
+//        }
 //	  c = '\n';
 //	}
 //
@@ -2750,31 +2743,26 @@ func (gps *ParserState) rewind_input_string() {
 //	 We allow a backslash to escape the next character, but we
 //	 need to treat the backslash specially only if a backslash
 //	 quoting a backslash-newline pair appears in the line. */
-//      if (pass_next)
-//	{
+//      if (pass_next) {
 //	  line_buffer[indx++] = c;
 //	  pass_next = 0;
-//	}
-//      else if (c == '\\' && remove_quoted_newline)
-//	{
-//	  peekc = yy_getc ();
-//	  if (peekc == '\n')
-//	    {
-//	      line_number++;
-//	      continue;	/* Make the unquoted \<newline> pair disappear. */
-//	    }
-//	  else
-//	    {
+//	} else {
+//        if (c == '\\' && remove_quoted_newline) {
+//	    peekc = yy_getc ();
+//	    if (peekc == '\n') {
+//	        line_number++;
+//	        continue;	/* Make the unquoted \<newline> pair disappear. */
+//	    } else {
 //	      yy_ungetc (peekc);
 //	      pass_next = 1;
 //	      line_buffer[indx++] = c;		/* Preserve the backslash. */
 //	    }
-//	}
-//      else
-//	line_buffer[indx++] = c;
+//	  } else {
+//	    line_buffer[indx++] = c;
+//        }
+//      }
 //
-//      if (c == '\n')
-//	{
+//      if (c == '\n') {
 //	  line_buffer[indx] = '\0';
 //	  return (line_buffer);
 //	}
@@ -2917,26 +2905,23 @@ func (gps *ParserState) rewind_input_string() {
 //
 //  QUIT;
 //
-//  if (sigwinch_received)
-//    {
+//  if (sigwinch_received) {
 //      sigwinch_received = 0;
 //      get_new_window_size (0, (int *)0, (int *)0);
-//    }
+//  }
 //      
-//  if (eol_ungetc_lookahead)
-//    {
+//  if (eol_ungetc_lookahead) {
 //      c = eol_ungetc_lookahead;
 //      eol_ungetc_lookahead = 0;
 //      return (c);
-//    }
+//  }
 //
 //  /* If shell_input_line[shell_input_line_index] == 0, but there is
 //     something on the pushed list of strings, then we don't want to go
 //     off and get another line.  We let the code down below handle it. */
 //
 //  if (!shell_input_line || ((!shell_input_line[shell_input_line_index]) &&
-//			    (pushed_string_list == nil)))
-//    {
+//			    (pushed_string_list == nil))) {
 //      line_number++;
 //
 //    restart_read:
@@ -2952,30 +2937,26 @@ func (gps *ParserState) rewind_input_string() {
 //      if (bash_input.typ == st_stream)
 //	clearerr (stdin);
 //
-//      while (1)
-//	{
+//      while (1) {
 //	  c = yy_getc ();
 //
 //	  /* Allow immediate exit if interrupted during input. */
 //	  QUIT;
 //
-//	  if (c == '\0')
-//	    {
-//#if 0
-//	      internal_warning ("shell_getc: ignored null byte in input");
-//#endif
+//	  if (c == '\0') {
 //	      continue;
-//	    }
+//	  }
 //
 //	  RESIZE_MALLOCED_BUFFER (shell_input_line, i, 2, shell_input_line_size, 256);
 //
-//	  if (c == EOF)
-//	    {
-//	      if (bash_input.typ == st_stream)
+//	  if (c == EOF) {
+//	      if (bash_input.typ == st_stream) {
 //		clearerr (stdin);
+//            }
 //
-//	      if (i == 0)
+//	      if (i == 0) {
 //		shell_input_line_terminator = EOF;
+//            }
 //
 //	      shell_input_line[i] = '\0';
 //	      break;
@@ -2983,8 +2964,7 @@ func (gps *ParserState) rewind_input_string() {
 //
 //	  shell_input_line[i++] = c;
 //
-//	  if (c == '\n')
-//	    {
+//	  if (c == '\n') {
 //	      shell_input_line[--i] = '\0';
 //	      current_command_line_count++;
 //	      break;
@@ -2996,24 +2976,20 @@ func (gps *ParserState) rewind_input_string() {
 //
 //      set_line_mbstate ();
 //
-//      if (shell_input_line)
-//	{
+//      if (shell_input_line) {
 //	  /* Lines that signify the end of the shell's input should not be
 //	     echoed. */
 //	  if (echo_input_at_read && (shell_input_line[0] ||
 //				     shell_input_line_terminator != EOF))
 //	    fprintf (stderr, "%s\n", shell_input_line);
-//	}
-//      else
-//	{
+//	} else {
 //	  shell_input_line_size = 0;
 //	  goto restart_read;
 //	}
 //
 //      /* Add the newline to the end of this string, iff the string does
 //	 not already end in an EOF character.  */
-//      if (shell_input_line_terminator != EOF)
-//	{
+//      if (shell_input_line_terminator != EOF) {
 //	  if (shell_input_line_len + 3 > shell_input_line_size)
 //	    shell_input_line = (char *)xrealloc (shell_input_line,
 //					1 + (shell_input_line_size += 2));
@@ -3027,8 +3003,9 @@ func (gps *ParserState) rewind_input_string() {
 //
 //  uc = shell_input_line[shell_input_line_index];
 //
-//  if (uc)
+//  if (uc) {
 //    shell_input_line_index++;
+//  }
 //
 //  /* If UC is NULL, we have reached the end of the current input string.  If
 //     pushed_string_list is non-empty, it's time to pop to the previous string
@@ -3036,16 +3013,15 @@ func (gps *ParserState) rewind_input_string() {
 //     Do it transparently; just return the next character of the string popped
 //     to. */
 //pop_alias:
-//  if (!uc && (pushed_string_list != nil))
-//    {
+//  if (!uc && (pushed_string_list != nil)) {
 //      pop_string ();
 //      uc = shell_input_line[shell_input_line_index];
-//      if (uc)
-//	shell_input_line_index++;
-//    }
+//      if (uc) {
+//	  shell_input_line_index++;
+//      }
+//  }
 //
-//  if MBTEST(uc == '\\' && remove_quoted_newline && shell_input_line[shell_input_line_index] == '\n')
-//    {
+//  if MBTEST(uc == '\\' && remove_quoted_newline && shell_input_line[shell_input_line_index] == '\n') {
 //	line_number++;
 //	/* XXX - what do we do here if we're expanding an alias whose definition
 //	   ends with a newline?  Recall that we inhibit the appending of a
@@ -3054,8 +3030,9 @@ func (gps *ParserState) rewind_input_string() {
 //	goto restart_read;
 //    }
 //
-//  if (!uc && shell_input_line_terminator == EOF)
+//  if (!uc && shell_input_line_terminator == EOF) {
 //    return ((shell_input_line_index != 0) ? '\n' : EOF);
+//  }
 //
 //  return (uc);
 //}
@@ -3069,10 +3046,11 @@ func (gps *ParserState) rewind_input_string() {
 //shell_ungetc (c)
 //     int c;
 //{
-//  if (shell_input_line && shell_input_line_index)
+//  if (shell_input_line && shell_input_line_index) {
 //    shell_input_line[--shell_input_line_index] = c;
-//  else
+//  } else {
 //    eol_ungetc_lookahead = c;
+//  }
 //}
 //
 ///* Discard input until CHARACTER is seen, then push that character back
@@ -3086,8 +3064,9 @@ func (gps *ParserState) rewind_input_string() {
 //  while ((c = shell_getc (0)) != EOF && c != character)
 //    ;
 //
-//  if (c != EOF)
+//  if (c != EOF) {
 //    shell_ungetc (c);
+//  }
 //}
 //
 //void
@@ -3099,16 +3078,18 @@ func (gps *ParserState) rewind_input_string() {
 //
 //  save_parser_state (&ps);
 //  last_lastarg = get_string_value ("_");
-//  if (last_lastarg)
+//  if (last_lastarg) {
 //    last_lastarg = savestring (last_lastarg);
+//  }
 //
 //  parse_and_execute (savestring (command), vname, SEVAL_NONINT|SEVAL_NOHIST);
 //
 //  restore_parser_state (&ps);
 //  bind_variable ("_", last_lastarg, 0);
 //
-//  if (gps.token_to_read == '\n')	/* reset_parser was called */
+//  if (gps.token_to_read == '\n') {	/* reset_parser was called */
 //    gps.token_to_read = 0;
+//  }
 //}
 //
 ///* Place to remember the token.  We try to keep the buffer
@@ -3225,12 +3206,9 @@ func (gps *ParserState) gather_here_documents() {
 //  l = strlen (s);
 //  r = xmalloc (l + 2);
 //  strcpy (r, s);
-//#if 0		/* XXX - bash-4.2 */
-//  if (r[l -1] != ' ' && r[l -1] != '\n')
-//#else
-//  if (r[l -1] != ' ')
-//#endif
+//  if (r[l -1] != ' ') {
 //    r[l++] = ' ';
+//  }
 //  r[l] = '\0';
 //  return r;
 //}
@@ -3243,13 +3221,13 @@ func (gps *ParserState) gather_here_documents() {
 //  alias_t *ap;
 //
 //  if (((gps.parser_state & PST_ALEXPNEXT) || command_token_position (last_read_token)) &&
-//	(gps.parser_state & PST_CASEPAT) == 0)
-//    {
+//	(gps.parser_state & PST_CASEPAT) == 0) {
 //      ap = find_alias (tokstr);
 //
 //      /* Currently expanding this token. */
-//      if (ap && (ap.flags & AL_BEINGEXPANDED))
-//	return (NO_EXPANSION);
+//      if (ap && (ap.flags & AL_BEINGEXPANDED)) {
+//	  return (NO_EXPANSION);
+//      }
 //
 //      /* mk_alexpansion puts an extra space on the end of the alias expansion,
 //         so the lookahead by the parser works right.  If this gets changed,
@@ -3257,14 +3235,13 @@ func (gps *ParserState) gather_here_documents() {
 //         an expanded alias is changed with it. */
 //      expanded = ap ? mk_alexpansion (ap.value) : nil;
 //
-//      if (expanded)
-//	{
+//      if (expanded) {
 //	  push_string (expanded, ap.flags & AL_EXPANDNEXT, ap);
 //	  return (RE_READ_TOKEN);
-//	}
-//      else
+//	} else {
 //	/* This is an eligible token that does not have an expansion. */
 //	return (NO_EXPANSION);
+//      }
 //    }
 //  return (NO_EXPANSION);
 //}
@@ -3272,8 +3249,7 @@ func (gps *ParserState) gather_here_documents() {
 //static int
 //time_command_acceptable ()
 //{
-//  switch (last_read_token)
-//    {
+//  switch (last_read_token) {
 //    case 0:
 //    case ';':
 //    case '\n':
@@ -3322,10 +3298,8 @@ func (gps *ParserState) gather_here_documents() {
 //{
 //  if ((last_read_token == WORD) &&
 //      ((token_before_that == FOR) || (token_before_that == CASE) || (token_before_that == SELECT)) &&
-//      (tokstr[0] == 'i' && tokstr[1] == 'n' && tokstr[2] == 0))
-//    {
-//      if (token_before_that == CASE)
-//	{
+//      (tokstr[0] == 'i' && tokstr[1] == 'n' && tokstr[2] == 0)) {
+//      if (token_before_that == CASE) {
 //	  gps.parser_state |= PST_CASEPAT;
 //	  esacs_needed_count++;
 //	}
@@ -3334,8 +3308,9 @@ func (gps *ParserState) gather_here_documents() {
 //
 //  if (last_read_token == WORD &&
 //      (token_before_that == FOR || token_before_that == SELECT) &&
-//      (tokstr[0] == 'd' && tokstr[1] == 'o' && tokstr[2] == '\0'))
+//      (tokstr[0] == 'd' && tokstr[1] == 'o' && tokstr[2] == '\0')) {
 //    return (DO);
+//  }
 //
 //  /* Ditto for ESAC in the CASE case.
 //     Specifically, this handles "case word in esac", which is a legal
@@ -3343,22 +3318,18 @@ func (gps *ParserState) gather_here_documents() {
 //     case construct, and we don't want it to barf.  Of course, we should
 //     insist that the case construct has at least one pattern in it, but
 //     the designers disagree. */
-//  if (esacs_needed_count)
-//    {
+//  if (esacs_needed_count) {
 //      esacs_needed_count--;
-//      if (STREQ (tokstr, "esac"))
-//	{
+//      if (STREQ (tokstr, "esac")) {
 //	  gps.parser_state &= ^PST_CASEPAT;
 //	  return (ESAC);
 //	}
 //    }
 //
 //  /* The start of a shell function definition. */
-//  if (gps.parser_state & PST_ALLOWOPNBRC)
-//    {
+//  if (gps.parser_state & PST_ALLOWOPNBRC) {
 //      gps.parser_state &= ^PST_ALLOWOPNBRC;
-//      if (tokstr[0] == '{' && tokstr[1] == '\0')		/* } */
-//	{
+//      if (tokstr[0] == '{' && tokstr[1] == '\0') {		/* } */
 //	  open_brace_count++;
 //	  gps.function_bstart = line_number;
 //	  return ('{');					/* } */
@@ -3367,26 +3338,27 @@ func (gps *ParserState) gather_here_documents() {
 //
 //  /* We allow a `do' after a for ((...)) without an intervening
 //     list_terminator */
-//  if (last_read_token == ARITH_FOR_EXPRS && tokstr[0] == 'd' && tokstr[1] == 'o' && !tokstr[2])
+//  if (last_read_token == ARITH_FOR_EXPRS && tokstr[0] == 'd' && tokstr[1] == 'o' && !tokstr[2]) {
 //    return (DO);
-//  if (last_read_token == ARITH_FOR_EXPRS && tokstr[0] == '{' && tokstr[1] == '\0')	/* } */
-//    {
+//  }
+//  if (last_read_token == ARITH_FOR_EXPRS && tokstr[0] == '{' && tokstr[1] == '\0') {	/* } */
 //      open_brace_count++;
 //      return ('{');			/* } */
 //    }
 //
-//  if (open_brace_count && reserved_word_acceptable (last_read_token) && tokstr[0] == '}' && !tokstr[1])
-//    {
+//  if (open_brace_count && reserved_word_acceptable (last_read_token) && tokstr[0] == '}' && !tokstr[1]) {
 //      open_brace_count--;		/* { */
 //      return ('}');
 //    }
 //
 //  /* Handle -p after `time'. */
-//  if (last_read_token == TIME && tokstr[0] == '-' && tokstr[1] == 'p' && !tokstr[2])
+//  if (last_read_token == TIME && tokstr[0] == '-' && tokstr[1] == 'p' && !tokstr[2]) {
 //    return (TIMEOPT);
+//  }
 //
-//  if ((gps.parser_state & PST_CONDEXPR) && tokstr[0] == ']' && tokstr[1] == ']' && tokstr[2] == '\0')
+//  if ((gps.parser_state & PST_CONDEXPR) && tokstr[0] == ']' && tokstr[1] == ']' && tokstr[2] == '\0') {
 //    return (COND_END);
+//  }
 //
 //  return (-1);
 //}
@@ -3405,11 +3377,11 @@ func (gps *ParserState) gather_here_documents() {
 //
 //  gps.parser_state = 0;
 //
-//  if (pushed_string_list)
+//  if (pushed_string_list) {
 //    free_string_list ();
+//  }
 //
-//  if (shell_input_line)
-//    {
+//  if (shell_input_line) {
 //      shell_input_line = nil;
 //      shell_input_line_size = shell_input_line_index = 0;
 //    }
@@ -3431,17 +3403,14 @@ func (gps *ParserState) gather_here_documents() {
 //  int peek_char;		/* Temporary look-ahead character. */
 //  int result;			/* The thing to return. */
 //
-//  if (command == RESET)
-//    {
+//  if (command == RESET) {
 //      reset_parser ();
 //      return ('\n');
 //    }
 //
-//  if (gps.token_to_read)
-//    {
+//  if (gps.token_to_read) {
 //      result = gps.token_to_read;
-//      if (gps.token_to_read == WORD || gps.token_to_read == ASSIGNMENT_WORD)
-//	{
+//      if (gps.token_to_read == WORD || gps.token_to_read == ASSIGNMENT_WORD) {
 //	  gps.yylval.word = word_desc_to_read;
 //	  word_desc_to_read = nil;
 //	}
@@ -3449,13 +3418,11 @@ func (gps *ParserState) gather_here_documents() {
 //      return (result);
 //    }
 //
-//  if ((gps.parser_state & (PST_CONDCMD|PST_CONDEXPR)) == PST_CONDCMD)
-//    {
+//  if ((gps.parser_state & (PST_CONDCMD|PST_CONDEXPR)) == PST_CONDCMD) {
 //      cond_lineno = line_number;
 //      gps.parser_state |= PST_CONDEXPR;
 //      gps.yylval.command = parse_cond_command ();
-//      if (cond_token != COND_END)
-//	{
+//      if (cond_token != COND_END) {
 //	  cond_error ();
 //	  return (-1);
 //	}
@@ -3472,22 +3439,19 @@ func (gps *ParserState) gather_here_documents() {
 //  while ((character = shell_getc (1)) != EOF && shellblank (character))
 //    ;
 //
-//  if (character == EOF)
-//    {
+//  if (character == EOF) {
 //      gps.EOF_Reached = true;
 //      return (yacc_EOF);
 //    }
 //
-//  if MBTEST(character == '#')
-//    {
+//  if MBTEST(character == '#') {
 //      /* A comment.  Discard until EOL or EOF, and then return a newline. */
 //      discard_until ('\n');
 //      shell_getc (0);
 //      character = '\n';	/* this will take the next if statement and return. */
 //    }
 //
-//  if (character == '\n')
-//    {
+//  if (character == '\n') {
 //      /* If we're about to return an unquoted newline, we can go and collect
 //	 the text of any pending here document. */
 //      if (gps.need_here_doc != 0) {
@@ -3501,24 +3465,23 @@ func (gps *ParserState) gather_here_documents() {
 //      return (character);
 //    }
 //
-//  if (gps.parser_state & PST_REGEXP)
+//  if (gps.parser_state & PST_REGEXP) {
 //    goto tokword;
+//  }
 //
 //  /* Shell meta-characters. */
-//  if MBTEST(shellmeta (character) && ((gps.parser_state & PST_DBLPAREN) == 0))
-//    {
+//  if MBTEST(shellmeta (character) && ((gps.parser_state & PST_DBLPAREN) == 0)) {
 //      /* Turn off alias tokenization iff this character sequence would
 //	 not leave us ready to read a command. */
-//      if (character == '<' || character == '>')
-//	gps.parser_state &= ^PST_ALEXPNEXT;
+//      if (character == '<' || character == '>') {
+//	  gps.parser_state &= ^PST_ALEXPNEXT;
+//      }
 //
 //      gps.parser_state &= ^PST_ASSIGNOK;
 //
 //      peek_char = shell_getc (1);
-//      if (character == peek_char)
-//	{
-//	  switch (character)
-//	    {
+//      if (character == peek_char) {
+//	  switch (character) {
 //	    case '<':
 //	      /* If '<' then we could be at "<<" or at "<<-".  We have to
 //		 look ahead one more character. */
@@ -3694,8 +3657,9 @@ func (gps *ParserState) gather_here_documents() {
 //  count = 1;
 //  tflags = 0;
 //
-//  if ((flags & P_COMMAND) && qc != '`' && qc != '\'' && qc != '"' && (flags & P_DQUOTE) == 0)
+//  if ((flags & P_COMMAND) && qc != '`' && qc != '\'' && qc != '"' && (flags & P_DQUOTE) == 0) {
 //    tflags |= LEX_CKCOMMENT;
+//  }
 //
 //  /* RFLAGS is the set of flags we want to pass to recursive calls. */
 //  rflags = (qc == '"') ? P_DQUOTE : (flags & P_DQUOTE);
@@ -3708,8 +3672,7 @@ func (gps *ParserState) gather_here_documents() {
 //    {
 //      ch = shell_getc (qc != '\'' && (tflags & LEX_PASSNEXT) == 0);
 //
-//      if (ch == EOF)
-//	{
+//      if (ch == EOF) {
 //	  parser_error (start_lineno, _("unexpected EOF while looking for matching `%c'"), close);
 //	  gps.EOF_Reached = true;	/* XXX */
 //	  return (&matched_pair_error);
@@ -3717,14 +3680,14 @@ func (gps *ParserState) gather_here_documents() {
 //
 //      /* Don't bother counting parens or doing anything else if in a comment
 //	 or part of a case statement */
-//      if (tflags & LEX_INCOMMENT)
-//	{
+//      if (tflags & LEX_INCOMMENT) {
 //	  /* Add this character. */
 //	  RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
 //	  ret[retind++] = ch;
 //
-//	  if (ch == '\n')
+//	  if (ch == '\n') {
 //	    tflags &= ^LEX_INCOMMENT;
+//        }
 //
 //	  continue;
 //	}
