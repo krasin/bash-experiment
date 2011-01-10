@@ -199,10 +199,10 @@ arith_for_lineno int
    checking. */
 last_read_token int
 
-/* The token read prior to last_read_token. */
+/* The token read prior to gps.last_read_token. */
 token_before_that int
 
-/* The token read prior to token_before_that. */
+/* The token read prior to gps.token_before_that. */
 two_tokens_ago int
 
 global_extglob int
@@ -2491,13 +2491,13 @@ func (gps *ParserState) rewind_input_string() {
 //    					  nil);
 //  }
 //
-//  saver.line = line_number;
+//  saver.line = gps.line_number;
 //  bash_input.name = nil;
 //  saver.next = stream_list;
 //  stream_list = saver;
 //  gps.EOF_Reached = false;
 //  if (reset_lineno) {
-//    line_number = 0;
+//    gps.line_number = 0;
 //  }
 //}
 //
@@ -2535,7 +2535,7 @@ func (gps *ParserState) rewind_input_string() {
 //	  set_buffered_stream (bash_input.location.buffered_fd, saver.bstream);
 //	}
 //
-//      line_number = saver.line;
+//      gps.line_number = saver.line;
 //
 //    }
 //}
@@ -2562,9 +2562,9 @@ func (gps *ParserState) rewind_input_string() {
 //  int *ret;
 //
 //  ret = (int *)xmalloc (4 * sizeof (int));
-//  ret[0] = last_read_token;
-//  ret[1] = token_before_that;
-//  ret[2] = two_tokens_ago;
+//  ret[0] = gps.last_read_token;
+//  ret[1] = gps.token_before_that;
+//  ret[2] = gps.two_tokens_ago;
 //  ret[3] = gps.current_token;
 //  return ret;
 //}
@@ -2576,9 +2576,9 @@ func (gps *ParserState) rewind_input_string() {
 //  if (ts == 0) {
 //    return;
 //  }
-//  last_read_token = ts[0];
-//  token_before_that = ts[1];
-//  two_tokens_ago = ts[2];
+//  gps.last_read_token = ts[0];
+//  gps.token_before_that = ts[1];
+//  gps.two_tokens_ago = ts[2];
 //  gps.current_token = ts[3];
 //}
 //
@@ -2754,7 +2754,7 @@ func (gps *ParserState) rewind_input_string() {
 //        if (c == '\\' && remove_quoted_newline) {
 //	    peekc = yy_getc ();
 //	    if (peekc == '\n') {
-//	        line_number++;
+//	        gps.line_number++;
 //	        continue;	/* Make the unquoted \<newline> pair disappear. */
 //	    } else {
 //	      yy_ungetc (peekc);
@@ -2926,7 +2926,7 @@ func (gps *ParserState) rewind_input_string() {
 //
 //  if (!shell_input_line || ((!shell_input_line[shell_input_line_index]) &&
 //			    (pushed_string_list == nil))) {
-//      line_number++;
+//      gps.line_number++;
 //
 //    restart_read:
 //
@@ -3026,7 +3026,7 @@ func (gps *ParserState) rewind_input_string() {
 //  }
 //
 //  if MBTEST(uc == '\\' && remove_quoted_newline && shell_input_line[shell_input_line_index] == '\n') {
-//	line_number++;
+//	gps.line_number++;
 //	/* XXX - what do we do here if we're expanding an alias whose definition
 //	   ends with a newline?  Recall that we inhibit the appending of a
 //	   space in mk_alexpansion() if newline is the last character. */
@@ -3103,20 +3103,19 @@ func (gps *ParserState) rewind_input_string() {
 ///* Current size of the token buffer. */
 //static int token_buffer_size;
 //
-///* Command to read_token () explaining what we want it to do. */
-//#define READ 0
-//#define RESET 1
+/* Command to read_token () explaining what we want it to do. */
+const READ = 0
+const RESET = 1
 
 /* Function for yyparse to call.  yylex keeps track of
    the last two tokens read, and calls read_token.  */
 func (gps *ParserState) yylex() int {
-  two_tokens_ago = token_before_that;
-  token_before_that = last_read_token;
-  last_read_token = gps.current_token;
+  gps.two_tokens_ago = gps.token_before_that;
+  gps.token_before_that = gps.last_read_token;
+  gps.last_read_token = gps.current_token;
   gps.current_token = read_token (READ);
 
-  if ((gps.parser_state & PST_EOFTOKEN) && gps.current_token == gps.shell_eof_token)
-    {
+  if ((gps.parser_state & PST_EOFTOKEN != 0) && gps.current_token == gps.shell_eof_token) {
       gps.current_token = yacc_EOF;
       if (bash_input.typ == st_string) {
 	gps.rewind_input_string ();
@@ -3137,7 +3136,7 @@ func (gps *ParserState) gather_here_documents() {
       gps.parser_state |= PST_HEREDOC;
       redir := gps.redir_stack[r]
       r++
-      gps.make_here_document(redir, line_number)
+      gps.make_here_document(redir, gps.line_number)
       gps.parser_state &= ^PST_HEREDOC;
       gps.need_here_doc--;
     }
@@ -3159,7 +3158,7 @@ func (gps *ParserState) gather_here_documents() {
 //#define CHECK_FOR_RESERVED_WORD(tok) \
 //  do { \
 //    if (!dollar_present && !quoted && \
-//	reserved_word_acceptable (last_read_token)) \
+//	reserved_word_acceptable (gps.last_read_token)) \
 //      { \
 //	int i; \
 //	for (i = 0; word_token_alist[i].word != nil; i++) \
@@ -3224,7 +3223,7 @@ func (gps *ParserState) gather_here_documents() {
 //  char *expanded;
 //  alias_t *ap;
 //
-//  if (((gps.parser_state & PST_ALEXPNEXT) || command_token_position (last_read_token)) &&
+//  if (((gps.parser_state & PST_ALEXPNEXT) || command_token_position (gps.last_read_token)) &&
 //	(gps.parser_state & PST_CASEPAT) == 0) {
 //      ap = find_alias (tokstr);
 //
@@ -3253,7 +3252,7 @@ func (gps *ParserState) gather_here_documents() {
 //static int
 //time_command_acceptable ()
 //{
-//  switch (last_read_token) {
+//  switch (gps.last_read_token) {
 //    case 0:
 //    case ';':
 //    case '\n':
@@ -3300,18 +3299,18 @@ func (gps *ParserState) gather_here_documents() {
 //special_case_tokens (tokstr)
 //     char *tokstr;
 //{
-//  if ((last_read_token == WORD) &&
-//      ((token_before_that == FOR) || (token_before_that == CASE) || (token_before_that == SELECT)) &&
+//  if ((gps.last_read_token == WORD) &&
+//      ((gps.token_before_that == FOR) || (gps.token_before_that == CASE) || (gps.token_before_that == SELECT)) &&
 //      (tokstr[0] == 'i' && tokstr[1] == 'n' && tokstr[2] == 0)) {
-//      if (token_before_that == CASE) {
+//      if (gps.token_before_that == CASE) {
 //	  gps.parser_state |= PST_CASEPAT;
 //	  esacs_needed_count++;
 //	}
 //      return (IN);
 //    }
 //
-//  if (last_read_token == WORD &&
-//      (token_before_that == FOR || token_before_that == SELECT) &&
+//  if (gps.last_read_token == WORD &&
+//      (gps.token_before_that == FOR || gps.token_before_that == SELECT) &&
 //      (tokstr[0] == 'd' && tokstr[1] == 'o' && tokstr[2] == '\0')) {
 //    return (DO);
 //  }
@@ -3335,28 +3334,28 @@ func (gps *ParserState) gather_here_documents() {
 //      gps.parser_state &= ^PST_ALLOWOPNBRC;
 //      if (tokstr[0] == '{' && tokstr[1] == '\0') {		/* } */
 //	  open_brace_count++;
-//	  gps.function_bstart = line_number;
+//	  gps.function_bstart = gps.line_number;
 //	  return ('{');					/* } */
 //	}
 //    }
 //
 //  /* We allow a `do' after a for ((...)) without an intervening
 //     list_terminator */
-//  if (last_read_token == ARITH_FOR_EXPRS && tokstr[0] == 'd' && tokstr[1] == 'o' && !tokstr[2]) {
+//  if (gps.last_read_token == ARITH_FOR_EXPRS && tokstr[0] == 'd' && tokstr[1] == 'o' && !tokstr[2]) {
 //    return (DO);
 //  }
-//  if (last_read_token == ARITH_FOR_EXPRS && tokstr[0] == '{' && tokstr[1] == '\0') {	/* } */
+//  if (gps.last_read_token == ARITH_FOR_EXPRS && tokstr[0] == '{' && tokstr[1] == '\0') {	/* } */
 //      open_brace_count++;
 //      return ('{');			/* } */
 //    }
 //
-//  if (open_brace_count && reserved_word_acceptable (last_read_token) && tokstr[0] == '}' && !tokstr[1]) {
+//  if (open_brace_count && reserved_word_acceptable (gps.last_read_token) && tokstr[0] == '}' && !tokstr[1]) {
 //      open_brace_count--;		/* { */
 //      return ('}');
 //    }
 //
 //  /* Handle -p after `time'. */
-//  if (last_read_token == TIME && tokstr[0] == '-' && tokstr[1] == 'p' && !tokstr[2]) {
+//  if (gps.last_read_token == TIME && tokstr[0] == '-' && tokstr[1] == 'p' && !tokstr[2]) {
 //    return (TIMEOPT);
 //  }
 //
@@ -3393,7 +3392,7 @@ func (gps *ParserState) gather_here_documents() {
 //  word_desc_to_read = nil;
 //
 //  gps.current_token = '\n';		/* XXX */
-//  last_read_token = '\n';
+//  gps.last_read_token = '\n';
 //  gps.token_to_read = '\n';
 //}
 //
@@ -3423,7 +3422,7 @@ func (gps *ParserState) gather_here_documents() {
 //    }
 //
 //  if ((gps.parser_state & (PST_CONDCMD|PST_CONDEXPR)) == PST_CONDCMD) {
-//      cond_lineno = line_number;
+//      cond_lineno = gps.line_number;
 //      gps.parser_state |= PST_CONDEXPR;
 //      gps.yylval.command = parse_cond_command ();
 //      if (cond_token != COND_END) {
@@ -3563,11 +3562,11 @@ func (gps *ParserState) gather_here_documents() {
 //      /* If we look like we are reading the start of a function
 //	 definition, then let the reader know about it so that
 //	 we will do the right thing with `{'. */
-//      if MBTEST(character == ')' && last_read_token == '(' && token_before_that == WORD)
+//      if MBTEST(character == ')' && gps.last_read_token == '(' && gps.token_before_that == WORD)
 //	{
 //	  gps.parser_state |= PST_ALLOWOPNBRC;
 //	  gps.parser_state &= ^PST_ALEXPNEXT;
-//	  gps.function_dstart = line_number;
+//	  gps.function_dstart = gps.line_number;
 //	}
 //
 //      /* case pattern lists may be preceded by an optional left paren.  If
@@ -3586,7 +3585,7 @@ func (gps *ParserState) gather_here_documents() {
 //    }
 //
 //  /* Hack <&- (close stdin) case.  Also <&N- (dup and close). */
-//  if MBTEST(character == '-' && (last_read_token == LESS_AND || last_read_token == GREATER_AND))
+//  if MBTEST(character == '-' && (gps.last_read_token == LESS_AND || gps.last_read_token == GREATER_AND))
 //    return (character);
 //
 //tokword:
@@ -3657,7 +3656,7 @@ func (gps *ParserState) gather_here_documents() {
 //  char *ret, *nestret, *ttrans;
 //  int retind, retsize, rflags;
 //
-///*itrace("parse_matched_pair[%d]: open = %c close = %c flags = %d", line_number, open, close, flags);*/
+///*itrace("parse_matched_pair[%d]: open = %c close = %c flags = %d", gps.line_number, open, close, flags);*/
 //  count = 1;
 //  tflags = 0;
 //
@@ -3671,7 +3670,7 @@ func (gps *ParserState) gather_here_documents() {
 //  ret = (char *)xmalloc (retsize = 64);
 //  retind = 0;
 //
-//  start_lineno = line_number;
+//  start_lineno = gps.line_number;
 //  while (count)
 //    {
 //      ch = shell_getc (qc != '\'' && (tflags & LEX_PASSNEXT) == 0);
@@ -3854,7 +3853,7 @@ func (gps *ParserState) gather_here_documents() {
 //  ret[retind] = '\0';
 //  if (lenp)
 //    *lenp = retind;
-///*itrace("parse_matched_pair[%d]: returning %s", line_number, ret);*/
+///*itrace("parse_matched_pair[%d]: returning %s", gps.line_number, ret);*/
 //  return ret;
 //}
 //
@@ -3886,7 +3885,7 @@ func (gps *ParserState) gather_here_documents() {
 //  ret = (char *)xmalloc (retsize = 64);
 //  retind = 0;
 //
-//  start_lineno = line_number;
+//  start_lineno = gps.line_number;
 //  lex_rwlen = lex_wlen = 0;
 //
 //  heredelim = 0;
@@ -3927,7 +3926,7 @@ func (gps *ParserState) gather_here_documents() {
 //	      if (STREQN (ret + tind, heredelim, hdlen))
 //		{
 //		  tflags &= ~(LEX_STRIPDOC|LEX_INHEREDOC);
-///*itrace("parse_comsub:%d: found here doc end `%s'", line_number, ret + tind);*/
+///*itrace("parse_comsub:%d: found here doc end `%s'", gps.line_number, ret + tind);*/
 //		  heredelim = 0;
 //		  lex_firstind = -1;
 //		}
@@ -3948,7 +3947,7 @@ func (gps *ParserState) gather_here_documents() {
 //	  if (retind-tind == hdlen && STREQN (ret + tind, heredelim, hdlen))
 //	    {
 //	      tflags &= ~(LEX_STRIPDOC|LEX_INHEREDOC);
-///*itrace("parse_comsub:%d: found here doc end `%s'", line_number, ret + tind);*/
+///*itrace("parse_comsub:%d: found here doc end `%s'", gps.line_number, ret + tind);*/
 //	      heredelim = 0;
 //	      lex_firstind = -1;
 //	    }
@@ -3963,7 +3962,7 @@ func (gps *ParserState) gather_here_documents() {
 //
 //	  if ((tflags & LEX_INCOMMENT) && ch == '\n')
 //{
-///*itrace("parse_comsub:%d: lex_incomment -> 0 ch = `%c'", line_number, ch);*/
+///*itrace("parse_comsub:%d: lex_incomment -> 0 ch = `%c'", gps.line_number, ch);*/
 //	    tflags &= ^LEX_INCOMMENT;
 //}
 //
@@ -3972,7 +3971,7 @@ func (gps *ParserState) gather_here_documents() {
 //
 //      if (tflags & LEX_PASSNEXT)		/* last char was backslash */
 //	{
-///*itrace("parse_comsub:%d: lex_passnext -> 0 ch = `%c' (%d)", line_number, ch, __LINE__);*/
+///*itrace("parse_comsub:%d: lex_passnext -> 0 ch = `%c' (%d)", gps.line_number, ch, __LINE__);*/
 //	  tflags &= ^LEX_PASSNEXT;
 //	  if (qc != '\'' && ch == '\n')	/* double-quoted \<newline> disappears. */
 //	    {
@@ -3993,18 +3992,18 @@ func (gps *ParserState) gather_here_documents() {
 //      if MBTEST(shellbreak (ch))
 //	{
 //	  tflags &= ^LEX_INWORD;
-///*itrace("parse_comsub:%d: lex_inword -> 0 ch = `%c' (%d)", line_number, ch, __LINE__);*/
+///*itrace("parse_comsub:%d: lex_inword -> 0 ch = `%c' (%d)", gps.line_number, ch, __LINE__);*/
 //	}
 //      else
 //	{
 //	  if (tflags & LEX_INWORD)
 //	    {
 //	      lex_wlen++;
-///*itrace("parse_comsub:%d: lex_inword == 1 ch = `%c' lex_wlen = %d (%d)", line_number, ch, lex_wlen, __LINE__);*/
+///*itrace("parse_comsub:%d: lex_inword == 1 ch = `%c' lex_wlen = %d (%d)", gps.line_number, ch, lex_wlen, __LINE__);*/
 //	    }	      
 //	  else
 //	    {
-///*itrace("parse_comsub:%d: lex_inword -> 1 ch = `%c' (%d)", line_number, ch, __LINE__);*/
+///*itrace("parse_comsub:%d: lex_inword -> 1 ch = `%c' (%d)", gps.line_number, ch, __LINE__);*/
 //	      tflags |= LEX_INWORD;
 //	      lex_wlen = 0;
 //	    }
@@ -4045,7 +4044,7 @@ func (gps *ParserState) gather_here_documents() {
 //		  nestret = substring (ret, lex_firstind, retind);
 //		  heredelim = string_quote_removal (nestret, 0);
 //		  hdlen = STRLEN(heredelim);
-///*itrace("parse_comsub:%d: found here doc delimiter `%s' (%d)", line_number, heredelim, hdlen);*/
+///*itrace("parse_comsub:%d: found here doc delimiter `%s' (%d)", gps.line_number, heredelim, hdlen);*/
 //		}
 //	      if (ch == '\n')
 //		{
@@ -4069,7 +4068,7 @@ func (gps *ParserState) gather_here_documents() {
 //	    {
 //	      RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
 //	      ret[retind++] = peekc;
-///*itrace("parse_comsub:%d: set lex_reswordok = 1, ch = `%c'", line_number, ch);*/
+///*itrace("parse_comsub:%d: set lex_reswordok = 1, ch = `%c'", gps.line_number, ch);*/
 //	      tflags |= LEX_RESWDOK;
 //	      lex_rwlen = 0;
 //	      continue;
@@ -4077,7 +4076,7 @@ func (gps *ParserState) gather_here_documents() {
 //	  else if (ch == '\n' || COMSUB_META(ch))
 //	    {
 //	      shell_ungetc (peekc);
-///*itrace("parse_comsub:%d: set lex_reswordok = 1, ch = `%c'", line_number, ch);*/
+///*itrace("parse_comsub:%d: set lex_reswordok = 1, ch = `%c'", gps.line_number, ch);*/
 //	      tflags |= LEX_RESWDOK;
 //	      lex_rwlen = 0;
 //	      continue;
@@ -4108,12 +4107,12 @@ func (gps *ParserState) gather_here_documents() {
 //	      if (STREQN (ret + retind - 4, "case", 4))
 //{
 //		tflags |= LEX_INCASE;
-///*itrace("parse_comsub:%d: found `case', lex_incase -> 1 lex_reswdok -> 0", line_number);*/
+///*itrace("parse_comsub:%d: found `case', lex_incase -> 1 lex_reswdok -> 0", gps.line_number);*/
 //}
 //	      else if (STREQN (ret + retind - 4, "esac", 4))
 //{
 //		tflags &= ^LEX_INCASE;
-///*itrace("parse_comsub:%d: found `esac', lex_incase -> 0 lex_reswdok -> 0", line_number);*/
+///*itrace("parse_comsub:%d: found `esac', lex_incase -> 0 lex_reswdok -> 0", gps.line_number);*/
 //}	        
 //	      tflags &= ^LEX_RESWDOK;
 //	    }
@@ -4127,12 +4126,12 @@ func (gps *ParserState) gather_here_documents() {
 //	       turn off LEX_RESWDOK, since we're going to read a pattern list. */
 //{
 //	    tflags &= ^LEX_RESWDOK;
-///*itrace("parse_comsub:%d: lex_incase == 1 found `%c', lex_reswordok -> 0", line_number, ch);*/
+///*itrace("parse_comsub:%d: lex_incase == 1 found `%c', lex_reswordok -> 0", gps.line_number, ch);*/
 //}
 //	  else if MBTEST(shellbreak (ch) == 0)
 //{
 //	    tflags &= ^LEX_RESWDOK;
-///*itrace("parse_comsub:%d: found `%c', lex_reswordok -> 0", line_number, ch);*/
+///*itrace("parse_comsub:%d: found `%c', lex_reswordok -> 0", gps.line_number, ch);*/
 //}
 //	}
 //
@@ -4172,7 +4171,7 @@ func (gps *ParserState) gather_here_documents() {
 //	}
 //      else if MBTEST((tflags & LEX_CKCOMMENT) && (tflags & LEX_INCOMMENT) == 0 && ch == '#' && (((tflags & LEX_RESWDOK) && lex_rwlen == 0) || ((tflags & LEX_INWORD) && lex_wlen == 0)))
 //{
-///*itrace("parse_comsub:%d: lex_incomment -> 1 (%d)", line_number, __LINE__);*/
+///*itrace("parse_comsub:%d: lex_incomment -> 1 (%d)", gps.line_number, __LINE__);*/
 //	tflags |= LEX_INCOMMENT;
 //}
 //
@@ -4190,12 +4189,12 @@ func (gps *ParserState) gather_here_documents() {
 //      else if MBTEST(ch == close && (tflags & LEX_INCASE) == 0)		/* ending delimiter */
 //{
 //	count--;
-///*itrace("parse_comsub:%d: found close: count = %d", line_number, count);*/
+///*itrace("parse_comsub:%d: found close: count = %d", gps.line_number, count);*/
 //}
 //      else if MBTEST(((flags & P_FIRSTCLOSE) == 0) && (tflags & LEX_INCASE) == 0 && ch == open)	/* nested begin */
 //{
 //	count++;
-///*itrace("parse_comsub:%d: found open: count = %d", line_number, count);*/
+///*itrace("parse_comsub:%d: found open: count = %d", gps.line_number, count);*/
 //}
 //
 //      /* Add this character. */
@@ -4274,7 +4273,7 @@ func (gps *ParserState) gather_here_documents() {
 //  ret[retind] = '\0';
 //  if (lenp)
 //    *lenp = retind;
-///*itrace("parse_comsub:%d: returning `%s'", line_number, ret);*/
+///*itrace("parse_comsub:%d: returning `%s'", gps.line_number, ret);*/
 //  return ret;
 //}
 //
@@ -4349,9 +4348,9 @@ func (gps *ParserState) gather_here_documents() {
 //  char *wval;
 //  word_desc *wd;
 //
-//  if (last_read_token == FOR)
+//  if (gps.last_read_token == FOR)
 //    {
-//      gps.arith_for_lineno = line_number;
+//      gps.arith_for_lineno = gps.line_number;
 //      cmdtyp = parse_arith_cmd (&wval, 0);
 //      if (cmdtyp == 1)
 //	{
@@ -4364,9 +4363,9 @@ func (gps *ParserState) gather_here_documents() {
 //	return -1;		/* ERROR */
 //    }
 //
-//  if (reserved_word_acceptable (last_read_token))
+//  if (reserved_word_acceptable (gps.last_read_token))
 //    {
-//      sline = line_number;
+//      sline = gps.line_number;
 //
 //      cmdtyp = parse_arith_cmd (&wval, 0);
 //      if (cmdtyp == 1)	/* arithmetic command */
@@ -4405,7 +4404,7 @@ func (gps *ParserState) gather_here_documents() {
 //  char *ttok, *tokstr;
 //  int ttoklen;
 //
-//  exp_lineno = line_number;
+//  exp_lineno = gps.line_number;
 //  ttok = parse_matched_pair (0, '(', ')', &ttoklen, 0);
 //  rval = 1;
 //  if (ttok == &matched_pair_error)
@@ -4520,7 +4519,7 @@ func (gps *ParserState) gather_here_documents() {
 //     word that should be the first argument of a binary operator.  Start by
 //     skipping newlines, since this is a compound command. */
 //  tok = cond_skip_newlines ();
-//  lineno = line_number;
+//  lineno = gps.line_number;
 //  if (tok == COND_END)
 //    {
 //      COND_RETURN_ERROR ();
@@ -4565,10 +4564,10 @@ func (gps *ParserState) gather_here_documents() {
 //	  dispose_word (op);
 //	  if (etext = error_token_from_token (tok))
 //	    {
-//	      parser_error (line_number, _("unexpected argument `%s' to conditional unary operator"), etext);
+//	      parser_error (gps.line_number, _("unexpected argument `%s' to conditional unary operator"), etext);
 //	    }
 //	  else
-//	    parser_error (line_number, _("unexpected argument to conditional unary operator"));
+//	    parser_error (gps.line_number, _("unexpected argument to conditional unary operator"));
 //	  COND_RETURN_ERROR ();
 //	}
 //
@@ -4612,10 +4611,10 @@ func (gps *ParserState) gather_here_documents() {
 //	{
 //	  if (etext = error_token_from_token (tok))
 //	    {
-//	      parser_error (line_number, _("unexpected token `%s', conditional binary operator expected"), etext);
+//	      parser_error (gps.line_number, _("unexpected token `%s', conditional binary operator expected"), etext);
 //	    }
 //	  else
-//	    parser_error (line_number, _("conditional binary operator expected"));
+//	    parser_error (gps.line_number, _("conditional binary operator expected"));
 //	  dispose_cond_node (tleft);
 //	  COND_RETURN_ERROR ();
 //	}
@@ -4637,10 +4636,10 @@ func (gps *ParserState) gather_here_documents() {
 //	{
 //	  if (etext = error_token_from_token (tok))
 //	    {
-//	      parser_error (line_number, _("unexpected argument `%s' to conditional binary operator"), etext);
+//	      parser_error (gps.line_number, _("unexpected argument `%s' to conditional binary operator"), etext);
 //	    }
 //	  else
-//	    parser_error (line_number, _("unexpected argument to conditional binary operator"));
+//	    parser_error (gps.line_number, _("unexpected argument to conditional binary operator"));
 //	  dispose_cond_node (tleft);
 //	  dispose_word (op);
 //	  COND_RETURN_ERROR ();
@@ -4651,13 +4650,13 @@ func (gps *ParserState) gather_here_documents() {
 //  else
 //    {
 //      if (tok < 256)
-//	parser_error (line_number, _("unexpected token `%c' in conditional command"), tok);
+//	parser_error (gps.line_number, _("unexpected token `%c' in conditional command"), tok);
 //      else if (etext = error_token_from_token (tok))
 //	{
-//	  parser_error (line_number, _("unexpected token `%s' in conditional command"), etext);
+//	  parser_error (gps.line_number, _("unexpected token `%s' in conditional command"), etext);
 //	}
 //      else
-//	parser_error (line_number, _("unexpected token %d in conditional command"), tok);
+//	parser_error (gps.line_number, _("unexpected token %d in conditional command"), tok);
 //      COND_RETURN_ERROR ();
 //    }
 //  return (term);
@@ -4897,7 +4896,7 @@ func (gps *ParserState) gather_here_documents() {
 //	    {
 //	      int first_line;
 //
-//	      first_line = line_number;
+//	      first_line = gps.line_number;
 //	      push_delimiter (dstack, peek_char);
 //	      ttok = parse_matched_pair (peek_char, peek_char, peek_char,
 //					 &ttoklen,
@@ -4960,7 +4959,7 @@ func (gps *ParserState) gather_here_documents() {
 //	 gps.parser_state&PST_COMPASSIGN, we need to parse [sub]=words treating
 //	 `sub' as if it were enclosed in double quotes. */
 //      else if MBTEST(character == '[' &&		/* ] */
-//		     ((token_index > 0 && assignment_acceptable (last_read_token) && token_is_ident (token, token_index)) ||
+//		     ((token_index > 0 && assignment_acceptable (gps.last_read_token) && token_is_ident (token, token_index)) ||
 //		      (token_index == 0 && (gps.parser_state&PST_COMPASSIGN))))
 //        {
 //	  ttok = parse_matched_pair (cd, '[', ']', &ttoklen, P_ARRAYSUB);
@@ -4976,7 +4975,7 @@ func (gps *ParserState) gather_here_documents() {
 //	  goto next_character;
 //        }
 //      /* Identify possible compound array variable assignment. */
-//      else if MBTEST(character == '=' && token_index > 0 && (assignment_acceptable (last_read_token) || (gps.parser_state & PST_ASSIGNOK)) && token_is_assignment (token, token_index))
+//      else if MBTEST(character == '=' && token_index > 0 && (assignment_acceptable (gps.last_read_token) || (gps.parser_state & PST_ASSIGNOK)) && token_is_assignment (token, token_index))
 //	{
 //	  peek_char = shell_getc (1);
 //	  if MBTEST(peek_char == '(')		/* ) */
@@ -5038,13 +5037,13 @@ func (gps *ParserState) gather_here_documents() {
 //
 //  token[token_index] = '\0';
 //
-//  /* Check to see what thing we should return.  If the last_read_token
+//  /* Check to see what thing we should return.  If the gps.last_read_token
 //     is a `<', or a `&', or the character which ended this token is
 //     a '>' or '<', then, and ONLY then, is this input token a NUMBER.
 //     Otherwise, it is just a word, and should be returned as such. */
 //  if MBTEST(all_digit_token && (character == '<' || character == '>' || \
-//		    last_read_token == LESS_AND || \
-//		    last_read_token == GREATER_AND))
+//		    gps.last_read_token == LESS_AND || \
+//		    gps.last_read_token == GREATER_AND))
 //      {
 //	if (legal_number (token, &lvalue) && (int)lvalue == lvalue)
 //	  gps.yylval.number = lvalue;
@@ -5097,11 +5096,11 @@ func (gps *ParserState) gather_here_documents() {
 //    {
 //      the_word.flags |= W_ASSIGNMENT;
 //      /* Don't perform word splitting on assignment statements. */
-//      if (assignment_acceptable (last_read_token) || (gps.parser_state & PST_COMPASSIGN) != 0)
+//      if (assignment_acceptable (gps.last_read_token) || (gps.parser_state & PST_COMPASSIGN) != 0)
 //	the_word.flags |= W_NOSPLIT;
 //    }
 //
-//  if (command_token_position (last_read_token))
+//  if (command_token_position (gps.last_read_token))
 //    {
 //      struct builtin *b;
 //      b = builtin_address_internal (token, 0);
@@ -5129,18 +5128,18 @@ func (gps *ParserState) gather_here_documents() {
 //  result = ((the_word.flags & (W_ASSIGNMENT|W_NOSPLIT)) == (W_ASSIGNMENT|W_NOSPLIT))
 //		? ASSIGNMENT_WORD : WORD;
 //
-//  switch (last_read_token)
+//  switch (gps.last_read_token)
 //    {
 //    case FUNCTION:
 //      gps.parser_state |= PST_ALLOWOPNBRC;
-//      gps.function_dstart = line_number;
+//      gps.function_dstart = gps.line_number;
 //      break;
 //    case CASE:
 //    case SELECT:
 //    case FOR:
 //      if (gps.word_top < MAX_CASE_NEST)
 //	gps.word_top++;
-//      gps.word_lineno[gps.word_top] = line_number;
+//      gps.word_lineno[gps.word_top] = gps.line_number;
 //      break;
 //    }
 //
@@ -5313,7 +5312,7 @@ func (gps *ParserState) gather_here_documents() {
 //  while (token_end && msg[token_end - 1] == '\n')
 //    msg[--token_end] = '\0';
 //
-//  parser_error (line_number, "`%s'", msg);
+//  parser_error (gps.line_number, "`%s'", msg);
 //}
 //
 ///* Report a syntax error with line numbers, etc.
@@ -5328,7 +5327,7 @@ func (gps *ParserState) gather_here_documents() {
 //
 //  if (message)
 //    {
-//      parser_error (line_number, "%s", message);
+//      parser_error (gps.line_number, "%s", message);
 //      last_command_exit_value = parse_and_execute_level ? EX_BADSYNTAX : EX_BADUSAGE;
 //      return;
 //    }
@@ -5338,7 +5337,7 @@ func (gps *ParserState) gather_here_documents() {
 //     parser's complaining about by looking at gps.current_token. */
 //  if (gps.current_token != 0 && !gps.EOF_Reached && (msg = error_token_from_token (gps.current_token)))
 //    {
-//      parser_error (line_number, _("syntax error near unexpected token `%s'"), msg);
+//      parser_error (gps.line_number, _("syntax error near unexpected token `%s'"), msg);
 //
 //      print_offending_line ();
 //
@@ -5354,7 +5353,7 @@ func (gps *ParserState) gather_here_documents() {
 //      msg = error_token_from_text ();
 //      if (msg)
 //	{
-//	  parser_error (line_number, _("syntax error near `%s'"), msg);
+//	  parser_error (gps.line_number, _("syntax error near `%s'"), msg);
 //	}
 //
 //      print_offending_line ();
@@ -5362,7 +5361,7 @@ func (gps *ParserState) gather_here_documents() {
 //  else
 //    {
 //      msg = gps.EOF_Reached ? _("syntax error: unexpected end of file") : _("syntax error");
-//      parser_error (line_number, "%s", msg);
+//      parser_error (gps.line_number, "%s", msg);
 //    }
 //
 //  last_command_exit_value = parse_and_execute_level ? EX_BADSYNTAX : EX_BADUSAGE;
@@ -5423,14 +5422,14 @@ func (gps *ParserState) handle_eof_input_unit() {
 //  int orig_line_count;
 //  int old_echo_input, old_expand_aliases;
 //
-//  orig_line_number = line_number;
+//  orig_line_number = gps.line_number;
 //  orig_line_count = current_command_line_count;
 //  orig_input_terminator = shell_input_line_terminator;
 //  old_echo_input = echo_input_at_read;
 //  old_expand_aliases = expand_aliases;
 //
 //  push_stream (1);
-//  last_read_token = WORD;		/* WORD to allow reserved words here */
+//  gps.last_read_token = WORD;		/* WORD to allow reserved words here */
 //  current_command_line_count = 0;
 //  echo_input_at_read = expand_aliases = 0;
 //
@@ -5448,7 +5447,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //	continue;
 //      if (tok != WORD && tok != ASSIGNMENT_WORD)
 //	{
-//	  line_number = orig_line_number + line_number - 1;
+//	  gps.line_number = orig_line_number + gps.line_number - 1;
 //	  orig_current_token = gps.current_token;
 //	  gps.current_token = tok;
 //	  yyerror (NULL);	/* does the right thing */
@@ -5461,7 +5460,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //      wl = makeWordList (gps.yylval.word, wl);
 //    }
 //  
-//  last_read_token = '\n';
+//  gps.last_read_token = '\n';
 //  pop_stream ();
 //
 //  echo_input_at_read = old_echo_input;
@@ -5495,10 +5494,10 @@ func (gps *ParserState) handle_eof_input_unit() {
 //
 //  saved_token = token;
 //  orig_token_size = token_buffer_size;
-//  orig_line_number = line_number;
-//  orig_last_token = last_read_token;
+//  orig_line_number = gps.line_number;
+//  orig_last_token = gps.last_read_token;
 //
-//  last_read_token = WORD;	/* WORD to allow reserved words here */
+//  gps.last_read_token = WORD;	/* WORD to allow reserved words here */
 //
 //  token = nil;
 //  token_buffer_size = 0;
@@ -5537,14 +5536,14 @@ func (gps *ParserState) handle_eof_input_unit() {
 //  if (wl == &parse_string_error)
 //    {
 //      last_command_exit_value = EXECUTION_FAILURE;
-//      last_read_token = '\n';	/* XXX */
+//      gps.last_read_token = '\n';	/* XXX */
 //      if (posixly_correct)
 //	jump_to_top_level (FORCE_EOF);
 //      else
 //	jump_to_top_level (DISCARD);
 //    }
 //
-//  last_read_token = orig_last_token;		/* XXX - was WORD? */
+//  gps.last_read_token = orig_last_token;		/* XXX - was WORD? */
 //
 //  if (wl != nil)
 //    {
