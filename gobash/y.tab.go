@@ -128,8 +128,8 @@ const NO_EXPANSION = -100
 const MAX_CASE_NEST = 128
 
 // #  define last_shell_getc_is_singlebyte \
-// 	((shell_input_line_index > 1) \
-// 		? shell_input_line_property[shell_input_line_index - 1] \
+// 	((gps.shell_input_line_index > 1) \
+// 		? shell_input_line_property[gps.shell_input_line_index - 1] \
 // 		: 1)
 // #  define MBTEST(x)	((x) && last_shell_getc_is_singlebyte)
 // 
@@ -2412,7 +2412,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //
 //  /* number of unconsumed characters in the input -- XXX need to take newlines
 //     into account, e.g., $(...\n) */
-//  xchars = shell_input_line_len - shell_input_line_index;
+//  xchars = shell_input_line_len - gps.shell_input_line_index;
 //  if (bash_input.location.string[-1] == '\n') {
 //    xchars++;
 //  }
@@ -2640,8 +2640,8 @@ func (gps *ParserState) rewind_input_string() {
 //
 //  temp.expand_alias = expand;
 //  temp.saved_line = gps.shell_input_line;
-//  temp.saved_line_size = shell_input_line_size;
-//  temp.saved_line_index = shell_input_line_index;
+//  temp.saved_line_size = gps.shell_input_line_size;
+//  temp.saved_line_index = gps.shell_input_line_index;
 //  temp.saved_line_terminator = shell_input_line_terminator;
 //  temp.expander = ap;
 //  temp.next = pushed_string_list;
@@ -2652,8 +2652,8 @@ func (gps *ParserState) rewind_input_string() {
 //  }
 //
 //  gps.shell_input_line = s;
-//  shell_input_line_size = strlen (s);
-//  shell_input_line_index = 0;
+//  gps.shell_input_line_size = strlen (s);
+//  gps.shell_input_line_index = 0;
 //  shell_input_line_terminator = '\0';
 //
 //  set_line_mbstate ();
@@ -2671,8 +2671,8 @@ func (gps *ParserState) rewind_input_string() {
 //  STRING_SAVER *t;
 //
 //  gps.shell_input_line = pushed_string_list.saved_line;
-//  shell_input_line_index = pushed_string_list.saved_line_index;
-//  shell_input_line_size = pushed_string_list.saved_line_size;
+//  gps.shell_input_line_index = pushed_string_list.saved_line_index;
+//  gps.shell_input_line_size = pushed_string_list.saved_line_size;
 //  shell_input_line_terminator = pushed_string_list.saved_line_terminator;
 //
 //  if (pushed_string_list.expand_alias) {
@@ -2929,11 +2929,11 @@ func (gps *ParserState) rewind_input_string() {
 //      return (c);
 //  }
 //
-//  /* If shell_input_line[shell_input_line_index] == 0, but there is
+//  /* If shell_input_line[gps.shell_input_line_index] == 0, but there is
 //     something on the pushed list of strings, then we don't want to go
 //     off and get another line.  We let the code down below handle it. */
 //
-//  if (!gps.shell_input_line || ((!gps.shell_input_line[shell_input_line_index]) &&
+//  if (!gps.shell_input_line || ((!gps.shell_input_line[gps.shell_input_line_index]) &&
 //			    (pushed_string_list == nil))) {
 //      gps.line_number++;
 //
@@ -2960,7 +2960,7 @@ func (gps *ParserState) rewind_input_string() {
 //	      continue;
 //	  }
 //
-//	  RESIZE_MALLOCED_BUFFER (gps.shell_input_line, i, 2, shell_input_line_size, 256);
+//	  RESIZE_MALLOCED_BUFFER (gps.shell_input_line, i, 2, gps.shell_input_line_size, 256);
 //
 //	  if (c == EOF) {
 //	      if (bash_input.typ == st_stream) {
@@ -2984,7 +2984,7 @@ func (gps *ParserState) rewind_input_string() {
 //	    }
 //	}
 //
-//      shell_input_line_index = 0;
+//      gps.shell_input_line_index = 0;
 //      shell_input_line_len = i;		/* == strlen (gps.shell_input_line) */
 //
 //      set_line_mbstate ();
@@ -2996,16 +2996,16 @@ func (gps *ParserState) rewind_input_string() {
 //				     shell_input_line_terminator != EOF))
 //	    fprintf (stderr, "%s\n", gps.shell_input_line);
 //	} else {
-//	  shell_input_line_size = 0;
+//	  gps.shell_input_line_size = 0;
 //	  goto restart_read;
 //	}
 //
 //      /* Add the newline to the end of this string, iff the string does
 //	 not already end in an EOF character.  */
 //      if (shell_input_line_terminator != EOF) {
-//	  if (shell_input_line_len + 3 > shell_input_line_size)
+//	  if (shell_input_line_len + 3 > gps.shell_input_line_size)
 //	    gps.shell_input_line = (char *)xrealloc (gps.shell_input_line,
-//					1 + (shell_input_line_size += 2));
+//					1 + (gps.shell_input_line_size += 2));
 //
 //	  gps.shell_input_line[shell_input_line_len] = '\n';
 //	  gps.shell_input_line[shell_input_line_len + 1] = '\0';
@@ -3014,10 +3014,10 @@ func (gps *ParserState) rewind_input_string() {
 //	}
 //    }
 //
-//  uc = gps.shell_input_line[shell_input_line_index];
+//  uc = gps.shell_input_line[gps.shell_input_line_index];
 //
 //  if (uc) {
-//    shell_input_line_index++;
+//    gps.shell_input_line_index++;
 //  }
 //
 //  /* If UC is NULL, we have reached the end of the current input string.  If
@@ -3028,13 +3028,13 @@ func (gps *ParserState) rewind_input_string() {
 //pop_alias:
 //  if (!uc && (pushed_string_list != nil)) {
 //      pop_string ();
-//      uc = gps.shell_input_line[shell_input_line_index];
+//      uc = gps.shell_input_line[gps.shell_input_line_index];
 //      if (uc) {
-//	  shell_input_line_index++;
+//	  gps.shell_input_line_index++;
 //      }
 //  }
 //
-//  if MBTEST(uc == '\\' && remove_quoted_newline && gps.shell_input_line[shell_input_line_index] == '\n') {
+//  if MBTEST(uc == '\\' && remove_quoted_newline && gps.shell_input_line[gps.shell_input_line_index] == '\n') {
 //	gps.line_number++;
 //	/* XXX - what do we do here if we're expanding an alias whose definition
 //	   ends with a newline?  Recall that we inhibit the appending of a
@@ -3044,7 +3044,7 @@ func (gps *ParserState) rewind_input_string() {
 //    }
 //
 //  if (!uc && shell_input_line_terminator == EOF) {
-//    return ((shell_input_line_index != 0) ? '\n' : EOF);
+//    return ((gps.shell_input_line_index != 0) ? '\n' : EOF);
 //  }
 //
 //  return (uc);
@@ -3059,8 +3059,8 @@ func (gps *ParserState) rewind_input_string() {
 //shell_ungetc (c)
 //     int c;
 //{
-//  if (gps.shell_input_line && shell_input_line_index) {
-//    gps.shell_input_line[--shell_input_line_index] = c;
+//  if (gps.shell_input_line && gps.shell_input_line_index) {
+//    gps.shell_input_line[--gps.shell_input_line_index] = c;
 //  } else {
 //    eol_ungetc_lookahead = c;
 //  }
@@ -3389,10 +3389,10 @@ func (gps *ParserState) reset_parser() {
     free_string_list ();
   }
 
-  if (gps.shell_input_line) {
+  if (gps.shell_input_line != nil) {
       gps.shell_input_line = nil;
-      shell_input_line_size = 0
-      shell_input_line_index = 0;
+      gps.shell_input_line_size = 0
+      gps.shell_input_line_index = 0;
   }
 
   gps.word_desc_to_read = nil;
@@ -5276,7 +5276,7 @@ tokword:
 //  int token_end, i;
 //
 //  t = gps.shell_input_line;
-//  i = shell_input_line_index;
+//  i = gps.shell_input_line_index;
 //  token_end = 0;
 //  msg = nil;
 //
