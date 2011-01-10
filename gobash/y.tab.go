@@ -267,6 +267,12 @@ cond_token int
 
 dstack *dstack
 
+/* This implements one-character lookahead/lookbehind across physical input
+   lines, to avoid something being lost because it's pushed back with
+   shell_ungetc when we're at the start of a line. */
+eol_ungetc_lookahead int
+
+
 } // ParserState
 
 func newParserState() *ParserState {
@@ -2898,159 +2904,153 @@ func (gps *ParserState) free_string_list () {
 //  while (0)
 //
 //#define pop_delimiter(ds)	ds.delimiter_depth--
-//
-///* Return the next shell input character.  This always reads characters
-//   from gps.shell_input_line; when that line is exhausted, it is time to
-//   read the next line.  This is called by read_token when the shell is
-//   processing normal command input. */
-//
-///* This implements one-character lookahead/lookbehind across physical input
-//   lines, to avoid something being lost because it's pushed back with
-//   shell_ungetc when we're at the start of a line. */
-//static int eol_ungetc_lookahead = 0;
-//
-//static int
-//shell_getc (remove_quoted_newline)
-//     int remove_quoted_newline;
-//{
-//  int i;
-//  int c;
-//  unsigned char uc;
-//
-//  QUIT;
-//
-//  if (sigwinch_received) {
-//      sigwinch_received = 0;
-//      get_new_window_size (0, (int *)0, (int *)0);
-//  }
-//      
-//  if (eol_ungetc_lookahead) {
-//      c = eol_ungetc_lookahead;
-//      eol_ungetc_lookahead = 0;
-//      return (c);
-//  }
-//
-//  /* If shell_input_line[gps.shell_input_line_index] == 0, but there is
-//     something on the pushed list of strings, then we don't want to go
-//     off and get another line.  We let the code down below handle it. */
-//
-//  if (!gps.shell_input_line || ((!gps.shell_input_line[gps.shell_input_line_index]) &&
-//			    (gps.pushed_string_list == nil))) {
-//      gps.line_number++;
-//
-//    restart_read:
-//
-//      /* Allow immediate exit if interrupted during input. */
-//      QUIT;
-//
-//      i = 0;
-//      shell_input_line_terminator = 0;
-//
-//      cleanup_dead_jobs ();
-//
-//      if (bash_input.typ == st_stream)
-//	clearerr (stdin);
-//
-//      while (1) {
-//	  c = yy_getc ();
-//
-//	  /* Allow immediate exit if interrupted during input. */
-//	  QUIT;
-//
-//	  if (c == '\0') {
-//	      continue;
-//	  }
-//
-//	  RESIZE_MALLOCED_BUFFER (gps.shell_input_line, i, 2, gps.shell_input_line_size, 256);
-//
-//	  if (c == EOF) {
-//	      if (bash_input.typ == st_stream) {
-//		clearerr (stdin);
-//            }
-//
-//	      if (i == 0) {
-//		shell_input_line_terminator = EOF;
-//            }
-//
-//	      gps.shell_input_line[i] = '\0';
-//	      break;
-//	    }
-//
-//	  gps.shell_input_line[i++] = c;
-//
-//	  if (c == '\n') {
-//	      gps.shell_input_line[--i] = '\0';
-//	      current_command_line_count++;
-//	      break;
-//	    }
-//	}
-//
-//      gps.shell_input_line_index = 0;
-//      shell_input_line_len = i;		/* == strlen (gps.shell_input_line) */
-//
-//      set_line_mbstate ();
-//
-//      if (gps.shell_input_line) {
-//	  /* Lines that signify the end of the shell's input should not be
-//	     echoed. */
-//	  if (echo_input_at_read && (gps.shell_input_line[0] ||
-//				     shell_input_line_terminator != EOF))
-//	    fprintf (stderr, "%s\n", gps.shell_input_line);
-//	} else {
-//	  gps.shell_input_line_size = 0;
-//	  goto restart_read;
-//	}
-//
-//      /* Add the newline to the end of this string, iff the string does
-//	 not already end in an EOF character.  */
-//      if (shell_input_line_terminator != EOF) {
-//	  if (shell_input_line_len + 3 > gps.shell_input_line_size)
-//	    gps.shell_input_line = (char *)xrealloc (gps.shell_input_line,
-//					1 + (gps.shell_input_line_size += 2));
-//
-//	  gps.shell_input_line[shell_input_line_len] = '\n';
-//	  gps.shell_input_line[shell_input_line_len + 1] = '\0';
-//
-//	  set_line_mbstate ();
-//	}
-//    }
-//
-//  uc = gps.shell_input_line[gps.shell_input_line_index];
-//
-//  if (uc) {
-//    gps.shell_input_line_index++;
-//  }
-//
-//  /* If UC is NULL, we have reached the end of the current input string.  If
-//     gps.pushed_string_list is non-empty, it's time to pop to the previous string
-//     because we have fully consumed the result of the last alias expansion.
-//     Do it transparently; just return the next character of the string popped
-//     to. */
-//pop_alias:
-//  if (!uc && (gps.pushed_string_list != nil)) {
-//      pop_string ();
-//      uc = gps.shell_input_line[gps.shell_input_line_index];
-//      if (uc) {
-//	  gps.shell_input_line_index++;
-//      }
-//  }
-//
-//  if gps.MBTEST(uc == '\\' && remove_quoted_newline && gps.shell_input_line[gps.shell_input_line_index] == '\n') {
-//	gps.line_number++;
-//	/* XXX - what do we do here if we're expanding an alias whose definition
-//	   ends with a newline?  Recall that we inhibit the appending of a
-//	   space in mk_alexpansion() if newline is the last character. */
-//  
-//	goto restart_read;
-//    }
-//
-//  if (!uc && shell_input_line_terminator == EOF) {
-//    return ((gps.shell_input_line_index != 0) ? '\n' : EOF);
-//  }
-//
-//  return (uc);
-//}
-//
+
+/* Return the next shell input character.  This always reads characters
+   from gps.shell_input_line; when that line is exhausted, it is time to
+   read the next line.  This is called by read_token when the shell is
+   processing normal command input. */
+static int
+shell_getc (remove_quoted_newline)
+     int remove_quoted_newline;
+{
+  int i;
+  int c;
+  unsigned char uc;
+
+  QUIT;
+
+  if (sigwinch_received) {
+      sigwinch_received = 0;
+      get_new_window_size (0, (int *)0, (int *)0);
+  }
+
+  if (eol_ungetc_lookahead) {
+      c = eol_ungetc_lookahead;
+      eol_ungetc_lookahead = 0;
+      return (c);
+  }
+
+  /* If shell_input_line[gps.shell_input_line_index] == 0, but there is
+     something on the pushed list of strings, then we don't want to go
+     off and get another line.  We let the code down below handle it. */
+
+  if (!gps.shell_input_line || ((!gps.shell_input_line[gps.shell_input_line_index]) &&
+			    (gps.pushed_string_list == nil))) {
+      gps.line_number++;
+
+    restart_read:
+
+      /* Allow immediate exit if interrupted during input. */
+      QUIT;
+
+      i = 0;
+      shell_input_line_terminator = 0;
+
+      cleanup_dead_jobs ();
+
+      if (bash_input.typ == st_stream)
+	clearerr (stdin);
+
+      while (1) {
+	  c = yy_getc ();
+
+	  /* Allow immediate exit if interrupted during input. */
+	  QUIT;
+
+	  if (c == '\0') {
+	      continue;
+	  }
+
+	  RESIZE_MALLOCED_BUFFER (gps.shell_input_line, i, 2, gps.shell_input_line_size, 256);
+
+	  if (c == EOF) {
+	      if (bash_input.typ == st_stream) {
+		clearerr (stdin);
+            }
+
+	      if (i == 0) {
+		shell_input_line_terminator = EOF;
+            }
+
+	      gps.shell_input_line[i] = '\0';
+	      break;
+	    }
+
+	  gps.shell_input_line[i++] = c;
+
+	  if (c == '\n') {
+	      gps.shell_input_line[--i] = '\0';
+	      current_command_line_count++;
+	      break;
+	    }
+	}
+
+      gps.shell_input_line_index = 0;
+      shell_input_line_len = i;		/* == strlen (gps.shell_input_line) */
+
+      set_line_mbstate ();
+
+      if (gps.shell_input_line) {
+	  /* Lines that signify the end of the shell's input should not be
+	     echoed. */
+	  if (echo_input_at_read && (gps.shell_input_line[0] ||
+				     shell_input_line_terminator != EOF))
+	    fprintf (stderr, "%s\n", gps.shell_input_line);
+	} else {
+	  gps.shell_input_line_size = 0;
+	  goto restart_read;
+	}
+
+      /* Add the newline to the end of this string, iff the string does
+	 not already end in an EOF character.  */
+      if (shell_input_line_terminator != EOF) {
+	  if (shell_input_line_len + 3 > gps.shell_input_line_size)
+	    gps.shell_input_line = (char *)xrealloc (gps.shell_input_line,
+					1 + (gps.shell_input_line_size += 2));
+
+	  gps.shell_input_line[shell_input_line_len] = '\n';
+	  gps.shell_input_line[shell_input_line_len + 1] = '\0';
+
+	  set_line_mbstate ();
+	}
+    }
+
+  uc = gps.shell_input_line[gps.shell_input_line_index];
+
+  if (uc) {
+    gps.shell_input_line_index++;
+  }
+
+  /* If UC is NULL, we have reached the end of the current input string.  If
+     gps.pushed_string_list is non-empty, it's time to pop to the previous string
+     because we have fully consumed the result of the last alias expansion.
+     Do it transparently; just return the next character of the string popped
+     to. */
+pop_alias:
+  if (!uc && (gps.pushed_string_list != nil)) {
+      pop_string ();
+      uc = gps.shell_input_line[gps.shell_input_line_index];
+      if (uc) {
+	  gps.shell_input_line_index++;
+      }
+  }
+
+  if gps.MBTEST(uc == '\\' && remove_quoted_newline && gps.shell_input_line[gps.shell_input_line_index] == '\n') {
+	gps.line_number++;
+	/* XXX - what do we do here if we're expanding an alias whose definition
+	   ends with a newline?  Recall that we inhibit the appending of a
+	   space in mk_alexpansion() if newline is the last character. */
+  
+	goto restart_read;
+    }
+
+  if (!uc && shell_input_line_terminator == EOF) {
+    return ((gps.shell_input_line_index != 0) ? '\n' : EOF);
+  }
+
+  return (uc);
+}
+
 ///* Put C back into the input for the shell.  This might need changes for
 //   HANDLE_MULTIBYTE around EOLs.  Since we (currently) never push back a
 //   character different than we read, shell_input_line_property doesn't need
