@@ -239,6 +239,9 @@ bash_input BashInput
 /* The globally known line number. */
 line_number int
 
+cond_lineno int
+cond_token int
+
 } // ParserState
 
 func newParserState() *ParserState {
@@ -2471,9 +2474,6 @@ func (gps *ParserState) rewind_input_string() {
 //} STREAM_SAVER;
 //
 
-//static int cond_lineno;
-//static int cond_token;
-//
 //STREAM_SAVER *stream_list = nil;
 //
 //void
@@ -3418,10 +3418,10 @@ func (gps *ParserState) read_token (command int) (result int) {
   }
 
   if ((gps.parser_state & (PST_CONDCMD|PST_CONDEXPR)) == PST_CONDCMD) {
-      cond_lineno = gps.line_number;
+      gps.cond_lineno = gps.line_number;
       gps.parser_state |= PST_CONDEXPR;
       gps.yylval.command = parse_cond_command ();
-      if (cond_token != COND_END) {
+      if (gps.cond_token != COND_END) {
 	  cond_error ();
 	  return (-1);
       }
@@ -4452,16 +4452,16 @@ tokword:
 //{
 //  char *etext;
 //
-//  if (gps.EOF_Reached && cond_token != COND_ERROR)		/* [[ */
-//    parser_error (cond_lineno, _("unexpected EOF while looking for `]]'"));
-//  else if (cond_token != COND_ERROR)
+//  if (gps.EOF_Reached && gps.cond_token != COND_ERROR)		/* [[ */
+//    parser_error (gps.cond_lineno, _("unexpected EOF while looking for `]]'"));
+//  else if (gps.cond_token != COND_ERROR)
 //    {
-//      if (etext = error_token_from_token (cond_token))
+//      if (etext = error_token_from_token (gps.cond_token))
 //	{
-//	  parser_error (cond_lineno, _("syntax error in conditional expression: unexpected token `%s'"), etext);
+//	  parser_error (gps.cond_lineno, _("syntax error in conditional expression: unexpected token `%s'"), etext);
 //	}
 //      else
-//	parser_error (cond_lineno, _("syntax error in conditional expression"));
+//	parser_error (gps.cond_lineno, _("syntax error in conditional expression"));
 //    }
 //}
 //
@@ -4477,7 +4477,7 @@ tokword:
 //  CondCom *l, *r;
 //
 //  l = cond_and ();
-//  if (cond_token == OR_OR)
+//  if (gps.cond_token == OR_OR)
 //    {
 //      r = cond_or ();
 //      l = make_cond_node (COND_OR, nil, l, r);
@@ -4491,7 +4491,7 @@ tokword:
 //  CondCom *l, *r;
 //
 //  l = cond_term ();
-//  if (cond_token == AND_AND)
+//  if (gps.cond_token == AND_AND)
 //    {
 //      r = cond_and ();
 //      l = make_cond_node (COND_AND, nil, l, r);
@@ -4502,14 +4502,14 @@ tokword:
 //static int
 //cond_skip_newlines ()
 //{
-//  while ((cond_token = read_token (READ)) == '\n')
+//  while ((gps.cond_token = read_token (READ)) == '\n')
 //    {
 //    }
-//  return (cond_token);
+//  return (gps.cond_token);
 //}
 //
 //#define COND_RETURN_ERROR() \
-//  do { cond_token = COND_ERROR; return (nil); } while (0)
+//  do { gps.cond_token = COND_ERROR; return (nil); } while (0)
 //
 //static CondCom *
 //cond_term ()
@@ -4531,11 +4531,11 @@ tokword:
 //  else if (tok == '(')
 //    {
 //      term = cond_expr ();
-//      if (cond_token != ')')
+//      if (gps.cond_token != ')')
 //	{
 //	  if (term)
 //	    dispose_cond_node (term);		/* ( */
-//	  if (etext = error_token_from_token (cond_token))
+//	  if (etext = error_token_from_token (gps.cond_token))
 //	    {
 //	      parser_error (lineno, _("unexpected token `%s', expected `)'"), etext);
 //	    }
@@ -4608,7 +4608,7 @@ tokword:
 //	     [[ x || expr ]] or [[ (x) ]]. */
 //	  op = make_word ("-n");
 //	  term = make_cond_node (COND_UNARY, op, tleft, nil);
-//	  cond_token = tok;
+//	  gps.cond_token = tok;
 //	  return (term);
 //	}
 //      else
