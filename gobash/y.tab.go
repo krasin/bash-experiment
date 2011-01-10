@@ -215,7 +215,7 @@ word_top int
    is reset by read_token.  If token_to_read == WORD or
    ASSIGNMENT_WORD, yylval.word should be set to word_desc_to_read. */
 token_to_read int
-word_desc_to_read word_desc
+word_desc_to_read *word_desc
 
 source Redirectee
 redir Redirectee
@@ -3389,7 +3389,7 @@ func (gps *ParserState) gather_here_documents() {
 //      shell_input_line_size = shell_input_line_index = 0;
 //    }
 //
-//  word_desc_to_read = nil;
+//  gps.word_desc_to_read = nil;
 //
 //  gps.current_token = '\n';		/* XXX */
 //  gps.last_read_token = '\n';
@@ -3410,8 +3410,8 @@ func (gps *ParserState) read_token (command int) (result int) {
   if (gps.token_to_read) {
       result = gps.token_to_read;
       if (gps.token_to_read == WORD || gps.token_to_read == ASSIGNMENT_WORD) {
-	  gps.yylval.word = word_desc_to_read;
-	  word_desc_to_read = nil;
+	  gps.yylval.word = gps.word_desc_to_read;
+	  gps.word_desc_to_read = nil;
       }
       gps.token_to_read = 0;
       return (result);
