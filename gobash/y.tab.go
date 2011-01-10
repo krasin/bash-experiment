@@ -3423,7 +3423,7 @@ func (gps *ParserState) read_token (command int) (result int) {
   if ((gps.parser_state & (PST_CONDCMD|PST_CONDEXPR)) == PST_CONDCMD) {
       gps.cond_lineno = gps.line_number;
       gps.parser_state |= PST_CONDEXPR;
-      gps.yylval.command = parse_cond_command ();
+      gps.yylval.command = gps.parse_cond_command ();
       if (gps.cond_token != COND_END) {
 	  cond_error ();
 	  return (-1);
@@ -4671,16 +4671,12 @@ tokword:
 //
 ///* This is kind of bogus -- we slip a mini recursive-descent parser in
 //   here to handle the conditional statement syntax. */
-//static Command *
-//parse_cond_command ()
-//{
-//  CondCom *cexp;
-//
-//  gps.global_extglob = gps.extended_glob;
-//  cexp = cond_expr ();
-//  return (make_cond_command (cexp));
-//}
-//
+func (gps *ParserState) parse_cond_command() *Command {
+  gps.global_extglob = gps.extended_glob
+  cexp := gps.cond_expr()
+  return gps.make_cond_command(cexp)
+}
+
 ///* When this is called, it's guaranteed that we don't care about anything
 //   in t beyond i.  We do save and restore the chars, though. */
 //static int
