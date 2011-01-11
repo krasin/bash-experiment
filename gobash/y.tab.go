@@ -272,6 +272,8 @@ dstack *dstack
    shell_ungetc when we're at the start of a line. */
 eol_ungetc_lookahead int
 
+// TODO(krasin): this should go to the options.
+echo_input_at_read bool
 
 } // ParserState
 
@@ -2985,7 +2987,7 @@ func (gps *ParserState) shell_getc (remove_quoted_newline int) int {
       if gps.shell_input_line != nil {
 	  /* Lines that signify the end of the shell's input should not be
 	     echoed. */
-	  if (echo_input_at_read && (gps.shell_input_line[0] != 0 ||
+	  if (gps.echo_input_at_read && (gps.shell_input_line[0] != 0 ||
 				     gps.shell_input_line_terminator != EOF)) {
 	    fprintf (stderr, "%s\n", gps.shell_input_line);
           }
@@ -5427,13 +5429,13 @@ func (gps *ParserState) handle_eof_input_unit() {
 //  orig_line_number = gps.line_number;
 //  orig_line_count = gps.current_command_line_count;
 //  orig_input_terminator = gps.shell_input_line_terminator;
-//  old_echo_input = echo_input_at_read;
+//  old_echo_input = gps.echo_input_at_read;
 //  old_expand_aliases = expand_aliases;
 //
 //  push_stream (1);
 //  gps.last_read_token = WORD;		/* WORD to allow reserved words here */
 //  gps.current_command_line_count = 0;
-//  echo_input_at_read = expand_aliases = 0;
+//  gps.echo_input_at_read = expand_aliases = 0;
 //
 //  with_input_from_string (s, whom);
 //  wl = nil;
@@ -5465,7 +5467,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //  gps.last_read_token = '\n';
 //  pop_stream ();
 //
-//  echo_input_at_read = old_echo_input;
+//  gps.echo_input_at_read = old_echo_input;
 //  expand_aliases = old_expand_aliases;
 //
 //  gps.current_command_line_count = orig_line_count;
@@ -5600,7 +5602,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //  ps.this_shell_builtin = this_shell_builtin;
 //
 //  ps.expand_aliases = expand_aliases;
-//  ps.echo_input_at_read = echo_input_at_read;
+//  ps.echo_input_at_read = gps.echo_input_at_read;
 //
 //  return (ps);
 //}
@@ -5636,7 +5638,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //  this_shell_builtin = ps.this_shell_builtin;
 //
 //  expand_aliases = ps.expand_aliases;
-//  echo_input_at_read = ps.echo_input_at_read;
+//  gps.echo_input_at_read = ps.echo_input_at_read;
 //}
 //
 ///************************************************
@@ -5697,4 +5699,5 @@ func (gps *ParserState) handle_eof_input_unit() {
 //      gps.shell_input_line_property[i] = mbclen;
 //    }
 //}
+
 
