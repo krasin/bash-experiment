@@ -127,13 +127,8 @@ const NO_EXPANSION = -100
    index is decremented after a case, select, or for command is parsed. */
 const MAX_CASE_NEST = 128
 
-func (gps *ParserState) last_shell_getc_is_singlebyte() bool {
-	return gps.shell_input_line_index <= 1 ||
-		gps.shell_input_line_property[gps.shell_input_line_index - 1] != 0
-}
-
 func (gps *ParserState) MBTEST(x bool) bool {
-	return x && gps.last_shell_getc_is_singlebyte()
+	return x
 }
 // 
 // 
@@ -201,7 +196,6 @@ need_here_doc int
 /* Where shell input comes from.  History expansion is performed on each
    line when the shell is interactive. */
 shell_input_line []int
-shell_input_line_property []int
 shell_input_line_index int
 shell_input_line_size int	/* Amount allocated for shell_input_line. */
 shell_input_line_len int	/* strlen (shell_input_line) */
@@ -2671,7 +2665,6 @@ func (gps *ParserState) rewind_input_string() {
 //  gps.shell_input_line_index = 0;
 //  gps.shell_input_line_terminator = '\0';
 //
-//  set_line_mbstate ();
 //}
 //
 ///*
@@ -2703,7 +2696,6 @@ func (gps *ParserState) rewind_input_string() {
 //    t.expander.flags &= ^AL_BEINGEXPANDED;
 //  }
 //
-//  set_line_mbstate ();
 //}
 //
 func (gps *ParserState) free_string_list () {
@@ -2982,8 +2974,6 @@ func (gps *ParserState) shell_getc (remove_quoted_newline bool) int {
       gps.shell_input_line_index = 0;
       gps.shell_input_line_len = i;		/* == strlen (gps.shell_input_line) */
 
-      set_line_mbstate ();
-
       if gps.shell_input_line != nil {
 	  /* Lines that signify the end of the shell's input should not be
 	     echoed. */
@@ -3006,8 +2996,6 @@ func (gps *ParserState) shell_getc (remove_quoted_newline bool) int {
 
 	  gps.shell_input_line[gps.shell_input_line_len] = '\n';
 	  gps.shell_input_line[gps.shell_input_line_len + 1] = 0
-
-	  set_line_mbstate ();
       }
     }
 
@@ -3051,11 +3039,7 @@ pop_alias:
   return (uc);
 }
 
-///* Put C back into the input for the shell.  This might need changes for
-//   HANDLE_MULTIBYTE around EOLs.  Since we (currently) never push back a
-//   character different than we read, gps.shell_input_line_property doesn't need
-//   to change when manipulating gps.shell_input_line.  The define for
-//   last_shell_getc_is_singlebyte should take care of it, though. */
+///* Put C back into the input for the shell. */
 //static void
 //shell_ungetc (c)
 //     int c;
@@ -5640,65 +5624,6 @@ func (gps *ParserState) handle_eof_input_unit() {
 //
 //  expand_aliases = ps.expand_aliases;
 //  gps.echo_input_at_read = ps.echo_input_at_read;
-//}
-//
-///************************************************
-// *						*
-// *	MULTIBYTE CHARACTER HANDLING		*
-// *						*
-// ************************************************/
-//
-//static void
-//set_line_mbstate ()
-//{
-//  int i, previ, len, c;
-//  mbstate_t mbs, prevs;
-//  size_t mbclen;
-//
-//  if (gps.shell_input_line == NULL)
-//    return;
-//  len = strlen (gps.shell_input_line);	/* XXX - gps.shell_input_line_len ? */
-//  gps.shell_input_line_property = (char *)xmalloc (len + 1);
-//
-//  memset (&prevs, '\0', sizeof (mbstate_t));
-//  for (i = previ = 0; i < len; i++)
-//    {
-//      mbs = prevs;
-//
-//      c = gps.shell_input_line[i];
-//      if (c == EOF)
-//	{
-//	  int j;
-//	  for (j = i; j < len; j++)
-//	    gps.shell_input_line_property[j] = 1;
-//	  break;
-//	}
-//
-//      mbclen = mbrlen (gps.shell_input_line + previ, i - previ + 1, &mbs);
-//      if (mbclen == 1 || mbclen == (size_t)-1)
-//	{
-//	  mbclen = 1;
-//	  previ = i + 1;
-//	}
-//      else if (mbclen == (size_t)-2)
-//        mbclen = 0;
-//      else if (mbclen > 1)
-//	{
-//	  mbclen = 0;
-//	  previ = i + 1;
-//	  prevs = mbs;
-//	}
-//      else
-//	{
-//	  /* XXX - what to do if mbrlen returns 0? (null wide character) */
-//	  int j;
-//	  for (j = i; j < len; j++)
-//	    gps.shell_input_line_property[j] = 1;
-//	  break;
-//	}
-//
-//      gps.shell_input_line_property[i] = mbclen;
-//    }
 //}
 
 
