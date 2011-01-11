@@ -2911,10 +2911,10 @@ func (gps *ParserState) free_string_list () {
    from gps.shell_input_line; when that line is exhausted, it is time to
    read the next line.  This is called by read_token when the shell is
    processing normal command input. */
-func (gps *ParserState) shell_getc (remove_quoted_newline int) int {
+func (gps *ParserState) shell_getc (remove_quoted_newline bool) int {
   var i int
   var c int
-  var uc uint
+  var uc int
 
   if (gps.eol_ungetc_lookahead != 0) {
       c = gps.eol_ungetc_lookahead;
@@ -3023,10 +3023,10 @@ func (gps *ParserState) shell_getc (remove_quoted_newline int) int {
      Do it transparently; just return the next character of the string popped
      to. */
 pop_alias:
-  if (!uc && (gps.pushed_string_list != nil)) {
+  if (uc == 0 && (gps.pushed_string_list != nil)) {
       pop_string ();
       uc = gps.shell_input_line[gps.shell_input_line_index];
-      if (uc) {
+      if uc != 0 {
 	  gps.shell_input_line_index++;
       }
   }
@@ -3040,7 +3040,7 @@ pop_alias:
 	goto restart_read;
     }
 
-  if (!uc && gps.shell_input_line_terminator == EOF) {
+  if (uc == 0 && gps.shell_input_line_terminator == EOF) {
     if gps.shell_input_line_index != 0 {
 	return '\n'
     } else {
