@@ -2435,7 +2435,7 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //
 //  /* number of unconsumed characters in the input -- XXX need to take newlines
 //     into account, e.g., $(...\n) */
-//  xchars = shell_input_line_len - gps.shell_input_line_index;
+//  xchars = gps.shell_input_line_len - gps.shell_input_line_index;
 //  if (bash_input.location.string[-1] == '\n') {
 //    xchars++;
 //  }
@@ -2655,7 +2655,7 @@ func (gps *ParserState) rewind_input_string() {
 //  temp.saved_line = gps.shell_input_line;
 //  temp.saved_line_size = gps.shell_input_line_size;
 //  temp.saved_line_index = gps.shell_input_line_index;
-//  temp.saved_line_terminator = shell_input_line_terminator;
+//  temp.saved_line_terminator = gps.shell_input_line_terminator;
 //  temp.expander = ap;
 //  temp.next = gps.pushed_string_list;
 //  gps.pushed_string_list = temp;
@@ -2667,7 +2667,7 @@ func (gps *ParserState) rewind_input_string() {
 //  gps.shell_input_line = s;
 //  gps.shell_input_line_size = strlen (s);
 //  gps.shell_input_line_index = 0;
-//  shell_input_line_terminator = '\0';
+//  gps.shell_input_line_terminator = '\0';
 //
 //  set_line_mbstate ();
 //}
@@ -2686,7 +2686,7 @@ func (gps *ParserState) rewind_input_string() {
 //  gps.shell_input_line = gps.pushed_string_list.saved_line;
 //  gps.shell_input_line_index = gps.pushed_string_list.saved_line_index;
 //  gps.shell_input_line_size = gps.pushed_string_list.saved_line_size;
-//  shell_input_line_terminator = gps.pushed_string_list.saved_line_terminator;
+//  gps.shell_input_line_terminator = gps.pushed_string_list.saved_line_terminator;
 //
 //  if (gps.pushed_string_list.expand_alias) {
 //    gps.parser_state |= PST_ALEXPNEXT;
@@ -2924,7 +2924,7 @@ func (gps *ParserState) shell_getc (remove_quoted_newline int) int {
      something on the pushed list of strings, then we don't want to go
      off and get another line.  We let the code down below handle it. */
 
-  if !gps.shell_input_line || ((!gps.shell_input_line[gps.shell_input_line_index]) &&
+  if gps.shell_input_line ==nil || ((gps.shell_input_line[gps.shell_input_line_index] == 0) &&
 			    (gps.pushed_string_list == nil)) {
       gps.line_number++;
 
@@ -2933,7 +2933,7 @@ func (gps *ParserState) shell_getc (remove_quoted_newline int) int {
       /* Allow immediate exit if interrupted during input. */
 
       i = 0;
-      shell_input_line_terminator = 0;
+      gps.shell_input_line_terminator = 0;
 
       cleanup_dead_jobs ();
 
@@ -2956,7 +2956,7 @@ func (gps *ParserState) shell_getc (remove_quoted_newline int) int {
               }
 
 	      if i == 0 {
-		shell_input_line_terminator = EOF;
+		gps.shell_input_line_terminator = EOF;
               }
 
 	      gps.shell_input_line[i] = 0
@@ -2975,7 +2975,7 @@ func (gps *ParserState) shell_getc (remove_quoted_newline int) int {
       }
 
       gps.shell_input_line_index = 0;
-      shell_input_line_len = i;		/* == strlen (gps.shell_input_line) */
+      gps.shell_input_line_len = i;		/* == strlen (gps.shell_input_line) */
 
       set_line_mbstate ();
 
@@ -2983,7 +2983,7 @@ func (gps *ParserState) shell_getc (remove_quoted_newline int) int {
 	  /* Lines that signify the end of the shell's input should not be
 	     echoed. */
 	  if (echo_input_at_read && (gps.shell_input_line[0] ||
-				     shell_input_line_terminator != EOF)) {
+				     gps.shell_input_line_terminator != EOF)) {
 	    fprintf (stderr, "%s\n", gps.shell_input_line);
           }
 	} else {
@@ -2993,14 +2993,14 @@ func (gps *ParserState) shell_getc (remove_quoted_newline int) int {
 
       /* Add the newline to the end of this string, iff the string does
 	 not already end in an EOF character.  */
-      if (shell_input_line_terminator != EOF) {
-	  if (shell_input_line_len + 3 > gps.shell_input_line_size) {
+      if (gps.shell_input_line_terminator != EOF) {
+	  if (gps.shell_input_line_len + 3 > gps.shell_input_line_size) {
             gps.shell_input_line_size += 2
 	    gps.shell_input_line = xrealloc(gps.shell_input_line, 1+gps.shell_input_line_size);
 	  }
 
-	  gps.shell_input_line[shell_input_line_len] = '\n';
-	  gps.shell_input_line[shell_input_line_len + 1] = 0
+	  gps.shell_input_line[gps.shell_input_line_len] = '\n';
+	  gps.shell_input_line[gps.shell_input_line_len + 1] = 0
 
 	  set_line_mbstate ();
       }
@@ -3035,7 +3035,7 @@ pop_alias:
 	goto restart_read;
     }
 
-  if (!uc && shell_input_line_terminator == EOF) {
+  if (!uc && gps.shell_input_line_terminator == EOF) {
     if gps.shell_input_line_index != 0 {
 	return '\n'
     } else {
@@ -3048,7 +3048,7 @@ pop_alias:
 
 ///* Put C back into the input for the shell.  This might need changes for
 //   HANDLE_MULTIBYTE around EOLs.  Since we (currently) never push back a
-//   character different than we read, shell_input_line_property doesn't need
+//   character different than we read, gps.shell_input_line_property doesn't need
 //   to change when manipulating gps.shell_input_line.  The define for
 //   last_shell_getc_is_singlebyte should take care of it, though. */
 //static void
@@ -5423,7 +5423,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //
 //  orig_line_number = gps.line_number;
 //  orig_line_count = current_command_line_count;
-//  orig_input_terminator = shell_input_line_terminator;
+//  orig_input_terminator = gps.shell_input_line_terminator;
 //  old_echo_input = echo_input_at_read;
 //  old_expand_aliases = expand_aliases;
 //
@@ -5466,7 +5466,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //  expand_aliases = old_expand_aliases;
 //
 //  current_command_line_count = orig_line_count;
-//  shell_input_line_terminator = orig_input_terminator;
+//  gps.shell_input_line_terminator = orig_input_terminator;
 //
 //  if (flags & 1)
 //    gps.parser_state &= ^(PST_COMPASSIGN|PST_REPARSE);
@@ -5582,7 +5582,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //  ps.gps.parser_state = gps.parser_state;
 //  ps.token_state = save_token_state ();
 //
-//  ps.input_line_terminator = shell_input_line_terminator;
+//  ps.input_line_terminator = gps.shell_input_line_terminator;
 //
 //  ps.current_command_line_count = current_command_line_count;
 //
@@ -5617,7 +5617,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //      restore_token_state (ps.token_state);
 //    }
 //
-//  shell_input_line_terminator = ps.input_line_terminator;
+//  gps.shell_input_line_terminator = ps.input_line_terminator;
 //
 //  current_command_line_count = ps.current_command_line_count;
 //
@@ -5651,8 +5651,8 @@ func (gps *ParserState) handle_eof_input_unit() {
 //
 //  if (gps.shell_input_line == NULL)
 //    return;
-//  len = strlen (gps.shell_input_line);	/* XXX - shell_input_line_len ? */
-//  shell_input_line_property = (char *)xmalloc (len + 1);
+//  len = strlen (gps.shell_input_line);	/* XXX - gps.shell_input_line_len ? */
+//  gps.shell_input_line_property = (char *)xmalloc (len + 1);
 //
 //  memset (&prevs, '\0', sizeof (mbstate_t));
 //  for (i = previ = 0; i < len; i++)
@@ -5664,7 +5664,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //	{
 //	  int j;
 //	  for (j = i; j < len; j++)
-//	    shell_input_line_property[j] = 1;
+//	    gps.shell_input_line_property[j] = 1;
 //	  break;
 //	}
 //
@@ -5687,11 +5687,11 @@ func (gps *ParserState) handle_eof_input_unit() {
 //	  /* XXX - what to do if mbrlen returns 0? (null wide character) */
 //	  int j;
 //	  for (j = i; j < len; j++)
-//	    shell_input_line_property[j] = 1;
+//	    gps.shell_input_line_property[j] = 1;
 //	  break;
 //	}
 //
-//      shell_input_line_property[i] = mbclen;
+//      gps.shell_input_line_property[i] = mbclen;
 //    }
 //}
 
