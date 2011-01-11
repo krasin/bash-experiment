@@ -200,7 +200,7 @@ need_here_doc int
 
 /* Where shell input comes from.  History expansion is performed on each
    line when the shell is interactive. */
-shell_input_line []byte
+shell_input_line []int
 shell_input_line_property []int
 shell_input_line_index int
 shell_input_line_size int	/* Amount allocated for shell_input_line. */
@@ -2935,11 +2935,13 @@ func (gps *ParserState) shell_getc (remove_quoted_newline int) int {
       i = 0;
       gps.shell_input_line_terminator = 0;
 
-      cleanup_dead_jobs ();
+      // TODO(krasin): enable it
+      //cleanup_dead_jobs ();
 
-      if (bash_input.typ == st_stream) {
-	clearerr (stdin);
-      }
+      // TODO(krasin): decide what to do with bash_input
+      //if (bash_input.typ == st_stream) {
+//	clearerr (stdin);
+//      }
 
       for {
 	  c = yy_getc ();
@@ -2951,9 +2953,10 @@ func (gps *ParserState) shell_getc (remove_quoted_newline int) int {
 	  RESIZE_MALLOCED_BUFFER (gps.shell_input_line, i, 2, gps.shell_input_line_size, 256);
 
 	  if c == EOF {
-	      if bash_input.typ == st_stream {
-		clearerr (stdin);
-              }
+//  TODO(krasin): decide what to do with bash_input
+//	      if bash_input.typ == st_stream {
+//		clearerr (stdin);
+//              }
 
 	      if i == 0 {
 		gps.shell_input_line_terminator = EOF;
@@ -2979,10 +2982,10 @@ func (gps *ParserState) shell_getc (remove_quoted_newline int) int {
 
       set_line_mbstate ();
 
-      if (gps.shell_input_line) {
+      if gps.shell_input_line != nil {
 	  /* Lines that signify the end of the shell's input should not be
 	     echoed. */
-	  if (echo_input_at_read && (gps.shell_input_line[0] ||
+	  if (echo_input_at_read && (gps.shell_input_line[0] != 0 ||
 				     gps.shell_input_line_terminator != EOF)) {
 	    fprintf (stderr, "%s\n", gps.shell_input_line);
           }
