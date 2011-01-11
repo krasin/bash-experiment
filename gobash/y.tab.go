@@ -2909,81 +2909,70 @@ func (gps *ParserState) free_string_list () {
    from gps.shell_input_line; when that line is exhausted, it is time to
    read the next line.  This is called by read_token when the shell is
    processing normal command input. */
-static int
-shell_getc (remove_quoted_newline)
-     int remove_quoted_newline;
-{
-  int i;
-  int c;
-  unsigned char uc;
+func (gps *ParserState) shell_getc (remove_quoted_newline int) int {
+  var i int
+  var c int
+  var uc uint
 
-  QUIT;
-
-  if (sigwinch_received) {
-      sigwinch_received = 0;
-      get_new_window_size (0, (int *)0, (int *)0);
-  }
-
-  if (eol_ungetc_lookahead) {
-      c = eol_ungetc_lookahead;
-      eol_ungetc_lookahead = 0;
-      return (c);
+  if (gps.eol_ungetc_lookahead != 0) {
+      c = gps.eol_ungetc_lookahead;
+      gps.eol_ungetc_lookahead = 0;
+      return c
   }
 
   /* If shell_input_line[gps.shell_input_line_index] == 0, but there is
      something on the pushed list of strings, then we don't want to go
      off and get another line.  We let the code down below handle it. */
 
-  if (!gps.shell_input_line || ((!gps.shell_input_line[gps.shell_input_line_index]) &&
-			    (gps.pushed_string_list == nil))) {
+  if !gps.shell_input_line || ((!gps.shell_input_line[gps.shell_input_line_index]) &&
+			    (gps.pushed_string_list == nil)) {
       gps.line_number++;
 
     restart_read:
 
       /* Allow immediate exit if interrupted during input. */
-      QUIT;
 
       i = 0;
       shell_input_line_terminator = 0;
 
       cleanup_dead_jobs ();
 
-      if (bash_input.typ == st_stream)
+      if (bash_input.typ == st_stream) {
 	clearerr (stdin);
+      }
 
-      while (1) {
+      for {
 	  c = yy_getc ();
 
-	  /* Allow immediate exit if interrupted during input. */
-	  QUIT;
-
-	  if (c == '\0') {
+	  if c == 0 {
 	      continue;
 	  }
 
 	  RESIZE_MALLOCED_BUFFER (gps.shell_input_line, i, 2, gps.shell_input_line_size, 256);
 
-	  if (c == EOF) {
-	      if (bash_input.typ == st_stream) {
+	  if c == EOF {
+	      if bash_input.typ == st_stream {
 		clearerr (stdin);
-            }
+              }
 
-	      if (i == 0) {
+	      if i == 0 {
 		shell_input_line_terminator = EOF;
-            }
+              }
 
-	      gps.shell_input_line[i] = '\0';
+	      gps.shell_input_line[i] = 0
 	      break;
-	    }
+	  }
 
-	  gps.shell_input_line[i++] = c;
+	  gps.shell_input_line[i] = c;
+	  i++
 
 	  if (c == '\n') {
-	      gps.shell_input_line[--i] = '\0';
+	      i--
+	      gps.shell_input_line[i] = 0
 	      current_command_line_count++;
 	      break;
-	    }
-	}
+	  }
+      }
 
       gps.shell_input_line_index = 0;
       shell_input_line_len = i;		/* == strlen (gps.shell_input_line) */
@@ -2994,8 +2983,9 @@ shell_getc (remove_quoted_newline)
 	  /* Lines that signify the end of the shell's input should not be
 	     echoed. */
 	  if (echo_input_at_read && (gps.shell_input_line[0] ||
-				     shell_input_line_terminator != EOF))
+				     shell_input_line_terminator != EOF)) {
 	    fprintf (stderr, "%s\n", gps.shell_input_line);
+          }
 	} else {
 	  gps.shell_input_line_size = 0;
 	  goto restart_read;
@@ -3004,20 +2994,21 @@ shell_getc (remove_quoted_newline)
       /* Add the newline to the end of this string, iff the string does
 	 not already end in an EOF character.  */
       if (shell_input_line_terminator != EOF) {
-	  if (shell_input_line_len + 3 > gps.shell_input_line_size)
-	    gps.shell_input_line = (char *)xrealloc (gps.shell_input_line,
-					1 + (gps.shell_input_line_size += 2));
+	  if (shell_input_line_len + 3 > gps.shell_input_line_size) {
+            gps.shell_input_line_size += 2
+	    gps.shell_input_line = xrealloc(gps.shell_input_line, 1+gps.shell_input_line_size);
+	  }
 
 	  gps.shell_input_line[shell_input_line_len] = '\n';
-	  gps.shell_input_line[shell_input_line_len + 1] = '\0';
+	  gps.shell_input_line[shell_input_line_len + 1] = 0
 
 	  set_line_mbstate ();
-	}
+      }
     }
 
   uc = gps.shell_input_line[gps.shell_input_line_index];
 
-  if (uc) {
+  if uc != 0 {
     gps.shell_input_line_index++;
   }
 
@@ -3045,7 +3036,11 @@ pop_alias:
     }
 
   if (!uc && shell_input_line_terminator == EOF) {
-    return ((gps.shell_input_line_index != 0) ? '\n' : EOF);
+    if gps.shell_input_line_index != 0 {
+	return '\n'
+    } else {
+        return EOF
+    }
   }
 
   return (uc);
@@ -3063,7 +3058,7 @@ pop_alias:
 //  if (gps.shell_input_line && gps.shell_input_line_index) {
 //    gps.shell_input_line[--gps.shell_input_line_index] = c;
 //  } else {
-//    eol_ungetc_lookahead = c;
+//    gps.eol_ungetc_lookahead = c;
 //  }
 //}
 //
