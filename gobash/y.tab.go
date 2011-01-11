@@ -2972,7 +2972,7 @@ func (gps *ParserState) shell_getc (remove_quoted_newline int) int {
 	  if (c == '\n') {
 	      i--
 	      gps.shell_input_line[i] = 0
-	      current_command_line_count++;
+	      gps.current_command_line_count++;
 	      break;
 	  }
       }
@@ -5425,14 +5425,14 @@ func (gps *ParserState) handle_eof_input_unit() {
 //  int old_echo_input, old_expand_aliases;
 //
 //  orig_line_number = gps.line_number;
-//  orig_line_count = current_command_line_count;
+//  orig_line_count = gps.current_command_line_count;
 //  orig_input_terminator = gps.shell_input_line_terminator;
 //  old_echo_input = echo_input_at_read;
 //  old_expand_aliases = expand_aliases;
 //
 //  push_stream (1);
 //  gps.last_read_token = WORD;		/* WORD to allow reserved words here */
-//  current_command_line_count = 0;
+//  gps.current_command_line_count = 0;
 //  echo_input_at_read = expand_aliases = 0;
 //
 //  with_input_from_string (s, whom);
@@ -5468,7 +5468,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //  echo_input_at_read = old_echo_input;
 //  expand_aliases = old_expand_aliases;
 //
-//  current_command_line_count = orig_line_count;
+//  gps.current_command_line_count = orig_line_count;
 //  gps.shell_input_line_terminator = orig_input_terminator;
 //
 //  if (flags & 1)
@@ -5587,7 +5587,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //
 //  ps.input_line_terminator = gps.shell_input_line_terminator;
 //
-//  ps.current_command_line_count = current_command_line_count;
+//  ps.current_command_line_count = gps.current_command_line_count;
 //
 //  ps.last_command_exit_value = last_command_exit_value;
 //  v = find_variable ("PIPESTATUS");
@@ -5622,7 +5622,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //
 //  gps.shell_input_line_terminator = ps.input_line_terminator;
 //
-//  current_command_line_count = ps.current_command_line_count;
+//  gps.current_command_line_count = ps.current_command_line_count;
 //
 //  last_command_exit_value = ps.last_command_exit_value;
 //  v = find_variable ("PIPESTATUS");
