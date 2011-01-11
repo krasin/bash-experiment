@@ -12,7 +12,7 @@ type ShellState struct {
 }
 
 func newShellState() *ShellState {
-	return &ShellState{gps: newParserState()}
+	return new(ShellState)
 }
 
 func ExecuteScript(filename string) int {
@@ -31,6 +31,7 @@ func (sh *ShellState) openShellScript(filename string) (err os.Error) {
 		return
 	}
 	sh.input = newBufferedBashInput(file)
+	sh.gps = newParserState(sh.input)
 	return
 }
 

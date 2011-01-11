@@ -156,6 +156,8 @@ type StringSaver struct {
 
 type ParserState struct {
 
+bashInput BashInput
+
 pushed_string_list *StringSaver
 
 global_command *Command
@@ -271,8 +273,9 @@ echo_input_at_read bool
 
 } // ParserState
 
-func newParserState() *ParserState {
+func newParserState(bashInput BashInput) *ParserState {
 	state := new(ParserState)
+	state.bashInput = bashInput
 	state.extended_quote = 1
 	state.word_top = -1
 	state.dstack = new(dstack)
