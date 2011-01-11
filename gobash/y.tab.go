@@ -3127,9 +3127,10 @@ func (gps *ParserState) yylex() int {
 
   if ((gps.parser_state & PST_EOFTOKEN != 0) && gps.current_token == gps.shell_eof_token) {
       gps.current_token = yacc_EOF;
-      if (bash_input.typ == st_string) {
-	gps.rewind_input_string ();
-	}
+// TODO(krasin): decide what to do with bash_input
+      //if (bash_input.typ == st_string) {
+//	gps.rewind_input_string ();
+//	}
   }
   gps.parser_state &= ^PST_EOFTOKEN;
 
