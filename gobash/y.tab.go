@@ -5141,49 +5141,44 @@ func (gps *ParserState) parse_cond_command() *Command {
 //  return (result);
 //}
 //
-///* Return 1 if TOKSYM is a token that after being read would allow
-//   a reserved word to be seen, else 0. */
-//static int
-//reserved_word_acceptable (toksym)
-//     int toksym;
-//{
-//  switch (toksym)
-//    {
-//    case '\n':
-//    case ';':
-//    case '(':
-//    case ')':
-//    case '|':
-//    case '&':
-//    case '{':
-//    case '}':		/* XXX */
-//    case AND_AND:
-//    case BANG:
-//    case BAR_AND:
-//    case DO:
-//    case DONE:
-//    case ELIF:
-//    case ELSE:
-//    case ESAC:
-//    case FI:
-//    case IF:
-//    case OR_OR:
-//    case SEMI_SEMI:
-//    case SEMI_AND:
-//    case SEMI_SEMI_AND:
-//    case THEN:
-//    case TIME:
-//    case TIMEOPT:
-//    case COPROC:
-//    case UNTIL:
-//    case WHILE:
-//    case 0:
-//      return 1;
-//    default:
-//      return 0;
-//    }
-//}
-//    
+/* Return 1 if TOKSYM is a token that after being read would allow
+   a reserved word to be seen, else 0. */
+func reserved_word_acceptable(toksym int) bool {
+  switch (toksym) {
+    case '\n':
+    case ';':
+    case '(':
+    case ')':
+    case '|':
+    case '&':
+    case '{':
+    case '}':		/* XXX */
+    case AND_AND:
+    case BANG:
+    case BAR_AND:
+    case DO:
+    case DONE:
+    case ELIF:
+    case ELSE:
+    case ESAC:
+    case FI:
+    case IF:
+    case OR_OR:
+    case SEMI_SEMI:
+    case SEMI_AND:
+    case SEMI_SEMI_AND:
+    case THEN:
+    case TIME:
+    case TIMEOPT:
+    case COPROC:
+    case UNTIL:
+    case WHILE:
+    case 0:
+      return true
+    }
+    return false
+}
+
 ///* Return the index of TOKEN in the alist of reserved words, or -1 if
 //   TOKEN is not a shell reserved word. */
 //int
