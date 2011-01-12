@@ -2313,13 +2313,7 @@ case yyabortlab:
   yyparseState = yyreturn; continue;
 
 case yyreturn:
-  /* Do not reclaim the symbols of the rule which action triggered
-     this YYABORT or YYACCEPT.  */
-  popStack(yylen);
-  for !yyss.IsEmpty() {
-      popStack(1);
-  }
-  return;
+ return;
 }
 }
   return;
