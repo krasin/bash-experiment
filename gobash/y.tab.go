@@ -3096,7 +3096,7 @@ pop_alias:
 //{
 //  int c;
 //
-//  while ((c = shell_getc (0)) != EOF && c != character)
+//  while ((c = gps.shell_getc (0)) != EOF && c != character)
 //    ;
 //
 //  if (c != EOF) {
@@ -3465,7 +3465,7 @@ func (gps *ParserState) read_token (command int) (result int) {
 
   /* Read a single word from input.  Start by skipping blanks. */
   for {
-    character = shell_getc (1)
+    character = gps.shell_getc (true)
     if character == EOF || !shellblank (character) {
       break
     }
@@ -3479,7 +3479,7 @@ func (gps *ParserState) read_token (command int) (result int) {
   if gps.MBTEST(character == '#') {
       /* A comment.  Discard until EOL or EOF, and then return a newline. */
       discard_until ('\n');
-      shell_getc (0);
+      gps.shell_getc (false);
       character = '\n';	/* this will take the next if statement and return. */
   }
 
@@ -3511,14 +3511,14 @@ func (gps *ParserState) read_token (command int) (result int) {
 
       gps.parser_state &= ^PST_ASSIGNOK;
 
-      peek_char = shell_getc (1);
+      peek_char = gps.shell_getc (true);
       switch {
       case character == peek_char:
 	  switch (character) {
 	    case '<':
 	      /* If '<' then we could be at "<<" or at "<<-".  We have to
 		 look ahead one more character. */
-	      peek_char = shell_getc (1);
+	      peek_char = gps.shell_getc (true);
               switch {
 	      case gps.MBTEST(peek_char == '-'):
 		return (LESS_LESS_MINUS);
@@ -3536,7 +3536,7 @@ func (gps *ParserState) read_token (command int) (result int) {
 	      gps.parser_state |= PST_CASEPAT;
 	      gps.parser_state &= ^PST_ALEXPNEXT;
 
-	      peek_char = shell_getc (1);
+	      peek_char = gps.shell_getc (true);
 	      if gps.MBTEST(peek_char == '&') {
 		return (SEMI_SEMI_AND);
 	      } else {
@@ -3568,7 +3568,7 @@ func (gps *ParserState) read_token (command int) (result int) {
 	return (GREATER_BAR);
       case gps.MBTEST(character == '&' && peek_char == '>'):
 	{
-	  peek_char = shell_getc (1);
+	  peek_char = gps.shell_getc (true);
 	  if gps.MBTEST(peek_char == '>') {
 	    return (AND_GREATER_GREATER);
 	  } else {
@@ -3706,7 +3706,7 @@ tokword:
 //  start_lineno = gps.line_number;
 //  while (count)
 //    {
-//      ch = shell_getc (qc != '\'' && (tflags & LEX_PASSNEXT) == 0);
+//      ch = gps.shell_getc (qc != '\'' && (tflags & LEX_PASSNEXT) == 0);
 //
 //      if (ch == EOF) {
 //	  parser_error (start_lineno, _("unexpected EOF while looking for matching `%c'"), close);
@@ -3927,7 +3927,7 @@ tokword:
 //  while (count)
 //    {
 //comsub_readchar:
-//      ch = shell_getc (qc != '\'' && (tflags & LEX_PASSNEXT) == 0);
+//      ch = gps.shell_getc (qc != '\'' && (tflags & LEX_PASSNEXT) == 0);
 //
 //      if (ch == EOF)
 //	{
@@ -4096,7 +4096,7 @@ tokword:
 //	  /* Add this character. */
 //	  RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
 //	  ret[retind++] = ch;
-//	  peekc = shell_getc (1);
+//	  peekc = gps.shell_getc (1);
 //	  if (ch == peekc && (ch == '&' || ch == '|' || ch == ';'))	/* two-character tokens */
 //	    {
 //	      RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
@@ -4174,14 +4174,14 @@ tokword:
 //	  /* Add this character. */
 //	  RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
 //	  ret[retind++] = ch;
-//	  peekc = shell_getc (1);
+//	  peekc = gps.shell_getc (1);
 //	  if (peekc == EOF)
 //	    goto eof_error;
 //	  if (peekc == ch)
 //	    {
 //	      RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
 //	      ret[retind++] = peekc;
-//	      peekc = shell_getc (1);
+//	      peekc = gps.shell_getc (1);
 //	      if (peekc == EOF)
 //		goto eof_error;
 //	      if (peekc == '-')
@@ -4444,7 +4444,7 @@ tokword:
 //    return -1;
 //  /* Check that the next character is the closing right paren.  If
 //     not, this is a syntax error. ( */
-//  c = shell_getc (0);
+//  c = gps.shell_getc (0);
 //  if gps.MBTEST(c != ')')
 //    rval = 0;
 //
@@ -4791,7 +4791,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //	 double-quotes, quote some things inside of double-quotes. */
 //      if gps.MBTEST(character == '\\')
 //	{
-//	  peek_char = shell_getc (0);
+//	  peek_char = gps.shell_getc (0);
 //
 //	  /* Backslash-newline is ignored in all cases except
 //	     when quoted with single quotes. */
@@ -4858,7 +4858,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //      /* Parse a ksh-style extended pattern matching specification. */
 //      if gps.MBTEST(gps.extended_glob && PATTERN_CHAR (character))
 //	{
-//	  peek_char = shell_getc (1);
+//	  peek_char = gps.shell_getc (1);
 //	  if gps.MBTEST(peek_char == '(')		/* ) */
 //	    {
 //	      push_delimiter (dstack, peek_char);
@@ -4884,7 +4884,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //	 the shell expansions that must be read as a single word. */
 //      if (shellexp (character))
 //	{
-//	  peek_char = shell_getc (1);
+//	  peek_char = gps.shell_getc (1);
 //	  /* $(...), <(...), >(...), $((...)), ${...}, and $[...] constructs */
 //	  if gps.MBTEST(peek_char == '(' || \
 //		((peek_char == '{' || peek_char == '[') && character == '$'))	/* ) ] } */
@@ -5003,7 +5003,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //      /* Identify possible compound array variable assignment. */
 //      else if gps.MBTEST(character == '=' && token_index > 0 && (assignment_acceptable (gps.last_read_token) || (gps.parser_state & PST_ASSIGNOK)) && token_is_assignment (token, token_index))
 //	{
-//	  peek_char = shell_getc (1);
+//	  peek_char = gps.shell_getc (1);
 //	  if gps.MBTEST(peek_char == '(')		/* ) */
 //	    {
 //	      ttok = parse_compound_assignment (&ttoklen);
@@ -5056,7 +5056,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //	 unless we are within single quotes or pass_next_character is
 //	 set (the shell equivalent of literal-next). */
 //      cd = current_delimiter (dstack);
-//      character = shell_getc (cd != '\'' && pass_next_character == 0);
+//      character = gps.shell_getc (cd != '\'' && pass_next_character == 0);
 //    }	/* end for (;;) */
 //
 //got_token:
