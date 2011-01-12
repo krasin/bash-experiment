@@ -3605,10 +3605,10 @@ func (gps *ParserState) read_token (command int) (result int) {
       case gps.MBTEST(character == '(' && (gps.parser_state & PST_CASEPAT) == 0): /* ) */
 	gps.parser_state |= PST_SUBSHELL;
       /*(*/
-      case gps.MBTEST((gps.parser_state & PST_CASEPAT) && character == ')'):
+      case gps.MBTEST((gps.parser_state & PST_CASEPAT != 0) && character == ')'):
 	gps.parser_state &= ^PST_CASEPAT;
       /*(*/
-      case gps.MBTEST((gps.parser_state & PST_SUBSHELL) && character == ')'):
+      case gps.MBTEST((gps.parser_state & PST_SUBSHELL != 0) && character == ')'):
 	gps.parser_state &= ^PST_SUBSHELL;
       }
 
