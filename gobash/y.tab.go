@@ -4466,12 +4466,10 @@ func (gps *ParserState) cond_error() {
   }
 }
 
-//static CondCom *
-//cond_expr ()
-//{
-//  return (cond_or ());  
-//}
-//
+func (gps *ParserState) cond_expr () *CondCom {
+  return gps.cond_or()
+}
+
 //static CondCom *
 //cond_or ()
 //{
