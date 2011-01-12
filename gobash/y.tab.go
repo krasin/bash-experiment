@@ -4500,6 +4500,12 @@ func (gps *ParserState) cond_and () *CondCom {
 //#define COND_RETURN_ERROR() \
 //  do { gps.cond_token = COND_ERROR; return (nil); } while (0)
 //
+
+// TODO(krasin): implement this
+func (gps *ParserState) cond_term() *CondCom {
+	panic("cond_term: not implemented")
+}
+
 //static CondCom *
 //cond_term ()
 //{
