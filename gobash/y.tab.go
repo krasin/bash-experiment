@@ -2887,7 +2887,7 @@ func (gps *ParserState) free_string_list () {
 //	COND_CMD		look at yylval.command
 //*/
 //
-///* These are used by read_token_word, but appear up here so that shell_getc
+///* These are used by gps.read_token_word, but appear up here so that shell_getc
 //   can use them to decide when to add otherwise blank lines to the history. */
 //
 ///* The primary delimiter stack. */
@@ -3626,7 +3626,7 @@ func (gps *ParserState) read_token (command int) (result int) {
 tokword:
   /* Okay, if we got this far, we have to read a word.  Read one,
      and then check it against the known ones. */
-  result = read_token_word (character);
+  result = gps.read_token_word (character);
   if (result == RE_READ_TOKEN) {
     goto re_read_token;
   }
