@@ -3681,6 +3681,12 @@ tokword:
 //
 //static char matched_pair_error;
 //
+
+func parse_matched_pair(qc int, open int, cloze int, flags int) (ret string, err os.Error) {
+	// TODO(krasin): implement this
+	panic("parse_matched_pair: not implemented")
+}
+
 //static char *
 //parse_matched_pair (qc, open, close, lenp, flags)
 //     int qc;	/* `"' if this construct is within double quotes */
