@@ -4,7 +4,7 @@
 
 include $(GOROOT)/src/Make.inc
 
-TARG=$(GOBIN)/gobash
+TARG=gobash
 GOFILES=\
 	alias.go\
 	syntax.go\
