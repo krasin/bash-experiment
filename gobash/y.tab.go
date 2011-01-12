@@ -5215,6 +5215,13 @@ func reserved_word_acceptable(toksym int) bool {
 //  return (0);
 //}
 //
+
+
+// TODO(krasin): implement this
+func error_token_from_token(tok int) string {
+	panic("error_token_from_token: not implemented")
+}
+
 //static char *
 //error_token_from_token (tok)
 //     int tok;
