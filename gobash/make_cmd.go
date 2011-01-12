@@ -251,26 +251,16 @@ func (gps *ParserState) make_arith_command(exp *word_list) *Command {
   return command
 }
 
-//#if defined (COND_Command)
-//struct cond_com *
-//make_cond_node (type, op, left, right)
-//     int type;
-//     word_desc *op;
-//     struct cond_com *left, *right;
-//{
-//  COND_COM *temp;
-//
-//  temp = (COND_COM *)xmalloc (sizeof (COND_COM));
-//  temp.flags = 0;
-//  temp.line = line_number;
-//  temp.typ = type;
-//  temp.op = op;
-//  temp.left = left;
-//  temp.right = right;
-//
-//  return (temp);
-//}
-//#endif
+func (gps *ParserState) make_cond_node (typ int, op *word_desc, left *CondCom, right *CondCom) *CondCom {
+  temp := new(CondCom)
+  temp.line = gps.line_number;
+  temp.typ = typ;
+  temp.op = op;
+  temp.left = left;
+  temp.right = right;
+
+  return temp
+}
 
 func (gps *ParserState) make_cond_command (cond_node *CondCom) (command *Command) {
   command = new(Command)
