@@ -3548,7 +3548,7 @@ func (gps *ParserState) read_token (command int) (result int) {
 	      return (OR_OR);
 
 	    case '(':		/* ) */
-	      result = parse_dparen (character);
+	      result = gps.parse_dparen (character);
 	      if (result == -2) {
 	        break;
 	      } else {
@@ -4365,114 +4365,86 @@ tokword:
 //
 //  return ret;
 //}
-//
-///* Parse a double-paren construct.  It can be either an arithmetic
-//   command, an arithmetic `for' command, or a nested subshell.  Returns
-//   the parsed token, -1 on error, or -2 if we didn't do anything and
-//   should just go on. */
-//static int
-//parse_dparen (c)
-//     int c;
-//{
-//  int cmdtyp, sline;
-//  char *wval;
-//  word_desc *wd;
-//
-//  if (gps.last_read_token == FOR)
-//    {
-//      gps.arith_for_lineno = gps.line_number;
-//      cmdtyp = parse_arith_cmd (&wval, 0);
-//      if (cmdtyp == 1)
-//	{
-//	  wd = new(word_desc)
-//	  wd.word = wval;
-//	  gps.yylval.word_list = makeWordList (wd, nil);
-//	  return (ARITH_FOR_EXPRS);
-//	}
-//      else
-//	return -1;		/* ERROR */
-//    }
-//
-//  if (reserved_word_acceptable (gps.last_read_token))
-//    {
-//      sline = gps.line_number;
-//
-//      cmdtyp = parse_arith_cmd (&wval, 0);
-//      if (cmdtyp == 1)	/* arithmetic command */
-//	{
-//	  wd = new(word_desc)
-//	  wd.word = wval;
-//	  wd.flags = W_QUOTED|W_NOSPLIT|W_NOGLOB|W_DQUOTE;
-//	  gps.yylval.word_list = makeWordList (wd, nil);
-//	  return (ARITH_CMD);
-//	}
-//      else if (cmdtyp == 0)	/* nested subshell */
-//	{
-//	  push_string (wval, 0, nil);
-//	  if ((gps.parser_state & PST_CASEPAT) == 0)
-//	    gps.parser_state |= PST_SUBSHELL;
-//	  return (c);
-//	}
-//      else			/* ERROR */
-//	return -1;
-//    }
-//
-//  return -2;			/* XXX */
-//}
-//
-///* We've seen a `(('.  Look for the matching `))'.  If we get it, return 1.
-//   If not, assume it's a nested subshell for backwards compatibility and
-//   return 0.  In any case, put the characters we've consumed into a locally-
-//   allocated buffer and make *ep point to that buffer.  Return -1 on an
-//   error, for example EOF. */
-//static int
-//parse_arith_cmd (ep, adddq)
-//     char **ep;
-//     int adddq;
-//{
-//  int exp_lineno, rval, c;
-//  char *ttok, *tokstr;
-//  int ttoklen;
-//
-//  exp_lineno = gps.line_number;
-//  ttok = parse_matched_pair (0, '(', ')', &ttoklen, 0);
-//  rval = 1;
-//  if (ttok == &matched_pair_error)
-//    return -1;
-//  /* Check that the next character is the closing right paren.  If
-//     not, this is a syntax error. ( */
-//  c = gps.shell_getc (0);
-//  if gps.MBTEST(c != ')')
-//    rval = 0;
-//
-//  tokstr = (char *)xmalloc (ttoklen + 4);
-//
-//  /* if ADDDQ != 0 then (( ... )) -> "..." */
-//  if (rval == 1 && adddq)	/* arith cmd, add double quotes */
-//    {
-//      tokstr[0] = '"';
-//      strncpy (tokstr + 1, ttok, ttoklen - 1);
-//      tokstr[ttoklen] = '"';
-//      tokstr[ttoklen+1] = '\0';
-//    }
-//  else if (rval == 1)		/* arith cmd, don't add double quotes */
-//    {
-//      strncpy (tokstr, ttok, ttoklen - 1);
-//      tokstr[ttoklen-1] = '\0';
-//    }
-//  else				/* nested subshell */
-//    {
-//      tokstr[0] = '(';
-//      strncpy (tokstr + 1, ttok, ttoklen - 1);
-//      tokstr[ttoklen] = ')';
-//      tokstr[ttoklen+1] = c;
-//      tokstr[ttoklen+2] = '\0';
-//    }
-//
-//  *ep = tokstr;
-//  return rval;
-//}
-//
+
+/* Parse a double-paren construct.  It can be either an arithmetic
+   command, an arithmetic `for' command, or a nested subshell.  Returns
+   the parsed token, -1 on error, or -2 if we didn't do anything and
+   should just go on. */
+func (gps *ParserState) parse_dparen (c int) int {
+  var cmdtyp int
+  var wval string
+  var wd *word_desc
+
+  if gps.last_read_token == FOR {
+      gps.arith_for_lineno = gps.line_number;
+      cmdtyp, wval = gps.parse_arith_cmd (false);
+      if cmdtyp == 1 {
+	  wd = new(word_desc)
+	  wd.word = wval;
+	  gps.yylval.word_list = makeWordList (wd, nil);
+	  return (ARITH_FOR_EXPRS);
+      } else {
+	return -1;		/* ERROR */
+      }
+  }
+
+  if (reserved_word_acceptable (gps.last_read_token)) {
+      cmdtyp, wval = gps.parse_arith_cmd (false);
+      switch {
+      case cmdtyp == 1:	/* arithmetic command */
+	  wd = new(word_desc)
+	  wd.word = wval;
+	  wd.flags = W_QUOTED|W_NOSPLIT|W_NOGLOB|W_DQUOTE;
+	  gps.yylval.word_list = makeWordList (wd, nil);
+	  return (ARITH_CMD);
+      case cmdtyp == 0:	/* nested subshell */
+	  push_string (wval, 0, nil);
+	  if ((gps.parser_state & PST_CASEPAT) == 0) {
+	    gps.parser_state |= PST_SUBSHELL;
+          }
+	  return (c);
+      default:			/* ERROR */
+	return -1;
+      }
+  }
+
+  return -2;			/* XXX */
+}
+
+/* We've seen a `(('.  Look for the matching `))'.  If we get it, return 1.
+   If not, assume it's a nested subshell for backwards compatibility and
+   return 0.  In any case, put the characters we've consumed into a locally-
+   allocated buffer and make *ep point to that buffer.  Return -1 on an
+   error, for example EOF. */
+func (gps *ParserState) parse_arith_cmd(adddq bool) (rval int, tokstr string) {
+  var c int
+  var ttok string
+
+  ttok, err := parse_matched_pair (0, '(', ')', 0);
+  if err != nil {
+    return -1, ""
+  }
+  rval = 1;
+  /* Check that the next character is the closing right paren.  If
+     not, this is a syntax error. ( */
+  c = gps.shell_getc(false);
+  if gps.MBTEST(c != ')') {
+    rval = 0;
+  }
+
+  /* if ADDDQ != 0 then (( ... )) -> "..." */
+  switch {
+  case rval == 1 && adddq:	/* arith cmd, add double quotes */
+      tokstr = fmt.Sprintf("\"%s\"", ttok)
+  case rval == 1:		/* arith cmd, don't add double quotes */
+      tokstr = ttok
+  default:			/* nested subshell */
+      tokstr = fmt.Sprintf("(%s)%s", runesToString([]int { c }))
+  }
+
+  return
+}
+
 func (gps *ParserState) cond_error() {
   if (gps.EOF_Reached && gps.cond_token != COND_ERROR) {		/* [[ */
     gps.parser_error (gps.cond_lineno, "unexpected EOF while looking for `]]'");
