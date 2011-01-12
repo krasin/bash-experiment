@@ -19,4 +19,4 @@ GOFILES=\
 	make_cmd.go\
 	y.tab.go\
 
-include $(GOROOT)/src/Make.cmd
+include $(GOROOT)/src/Make.pkg
