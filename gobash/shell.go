@@ -32,6 +32,7 @@ func (sh *ShellState) openShellScript(filename string) (err os.Error) {
 	}
 	sh.input = newBufferedBashInput(file)
 	sh.gps = newParserState(sh.input)
+	sh.gps.Yyparse()
 	return
 }
 
