@@ -3076,18 +3076,16 @@ pop_alias:
   return (uc);
 }
 
-///* Put C back into the input for the shell. */
-//static void
-//shell_ungetc (c)
-//     int c;
-//{
-//  if (gps.shell_input_line && gps.shell_input_line_index) {
-//    gps.shell_input_line[--gps.shell_input_line_index] = c;
-//  } else {
-//    gps.eol_ungetc_lookahead = c;
-//  }
-//}
-//
+/* Put C back into the input for the shell. */
+func (gps *ParserState) shell_ungetc(c int) {
+  if (gps.shell_input_line != nil && gps.shell_input_line_index > 0) {
+    gps.shell_input_line_index--
+    gps.shell_input_line[gps.shell_input_line_index] = c;
+  } else {
+    gps.eol_ungetc_lookahead = c;
+  }
+}
+
 ///* Discard input until CHARACTER is seen, then push that character back
 //   onto the input stream. */
 //static void
@@ -3100,7 +3098,7 @@ pop_alias:
 //    ;
 //
 //  if (c != EOF) {
-//    shell_ungetc (c);
+//    gps.shell_ungetc (c);
 //  }
 //}
 //
@@ -3525,7 +3523,7 @@ func (gps *ParserState) read_token (command int) (result int) {
 	      case gps.MBTEST(peek_char == '<'):
 		return (LESS_LESS_LESS);
 	      default:
-		  shell_ungetc (peek_char);
+		  gps.shell_ungetc (peek_char);
 		  return (LESS_LESS);
               }
 
@@ -3540,7 +3538,7 @@ func (gps *ParserState) read_token (command int) (result int) {
 	      if gps.MBTEST(peek_char == '&') {
 		return (SEMI_SEMI_AND);
 	      } else {
-		  shell_ungetc (peek_char);
+		  gps.shell_ungetc (peek_char);
 		  return (SEMI_SEMI);
               }
 
@@ -3572,7 +3570,7 @@ func (gps *ParserState) read_token (command int) (result int) {
 	  if gps.MBTEST(peek_char == '>') {
 	    return (AND_GREATER_GREATER);
 	  } else {
-	      shell_ungetc (peek_char);
+	      gps.shell_ungetc (peek_char);
 	      return (AND_GREATER);
 	  }
 	}
@@ -3586,7 +3584,7 @@ func (gps *ParserState) read_token (command int) (result int) {
 	}
       }
 
-      shell_ungetc (peek_char);
+      gps.shell_ungetc (peek_char);
 
       /* If we look like we are reading the start of a function
 	 definition, then let the reader know about it so that
@@ -3709,7 +3707,7 @@ tokword:
 //      ch = gps.shell_getc (qc != '\'' && (tflags & LEX_PASSNEXT) == 0);
 //
 //      if (ch == EOF) {
-//	  parser_error (start_lineno, _("unexpected EOF while looking for matching `%c'"), close);
+//	  gps.parser_error (start_lineno, _("unexpected EOF while looking for matching `%c'"), close);
 //	  gps.EOF_Reached = true;	/* XXX */
 //	  return (&matched_pair_error);
 //	}
@@ -3932,7 +3930,7 @@ tokword:
 //      if (ch == EOF)
 //	{
 //eof_error:
-//	  parser_error (start_lineno, _("unexpected EOF while looking for matching `%c'"), close);
+//	  gps.parser_error (start_lineno, _("unexpected EOF while looking for matching `%c'"), close);
 //	  gps.EOF_Reached = true;	/* XXX */
 //	  return (&matched_pair_error);
 //	}
@@ -4108,7 +4106,7 @@ tokword:
 //	    }
 //	  else if (ch == '\n' || COMSUB_META(ch))
 //	    {
-//	      shell_ungetc (peekc);
+//	      gps.shell_ungetc (peekc);
 ///*itrace("parse_comsub:%d: set lex_reswordok = 1, ch = `%c'", gps.line_number, ch);*/
 //	      tflags |= LEX_RESWDOK;
 //	      lex_rwlen = 0;
@@ -4120,7 +4118,7 @@ tokword:
 //	    {
 //	      /* `unget' the character we just added and fall through */
 //	      retind--;
-//	      shell_ungetc (peekc);
+//	      gps.shell_ungetc (peekc);
 //	    }
 //	}
 //
@@ -4191,7 +4189,7 @@ tokword:
 //		  tflags |= LEX_STRIPDOC;
 //		}
 //	      else
-//		shell_ungetc (peekc);
+//		gps.shell_ungetc (peekc);
 //	      if (peekc != '<')
 //		{
 //		  tflags |= LEX_HEREDELIM;
@@ -4478,14 +4476,14 @@ tokword:
 //
 func (gps *ParserState) cond_error() {
   if (gps.EOF_Reached && gps.cond_token != COND_ERROR) {		/* [[ */
-    parser_error (gps.cond_lineno, "unexpected EOF while looking for `]]'");
+    gps.parser_error (gps.cond_lineno, "unexpected EOF while looking for `]]'");
   } else {
     if (gps.cond_token != COND_ERROR) {
       etext := error_token_from_token(gps.cond_token)
       if etext != "" {
-        parser_error (gps.cond_lineno, "syntax error in conditional expression: unexpected token `%s'", etext);
+        gps.parser_error (gps.cond_lineno, "syntax error in conditional expression: unexpected token `%s'", etext);
       } else {
-        parser_error (gps.cond_lineno, "syntax error in conditional expression");
+        gps.parser_error (gps.cond_lineno, "syntax error in conditional expression");
       }
     }
   }
@@ -4563,10 +4561,10 @@ func (gps *ParserState) cond_error() {
 //	    dispose_cond_node (term);		/* ( */
 //	  if (etext = error_token_from_token (gps.cond_token))
 //	    {
-//	      parser_error (lineno, _("unexpected token `%s', expected `)'"), etext);
+//	      gps.parser_error (lineno, _("unexpected token `%s', expected `)'"), etext);
 //	    }
 //	  else
-//	    parser_error (lineno, _("expected `)'"));
+//	    gps.parser_error (lineno, _("expected `)'"));
 //	  COND_RETURN_ERROR ();
 //	}
 //      term = make_cond_node (COND_EXPR, nil, term, nil);
@@ -4594,10 +4592,10 @@ func (gps *ParserState) cond_error() {
 //	  dispose_word (op);
 //	  if (etext = error_token_from_token (tok))
 //	    {
-//	      parser_error (gps.line_number, _("unexpected argument `%s' to conditional unary operator"), etext);
+//	      gps.parser_error (gps.line_number, _("unexpected argument `%s' to conditional unary operator"), etext);
 //	    }
 //	  else
-//	    parser_error (gps.line_number, _("unexpected argument to conditional unary operator"));
+//	    gps.parser_error (gps.line_number, _("unexpected argument to conditional unary operator"));
 //	  COND_RETURN_ERROR ();
 //	}
 //
@@ -4641,10 +4639,10 @@ func (gps *ParserState) cond_error() {
 //	{
 //	  if (etext = error_token_from_token (tok))
 //	    {
-//	      parser_error (gps.line_number, _("unexpected token `%s', conditional binary operator expected"), etext);
+//	      gps.parser_error (gps.line_number, _("unexpected token `%s', conditional binary operator expected"), etext);
 //	    }
 //	  else
-//	    parser_error (gps.line_number, _("conditional binary operator expected"));
+//	    gps.parser_error (gps.line_number, _("conditional binary operator expected"));
 //	  dispose_cond_node (tleft);
 //	  COND_RETURN_ERROR ();
 //	}
@@ -4666,10 +4664,10 @@ func (gps *ParserState) cond_error() {
 //	{
 //	  if (etext = error_token_from_token (tok))
 //	    {
-//	      parser_error (gps.line_number, _("unexpected argument `%s' to conditional binary operator"), etext);
+//	      gps.parser_error (gps.line_number, _("unexpected argument `%s' to conditional binary operator"), etext);
 //	    }
 //	  else
-//	    parser_error (gps.line_number, _("unexpected argument to conditional binary operator"));
+//	    gps.parser_error (gps.line_number, _("unexpected argument to conditional binary operator"));
 //	  dispose_cond_node (tleft);
 //	  dispose_word (op);
 //	  COND_RETURN_ERROR ();
@@ -4680,13 +4678,13 @@ func (gps *ParserState) cond_error() {
 //  else
 //    {
 //      if (tok < 256)
-//	parser_error (gps.line_number, _("unexpected token `%c' in conditional command"), tok);
+//	gps.parser_error (gps.line_number, _("unexpected token `%c' in conditional command"), tok);
 //      else if (etext = error_token_from_token (tok))
 //	{
-//	  parser_error (gps.line_number, _("unexpected token `%s' in conditional command"), etext);
+//	  gps.parser_error (gps.line_number, _("unexpected token `%s' in conditional command"), etext);
 //	}
 //      else
-//	parser_error (gps.line_number, _("unexpected token %d in conditional command"), tok);
+//	gps.parser_error (gps.line_number, _("unexpected token %d in conditional command"), tok);
 //      COND_RETURN_ERROR ();
 //    }
 //  return (term);
@@ -4802,7 +4800,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //	    }
 //	  else
 //	    {
-//	      shell_ungetc (peek_char);
+//	      gps.shell_ungetc (peek_char);
 //
 //	      /* If the next character is to be quoted, note it now. */
 //	      if (cd == 0 || cd == '`' ||
@@ -4877,7 +4875,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //	      goto next_character;
 //	    }
 //	  else
-//	    shell_ungetc (peek_char);
+//	    gps.shell_ungetc (peek_char);
 //	}
 //
 //      /* If the delimiter character is not single quote, parse some of
@@ -4978,7 +4976,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //	      goto next_character;
 //	    }
 //	  else
-//	    shell_ungetc (peek_char);
+//	    gps.shell_ungetc (peek_char);
 //	}
 //
 //      /* Identify possible array subscript assignment; match [...].  If
@@ -5025,14 +5023,14 @@ func (gps *ParserState) parse_cond_command() *Command {
 //	      goto next_character;
 //	    }
 //	  else
-//	    shell_ungetc (peek_char);
+//	    gps.shell_ungetc (peek_char);
 //	}
 //
 //      /* When not parsing a multi-character word construct, shell meta-
 //	 characters break words. */
 //      if gps.MBTEST(shellbreak (character))
 //	{
-//	  shell_ungetc (character);
+//	  gps.shell_ungetc (character);
 //	  goto got_token;
 //	}
 //
@@ -5338,7 +5336,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //  while (token_end && msg[token_end - 1] == '\n')
 //    msg[--token_end] = '\0';
 //
-//  parser_error (gps.line_number, "`%s'", msg);
+//  gps.parser_error (gps.line_number, "`%s'", msg);
 //}
 //
 ///* Report a syntax error with line numbers, etc.
@@ -5353,7 +5351,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //
 //  if (message)
 //    {
-//      parser_error (gps.line_number, "%s", message);
+//      gps.parser_error (gps.line_number, "%s", message);
 //      last_command_exit_value = parse_and_execute_level ? EX_BADSYNTAX : EX_BADUSAGE;
 //      return;
 //    }
@@ -5363,7 +5361,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //     parser's complaining about by looking at gps.current_token. */
 //  if (gps.current_token != 0 && !gps.EOF_Reached && (msg = error_token_from_token (gps.current_token)))
 //    {
-//      parser_error (gps.line_number, _("syntax error near unexpected token `%s'"), msg);
+//      gps.parser_error (gps.line_number, _("syntax error near unexpected token `%s'"), msg);
 //
 //      print_offending_line ();
 //
@@ -5379,7 +5377,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //      msg = error_token_from_text ();
 //      if (msg)
 //	{
-//	  parser_error (gps.line_number, _("syntax error near `%s'"), msg);
+//	  gps.parser_error (gps.line_number, _("syntax error near `%s'"), msg);
 //	}
 //
 //      print_offending_line ();
@@ -5387,7 +5385,7 @@ func (gps *ParserState) parse_cond_command() *Command {
 //  else
 //    {
 //      msg = gps.EOF_Reached ? _("syntax error: unexpected end of file") : _("syntax error");
-//      parser_error (gps.line_number, "%s", msg);
+//      gps.parser_error (gps.line_number, "%s", msg);
 //    }
 //
 //  last_command_exit_value = parse_and_execute_level ? EX_BADSYNTAX : EX_BADUSAGE;
@@ -5543,7 +5541,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //	{
 //	  gps.current_token = tok;	/* for error reporting */
 //	  if (tok == yacc_EOF)	/* ( */
-//	    parser_error (orig_line_number, _("unexpected EOF while looking for matching `)'"));
+//	    gps.parser_error (orig_line_number, _("unexpected EOF while looking for matching `)'"));
 //	  else
 //	    yyerror(NULL);	/* does the right thing */
 //	  if (wl)
