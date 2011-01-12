@@ -2311,7 +2311,7 @@ const TOKEN_DEFAULT_INITIAL_SIZE = 496
 const TOKEN_DEFAULT_GROW_SIZE = 512
 
 
-/* yy_getc () returns the next available character from input or EOF.
+/* gps.yy_getc () returns the next available character from input or EOF.
    yy_ungetc (c) makes `c' the next character to read.
    init_yy_io (get, unget, typ, location) makes the function GET the
    installed function for getting the next character, makes UNGET the
@@ -2356,13 +2356,11 @@ const TOKEN_DEFAULT_GROW_SIZE = 512
 //{
 //  return (bash_input.name ? bash_input.name : "stdin");
 //}
-//
-///* Call this to get the next character of input. */
-//static int
-//yy_getc ()
-//{
-//  return (*(bash_input.getter)) ();
-//}
+
+//* Call this to get the next character of input. */
+func (gps *ParserState) yy_getc () int {
+  return gps.bashInput.Getc()
+}
 //
 ///* Call this to unget C.  That is, to make C the next character
 //   to be read. */
@@ -2736,7 +2734,7 @@ func (gps *ParserState) free_string_list () {
 //      /* Allow immediate exit if interrupted during input. */
 //      QUIT;
 //
-//      c = yy_getc ();
+//      c = gps.yy_getc ();
 //
 //      /* Ignore null bytes in input. */
 //      if (c == 0) {
@@ -2765,7 +2763,7 @@ func (gps *ParserState) free_string_list () {
 //	  pass_next = 0;
 //	} else {
 //        if (c == '\\' && remove_quoted_newline) {
-//	    peekc = yy_getc ();
+//	    peekc = gps.yy_getc ();
 //	    if (peekc == '\n') {
 //	        gps.line_number++;
 //	        continue;	/* Make the unquoted \<newline> pair disappear. */
@@ -2941,7 +2939,7 @@ func (gps *ParserState) shell_getc (remove_quoted_newline bool) int {
 //      }
 
       for {
-	  c = yy_getc ();
+	  c = gps.yy_getc ();
 
 	  if c == 0 {
 	      continue;
