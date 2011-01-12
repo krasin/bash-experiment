@@ -4470,20 +4470,15 @@ func (gps *ParserState) cond_expr () *CondCom {
   return gps.cond_or()
 }
 
-//static CondCom *
-//cond_or ()
-//{
-//  CondCom *l, *r;
-//
-//  l = cond_and ();
-//  if (gps.cond_token == OR_OR)
-//    {
-//      r = cond_or ();
-//      l = make_cond_node (COND_OR, nil, l, r);
-//    }
-//  return l;
-//}
-//
+func (gps *ParserState) cond_or () *CondCom {
+  l := gps.cond_and ();
+  if gps.cond_token == OR_OR {
+      r := gps.cond_or ();
+      l = gps.make_cond_node (COND_OR, nil, l, r);
+  }
+  return l;
+}
+
 //static CondCom *
 //cond_and ()
 //{
