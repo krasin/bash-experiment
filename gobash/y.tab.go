@@ -4479,20 +4479,15 @@ func (gps *ParserState) cond_or () *CondCom {
   return l;
 }
 
-//static CondCom *
-//cond_and ()
-//{
-//  CondCom *l, *r;
-//
-//  l = cond_term ();
-//  if (gps.cond_token == AND_AND)
-//    {
-//      r = cond_and ();
-//      l = make_cond_node (COND_AND, nil, l, r);
-//    }
-//  return l;
-//}
-//
+func (gps *ParserState) cond_and () *CondCom {
+  l := gps.cond_term ();
+  if gps.cond_token == AND_AND {
+      r := gps.cond_and()
+      l = gps.make_cond_node (COND_AND, nil, l, r);
+  }
+  return l;
+}
+
 //static int
 //cond_skip_newlines ()
 //{
