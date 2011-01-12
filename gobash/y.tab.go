@@ -49,6 +49,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"utf8"
 )
 
 const EOF = -1
@@ -130,6 +131,26 @@ const MAX_CASE_NEST = 128
 func (gps *ParserState) MBTEST(x bool) bool {
 	return x
 }
+
+func enlargeBuffer(buf []int, newsize int) (res []int) {
+	res = make([]int, newsize)
+	for i, v := range buf {
+		res[i] = v
+	}
+	return
+}
+
+func resizeBuffer(buf []int, cind int, room int, csize int, sincr int) (res []int) {
+    if cind + room >= csize {
+	for cind + room >= csize {
+	  csize += sincr
+	}
+	return enlargeBuffer(buf, csize)
+    }
+    return buf
+}
+
+
 // 
 // 
 // extern int current_command_number;
@@ -2900,6 +2921,21 @@ func (gps *ParserState) free_string_list () {
 //
 //#define pop_delimiter(ds)	ds.delimiter_depth--
 
+func runesToString(arr []int) string {
+	cnt := 0
+	for _, v := range arr {
+		cnt += utf8.RuneLen(v)
+	}
+	data := make([]byte, cnt)
+	cur := data
+	for _, v := range arr {
+		rl := utf8.RuneLen(v)
+		utf8.EncodeRune(cur[0:rl], v)
+		cur = cur[rl:]
+	}
+	return string(cur)
+}
+
 /* Return the next shell input character.  This always reads characters
    from gps.shell_input_line; when that line is exhausted, it is time to
    read the next line.  This is called by read_token when the shell is
@@ -2945,7 +2981,7 @@ func (gps *ParserState) shell_getc (remove_quoted_newline bool) int {
 	      continue;
 	  }
 
-	  RESIZE_MALLOCED_BUFFER (gps.shell_input_line, i, 2, gps.shell_input_line_size, 256);
+	  gps.shell_input_line = resizeBuffer(gps.shell_input_line, i, 2, gps.shell_input_line_size, 256)
 
 	  if c == EOF {
 //  TODO(krasin): decide what to do with bash_input
@@ -2980,7 +3016,7 @@ func (gps *ParserState) shell_getc (remove_quoted_newline bool) int {
 	     echoed. */
 	  if (gps.echo_input_at_read && (gps.shell_input_line[0] != 0 ||
 				     gps.shell_input_line_terminator != EOF)) {
-	    fprintf (stderr, "%s\n", gps.shell_input_line);
+	    fmt.Fprintf(os.Stderr, "%s\n", runesToString(gps.shell_input_line));
           }
 	} else {
 	  gps.shell_input_line_size = 0;
@@ -2992,7 +3028,7 @@ func (gps *ParserState) shell_getc (remove_quoted_newline bool) int {
       if (gps.shell_input_line_terminator != EOF) {
 	  if (gps.shell_input_line_len + 3 > gps.shell_input_line_size) {
             gps.shell_input_line_size += 2
-	    gps.shell_input_line = xrealloc(gps.shell_input_line, 1+gps.shell_input_line_size);
+	    gps.shell_input_line = enlargeBuffer(gps.shell_input_line, 1+gps.shell_input_line_size)
 	  }
 
 	  gps.shell_input_line[gps.shell_input_line_len] = '\n';
