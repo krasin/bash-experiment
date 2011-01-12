@@ -5,11 +5,14 @@ import (
 	"os"
 )
 
-type BashInput interface{
-	Close() os.Error
-	// Returns UTF-8 Rune or gobash.EOF
+type BufferedInput interface {
+	// Returns UTF-8 rune or gobash.EOF.
 	Getc() int
 	Ungetc()
+}
+type BashInput interface{
+	Close() os.Error
+	BufferedInput;
 }
 
 type bufferedBashInput struct {
@@ -36,3 +39,4 @@ func (bi *bufferedBashInput) Getc() int {
 func (bi *bufferedBashInput) Ungetc() {
 	bi.reader.UnreadRune()
 }
+
