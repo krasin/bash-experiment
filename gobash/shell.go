@@ -17,12 +17,12 @@ func newShellState() *ShellState {
 
 func ExecuteScript(filename string) int {
 	shell := newShellState()
+	defer shell.shutdown()
 	err := shell.openShellScript(filename)
 	if err != nil {
 		return shell.fatal(fmt.Sprintf("Can't open a shell script file: %s, err: %v", filename, err))
 	}
-	shell.shutdown()
-	return 0
+	return shell.readerLoop()
 }
 
 func (sh *ShellState) openShellScript(filename string) (err os.Error) {
@@ -32,8 +32,15 @@ func (sh *ShellState) openShellScript(filename string) (err os.Error) {
 	}
 	sh.input = newBufferedBashInput(file)
 	sh.gps = newParserState(sh.input)
-	sh.gps.Yyparse()
 	return
+}
+
+func (sh *ShellState) readerLoop() int {
+	for !sh.gps.EOF_Reached {
+		sh.gps.Yyparse()
+		fmt.Printf("global_command: %v\n", sh.gps.global_command)
+	}
+	return 0
 }
 
 func (sh *ShellState) shutdown() {
