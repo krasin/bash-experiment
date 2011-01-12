@@ -3158,15 +3158,17 @@ func (gps *ParserState) yylex() int {
 //static int esacs_needed_count;
 
 func (gps *ParserState) gather_here_documents() {
-  r := 0;
-  for gps.need_here_doc != 0 {
-      gps.parser_state |= PST_HEREDOC;
-      redir := gps.redir_stack[r]
-      r++
-      gps.make_here_document(redir, gps.line_number)
-      gps.parser_state &= ^PST_HEREDOC;
-      gps.need_here_doc--;
-    }
+  // TODO(krasin): implement this
+  panic("gather_here_documents: not implemented")
+//  r := 0;
+//  for gps.need_here_doc != 0 {
+//      gps.parser_state |= PST_HEREDOC;
+//      redir := gps.redir_stack[r]
+//      r++
+//      gps.make_here_document(redir, gps.line_number)
+//      gps.parser_state &= ^PST_HEREDOC;
+//      gps.need_here_doc--;
+//    }
 }
 
 
