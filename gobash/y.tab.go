@@ -2653,42 +2653,36 @@ func (gps *ParserState) rewind_input_string() {
 // * implement alias expansion on a per-token basis.
 // */
 //
-///*
-// * Push the current gps.shell_input_line onto a stack of such lines and make S
-// * the current input.  Used when expanding aliases.  EXPAND is used to set
-// * the value of expand_next_token when the string is popped, so that the
-// * word after the alias in the original line is handled correctly when the
-// * alias expands to multiple words.  TOKEN is the token that was expanded
-// * into S; it is saved and used to prevent infinite recursive expansion.
-// */
-//static void
-//push_string (s, expand, ap)
-//     char *s;
-//     int expand;
-//     alias_t *ap;
-//{
-//  StringSaver *temp = (StringSaver *)xmalloc (sizeof (StringSaver));
-//
-//  temp.expand_alias = expand;
-//  temp.saved_line = gps.shell_input_line;
-//  temp.saved_line_size = gps.shell_input_line_size;
-//  temp.saved_line_index = gps.shell_input_line_index;
-//  temp.saved_line_terminator = gps.shell_input_line_terminator;
-//  temp.expander = ap;
-//  temp.next = gps.pushed_string_list;
-//  gps.pushed_string_list = temp;
-//
-//  if (ap) {
-//    ap.flags |= AL_BEINGEXPANDED;
-//  }
-//
-//  gps.shell_input_line = s;
-//  gps.shell_input_line_size = strlen (s);
-//  gps.shell_input_line_index = 0;
-//  gps.shell_input_line_terminator = '\0';
-//
-//}
-//
+/*
+ * Push the current gps.shell_input_line onto a stack of such lines and make S
+ * the current input.  Used when expanding aliases.  EXPAND is used to set
+ * the value of expand_next_token when the string is popped, so that the
+ * word after the alias in the original line is handled correctly when the
+ * alias expands to multiple words.  TOKEN is the token that was expanded
+ * into S; it is saved and used to prevent infinite recursive expansion.
+ */
+func (gps *ParserState) push_string(s string, expand bool, ap *alias_t) {
+  temp := new(StringSaver)
+
+  temp.expand_alias = expand;
+  temp.saved_line = gps.shell_input_line;
+  temp.saved_line_size = gps.shell_input_line_size;
+  temp.saved_line_index = gps.shell_input_line_index;
+  temp.saved_line_terminator = gps.shell_input_line_terminator;
+  temp.expander = ap;
+  temp.next = gps.pushed_string_list;
+  gps.pushed_string_list = temp;
+
+  if ap != nil {
+    ap.flags |= AL_BEINGEXPANDED;
+  }
+
+  gps.shell_input_line = stringToRunes(s)
+  gps.shell_input_line_size = len(s);
+  gps.shell_input_line_index = 0;
+  gps.shell_input_line_terminator = 0
+}
+
 /*
  * Make the top of the pushed_string stack be the current shell input.
  * Only called when there is something on the stack.  Called from shell_getc
@@ -2930,6 +2924,18 @@ func runesToString(arr []int) string {
 		cur = cur[rl:]
 	}
 	return string(cur)
+}
+
+func stringToRunes(str string) (arr []int) {
+	cnt := 0
+	for _, _ = range str {
+		cnt++
+	}
+	arr = make([]int, cnt)
+	for i, v := range str {
+		arr[i] = v
+	}
+	return
 }
 
 /* Return the next shell input character.  This always reads characters
@@ -3265,7 +3271,7 @@ func (gps *ParserState) gather_here_documents() {
 //      expanded = ap ? mk_alexpansion (ap.value) : nil;
 //
 //      if (expanded) {
-//	  push_string (expanded, ap.flags & AL_EXPANDNEXT, ap);
+//	  gps.push_string (expanded, ap.flags & AL_EXPANDNEXT, ap);
 //	  return (RE_READ_TOKEN);
 //	} else {
 //	/* This is an eligible token that does not have an expansion. */
@@ -3457,7 +3463,7 @@ func (gps *ParserState) read_token (command int) (result int) {
   }
 
   /* This is a place to jump back to once we have successfully expanded a
-     token with an alias and pushed the string with push_string () */
+     token with an alias and pushed the string with gps.push_string () */
  re_read_token:
 
   /* Read a single word from input.  Start by skipping blanks. */
@@ -4398,7 +4404,7 @@ func (gps *ParserState) parse_dparen (c int) int {
 	  gps.yylval.word_list = makeWordList (wd, nil);
 	  return (ARITH_CMD);
       case cmdtyp == 0:	/* nested subshell */
-	  push_string (wval, 0, nil);
+	  gps.push_string (wval, false, nil);
 	  if ((gps.parser_state & PST_CASEPAT) == 0) {
 	    gps.parser_state |= PST_SUBSHELL;
           }
