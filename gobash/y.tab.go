@@ -3086,22 +3086,23 @@ func (gps *ParserState) shell_ungetc(c int) {
   }
 }
 
-///* Discard input until CHARACTER is seen, then push that character back
-//   onto the input stream. */
-//static void
-//discard_until (character)
-//     int character;
-//{
-//  int c;
-//
-//  while ((c = gps.shell_getc (0)) != EOF && c != character)
-//    ;
-//
-//  if (c != EOF) {
-//    gps.shell_ungetc (c);
-//  }
-//}
-//
+/* Discard input until CHARACTER is seen, then push that character back
+   onto the input stream. */
+func (gps *ParserState) discard_until(character int) {
+  var c int
+
+  for {
+    c = gps.shell_getc(false)
+    if c == EOF || c == character {
+	break
+    }
+  }
+
+  if (c != EOF) {
+    gps.shell_ungetc (c);
+  }
+}
+
 //void
 //execute_variable_command (command, vname)
 //     char *command, *vname;
@@ -3476,7 +3477,7 @@ func (gps *ParserState) read_token (command int) (result int) {
 
   if gps.MBTEST(character == '#') {
       /* A comment.  Discard until EOL or EOF, and then return a newline. */
-      discard_until ('\n');
+      gps.discard_until ('\n');
       gps.shell_getc (false);
       character = '\n';	/* this will take the next if statement and return. */
   }
