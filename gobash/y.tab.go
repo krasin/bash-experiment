@@ -4708,10 +4708,9 @@ func (gps *ParserState) parse_cond_command() *Command {
 //  return r;
 //}
 //
-//static int
-//read_token_word (character)
-//     int character;
-//{
+func (gps *ParserState) read_token_word(character int) int {
+  // TODO(krasin): implement this
+  panic("read_token_word: not implemented")
 //  /* The value for YYLVAL when a WORD is read. */
 //  word_desc *the_word;
 //
@@ -5145,8 +5144,8 @@ func (gps *ParserState) parse_cond_command() *Command {
 //    }
 //
 //  return (result);
-//}
-//
+}
+
 /* Return 1 if TOKSYM is a token that after being read would allow
    a reserved word to be seen, else 0. */
 func reserved_word_acceptable(toksym int) bool {
