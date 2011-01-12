@@ -133,6 +133,9 @@ func (gps *ParserState) MBTEST(x bool) bool {
 }
 
 func enlargeBuffer(buf []int, newsize int) (res []int) {
+	if newsize <= len(buf) {
+		return buf
+	}
 	res = make([]int, newsize)
 	for i, v := range buf {
 		res[i] = v
