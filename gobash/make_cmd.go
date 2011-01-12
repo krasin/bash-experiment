@@ -271,29 +271,19 @@ func (gps *ParserState) make_arith_command(exp *word_list) *Command {
 //  return (temp);
 //}
 //#endif
-//
-//Command *
-//make_cond_command (cond_node)
-//     COND_COM *cond_node;
-//{
-//#if defined (COND_Command)
-//  Command *command;
-//
-//  command = (Command *)xmalloc (sizeof (Command));
-//  command.value.Cond = cond_node;
-//
-//  command.typ = cm_cond;
-//  command.redirects = nil;
-//  command.flags = 0;
-//  command.line = cond_node ? cond_node.line : 0;
-//
-//  return (command);
-//#else
-//  last_command_exit_value = 2;
-//  return (nil);
-//#endif
-//}
-//
+
+func (gps *ParserState) make_cond_command (cond_node *CondCom) (command *Command) {
+  command = new(Command)
+  command.value.Cond = cond_node;
+
+  command.typ = cm_cond;
+  if cond_node != nil {
+    command.line = cond_node.line
+  }
+
+  return
+}
+
 func (gps *ParserState) make_bare_simple_command () *Command {
   command := new(Command)
   temp := new(SimpleCom)
