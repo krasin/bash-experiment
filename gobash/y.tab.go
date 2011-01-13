@@ -3625,32 +3625,32 @@ tokword:
   return result;
 }
 
-///*
-// * Match a $(...) or other grouping construct.  This has to handle embedded
-// * quoted strings ('', ``, "") and nested constructs.  It also must handle
-// * reprompting the user, if necessary, after reading a newline, and returning
-// * correct error values if it reads EOF.
-// */
-//#define P_FIRSTCLOSE	0x01
-//#define P_ALLOWESC	0x02
-//#define P_DQUOTE	0x04
-//#define P_COMMAND	0x08	/* parsing a command, so look for comments */
-//#define P_BACKQUOTE	0x10	/* parsing a backquoted command substitution */
-//#define P_ARRAYSUB	0x20	/* parsing a [...] array subscript for assignment */
-//
-///* Lexical state while parsing a grouping construct or $(...). */
-//#define LEX_WASDOL	0x001
-//#define LEX_CKCOMMENT	0x002
-//#define LEX_INCOMMENT	0x004
-//#define LEX_PASSNEXT	0x008
-//#define LEX_RESWDOK	0x010
-//#define LEX_CKCASE	0x020
-//#define LEX_INCASE	0x040
-//#define LEX_INHEREDOC	0x080
-//#define LEX_HEREDELIM	0x100		/* reading here-doc delimiter */
-//#define LEX_STRIPDOC	0x200		/* <<- strip tabs from here doc delim */
-//#define LEX_INWORD	0x400
-//
+/*
+ * Match a $(...) or other grouping construct.  This has to handle embedded
+ * quoted strings ('', ``, "") and nested constructs.  It also must handle
+ * reprompting the user, if necessary, after reading a newline, and returning
+ * correct error values if it reads EOF.
+ */
+const P_FIRSTCLOSE = 0x01
+const P_ALLOWESC = 0x02
+const P_DQUOTE = 0x04
+const P_COMMAND = 0x08 /* parsing a command, so look for comments */
+const P_BACKQUOTE = 0x10 /* parsing a backquoted command substitution */
+const P_ARRAYSUB = 0x20 /* parsing a [...] array subscript for assignment */
+
+/* Lexical state while parsing a grouping construct or $(...). */
+const LEX_WASDOL = 0x001
+const LEX_CKCOMMENT = 0x002
+const LEX_INCOMMENT = 0x004
+const LEX_PASSNEXT = 0x008
+const LEX_RESWDOK = 0x010
+const LEX_CKCASE = 0x020
+const LEX_INCASE = 0x040
+const LEX_INHEREDOC = 0x080
+const LEX_HEREDELIM = 0x100 /* reading here-doc delimiter */
+const LEX_STRIPDOC = 0x200 /* <<- strip tabs from here doc delim */
+const LEX_INWORD = 0x400
+
 //#define COMSUB_META(ch)		((ch) == ';' || (ch) == '&' || (ch) == '|')
 //
 //#define CHECK_NESTRET_ERROR() \
