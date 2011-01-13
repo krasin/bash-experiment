@@ -4871,15 +4871,19 @@ func (wts *wordTokenizerState) handleShellExp() {
 		  ttok = parse_comsub (cd, '(', ')', &ttoklen, P_COMMAND);
 		  pop_delimiter (dstack);
 		}
-	      else
+	      else {
 		ttok = parse_matched_pair (cd, '[', ']', &ttoklen, 0);
-	      if (ttok == &matched_pair_error)
+              }
+	      if (ttok == &matched_pair_error) {
 		return -1;		/* Bail immediately. */
+              }
 	      RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
 				      token_buffer_size,
 				      TOKEN_DEFAULT_GROW_SIZE);
-	      token[token_index++] = character;
-	      token[token_index++] = peek_char;
+	      token[token_index] = character;
+              token_index++
+	      token[token_index] = peek_char;
+              token_index++
 	      strcpy (token + token_index, ttok);
 	      token_index += ttoklen;
 	      dollar_present = 1;
@@ -4899,8 +4903,7 @@ func (wts *wordTokenizerState) handleShellExp() {
 	      pop_delimiter (dstack);
 	      if (ttok == &matched_pair_error)
 		return -1;
-	      if (peek_char == '\'')
-		{
+	      if (peek_char == '\'') {
 		  ttrans = ansiexpand (ttok, 0, ttoklen - 1, &ttranslen);
 
 		  /* Insert the single quotes and correctly quote any
@@ -4909,9 +4912,7 @@ func (wts *wordTokenizerState) handleShellExp() {
 		  ttok = sh_single_quote (ttrans);
 		  ttranslen = strlen (ttok);
 		  ttrans = ttok;
-		}
-	      else
-		{
+	      } else {
 		  /* Try to locale-expand the converted string. */
 		  ttrans = localeexpand (ttok, 0, ttoklen - 1, first_line, &ttranslen);
 
@@ -4919,7 +4920,7 @@ func (wts *wordTokenizerState) handleShellExp() {
 		  ttok = sh_mkdoublequoted (ttrans, ttranslen, 0);
 		  ttranslen += 2;
 		  ttrans = ttok;
-		}
+              }
 
 	      RESIZE_MALLOCED_BUFFER (token, token_index, ttranslen + 2,
 				      token_buffer_size,
@@ -4932,8 +4933,7 @@ func (wts *wordTokenizerState) handleShellExp() {
 	    }
 	  /* This could eventually be extended to recognize all of the
 	     shell's single-character parameter expansions, and set flags.*/
-	  else if gps.MBTEST(character == '$' && peek_char == '$')
-	    {
+	  else if gps.MBTEST(character == '$' && peek_char == '$') {
 	      ttok = (char *)xmalloc (3);
 	      ttok[0] = ttok[1] = '$';
 	      ttok[2] = '\0';
@@ -4945,9 +4945,9 @@ func (wts *wordTokenizerState) handleShellExp() {
 	      dollar_present = 1;
 	      all_digit_token = 0;
 	      goto next_character;
-	    }
-	  else
-	    gps.shell_ungetc (peek_char);
+	    } else {
+              gps.shell_ungetc (peek_char);
+            }
 	}
 
       /* Identify possible array subscript assignment; match [...].  If
@@ -4955,48 +4955,47 @@ func (wts *wordTokenizerState) handleShellExp() {
 	 `sub' as if it were enclosed in double quotes. */
       else if gps.MBTEST(character == '[' &&		/* ] */
 		     ((token_index > 0 && assignment_acceptable (gps.last_read_token) && token_is_ident (token, token_index)) ||
-		      (token_index == 0 && (gps.parser_state&PST_COMPASSIGN))))
-        {
+		      (token_index == 0 && (gps.parser_state&PST_COMPASSIGN)))) {
 	  ttok = parse_matched_pair (cd, '[', ']', &ttoklen, P_ARRAYSUB);
-	  if (ttok == &matched_pair_error)
+	  if (ttok == &matched_pair_error) {
 	    return -1;		/* Bail immediately. */
+          }
 	  RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
 				  token_buffer_size,
 				  TOKEN_DEFAULT_GROW_SIZE);
-	  token[token_index++] = character;
+	  token[token_index] = character;
+          token_index++
 	  strcpy (token + token_index, ttok);
 	  token_index += ttoklen;
 	  all_digit_token = 0;
 	  goto next_character;
         }
       /* Identify possible compound array variable assignment. */
-      else if gps.MBTEST(character == '=' && token_index > 0 && (assignment_acceptable (gps.last_read_token) || (gps.parser_state & PST_ASSIGNOK)) && token_is_assignment (token, token_index))
-	{
+      else if gps.MBTEST(character == '=' && token_index > 0 && (assignment_acceptable (gps.last_read_token) || (gps.parser_state & PST_ASSIGNOK)) && token_is_assignment (token, token_index)) {
 	  peek_char = gps.shell_getc (1);
-	  if gps.MBTEST(peek_char == '(')		/* ) */
-	    {
+	  if gps.MBTEST(peek_char == '(') {		/* ) */
 	      ttok = parse_compound_assignment (&ttoklen);
 
 	      RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 4,
 				      token_buffer_size,
 				      TOKEN_DEFAULT_GROW_SIZE);
 
-	      token[token_index++] = '=';
-	      token[token_index++] = '(';
-	      if (ttok)
-		{
+	      token[token_index] = '=';
+              token_index++
+	      token[token_index] = '(';
+              token_index++
+	      if (ttok) {
 		  strcpy (token + token_index, ttok);
 		  token_index += ttoklen;
-		}
+              }
 	      token[token_index++] = ')';
 	      all_digit_token = 0;
 	      compound_assignment = 1;
 	      goto next_character;
-	    }
-	  else
+	  } else {
 	    gps.shell_ungetc (peek_char);
-	}
-
+          }
+      }
 }
 
 func (gps *ParserState) read_token_word(character int) int {
