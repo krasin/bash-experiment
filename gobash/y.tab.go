@@ -2915,18 +2915,6 @@ func pop_delimiter(ds *dstack) {
   panic("push_delimiter: not implemented")
 }
 
-func stringToRunes(str string) (arr []int) {
-	cnt := 0
-	for _, _ = range str {
-		cnt++
-	}
-	arr = make([]int, cnt)
-	for i, v := range str {
-		arr[i] = v
-	}
-	return
-}
-
 /* Return the next shell input character.  This always reads characters
    from gps.shell_input_line; when that line is exhausted, it is time to
    read the next line.  This is called by read_token when the shell is
@@ -4879,22 +4867,20 @@ func (wts *wordTokenizerState) handleShellExp() readTokenWordState {
         return RTS_BAIL_IMMEDIATELY
       }
       if (wts.peek_char == '\'') {
-        ttrans = ansiexpand (wts.ttok, 0, ttoklen - 1);
+        wts.ttrans = ansiexpand(wts.ttok)
 
         /* Insert the single quotes and correctly quote any
            embedded single quotes (allowed because P_ALLOWESC was
            passed to parse_matched_pair). */
-        wts.ttok = sh_single_quote (ttrans);
-        ttranslen = strlen (wts.ttok);
-        ttrans = wts.ttok;
+        wts.ttok = sh_single_quote (wts.ttrans);
+        wts.ttrans = wts.ttok;
       } else {
         /* Try to locale-expand the converted string. */
-        ttrans = localeexpand (wts.ttok, 0, ttoklen - 1, first_line)
+        wts.ttrans = localeexpand (wts.ttok, 0, ttoklen - 1, first_line)
 
         /* Add the double quotes back */
-        wts.ttok = sh_mkdoublequoted (ttrans, ttranslen, 0);
-        ttranslen += 2;
-        ttrans = wts.ttok;
+        wts.ttok = sh_mkdoublequoted (wts.ttrans, ttranslen, 0);
+        wts.ttrans = wts.ttok;
       }
 
       wts.token.Append(ttrans)
@@ -4904,10 +4890,7 @@ func (wts *wordTokenizerState) handleShellExp() readTokenWordState {
     /* This could eventually be extended to recognize all of the
        shell's single-character parameter expansions, and set flags.*/
     case (wts.character == '$' && wts.peek_char == '$'):
-      wts.ttok = xmalloc (3);
-      ttok[0] = '$'
-      ttok[1] = '$';
-      ttok[2] = 0
+      wts.ttok = StringToBuilder("$$")
       wts.token.Append(wts.ttok)
       wts.dollar_present = true
       wts.all_digit_token = false

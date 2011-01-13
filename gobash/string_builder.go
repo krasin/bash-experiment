@@ -20,6 +20,24 @@ func NewStringBuilder() *StringBuilder {
   return sb
 }
 
+func stringToRunes(str string) (arr []int) {
+	cnt := 0
+	for _, _ = range str {
+		cnt++
+	}
+	arr = make([]int, cnt)
+	for i, v := range str {
+		arr[i] = v
+	}
+	return
+}
+
+func StringToBuilder(str string) (sb *StringBuilder) {
+  sb = NewStringBuilder()
+  sb.AppendRunes(stringToRunes(str))
+  return
+}
+
 func (sb *StringBuilder) Len() int {
   return sb.cnt
 }
@@ -61,12 +79,17 @@ func (sb *StringBuilder) Append(another *StringBuilder) {
   if another == nil {
     return
   }
-  sb.ensureCapacity(sb.cnt + another.cnt)
-  for i, v := range another.runes {
+  sb.AppendRunes(another.runes[0:another.cnt])
+}
+
+func (sb *StringBuilder) AppendRunes(runes []int) {
+  sb.ensureCapacity(sb.cnt + len(runes))
+  for i, v := range runes {
     sb.runes[sb.cnt + i] = v
   }
-  sb.cnt += another.cnt
+  sb.cnt += len(runes)
 }
+
 
 func (sb *StringBuilder) String() string {
 	return runesToString(sb.runes[:sb.cnt])
