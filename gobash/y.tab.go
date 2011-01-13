@@ -4842,37 +4842,7 @@ func (wts *wordTokenizerState) handleExtendedGlob() {
 	}
 }
 
-func (gps *ParserState) read_token_word(character int) int {
-  wts := new(wordTokenizerState)
-
-  if (token_buffer_size < TOKEN_DEFAULT_INITIAL_SIZE)
-    token = (char *)xrealloc (token, token_buffer_size = TOKEN_DEFAULT_INITIAL_SIZE);
-
-  token_index = 0;
-  all_digit_token = DIGIT (character);
-  dollar_present = quoted = pass_next_character = compound_assignment = 0;
-
-  for (;;)
-    {
-      if (character == EOF)
-	goto got_token;
-
-      if (pass_next_character)
-	{
-	  pass_next_character = 0;
-	  goto got_escaped_character;
-	}
-
-      cd = current_delimiter (dstack);
-
-      wts.handleBackslashes()
-
-      wts.handleShellQuote()
-
-      wts.handleRegexp()
-
-      wts.handleExtendedGlob()
-
+func (wts *wordTokenizerState) handleShellExp() {
       /* If the delimiter character is not single quote, parse some of
 	 the shell expansions that must be read as a single word. */
       if (shellexp (character))
@@ -5020,6 +4990,41 @@ func (gps *ParserState) read_token_word(character int) int {
 	  else
 	    gps.shell_ungetc (peek_char);
 	}
+
+}
+
+func (gps *ParserState) read_token_word(character int) int {
+  wts := new(wordTokenizerState)
+
+  if (token_buffer_size < TOKEN_DEFAULT_INITIAL_SIZE)
+    token = (char *)xrealloc (token, token_buffer_size = TOKEN_DEFAULT_INITIAL_SIZE);
+
+  token_index = 0;
+  all_digit_token = DIGIT (character);
+  dollar_present = quoted = pass_next_character = compound_assignment = 0;
+
+  for (;;)
+    {
+      if (character == EOF)
+	goto got_token;
+
+      if (pass_next_character)
+	{
+	  pass_next_character = 0;
+	  goto got_escaped_character;
+	}
+
+      cd = current_delimiter (dstack);
+
+      wts.handleBackslashes()
+
+      wts.handleShellQuote()
+
+      wts.handleRegexp()
+
+      wts.handleExtendedGlob()
+
+      wts.handleShellExp()
 
       /* When not parsing a multi-character word construct, shell meta-
 	 characters break words. */
