@@ -4770,6 +4770,29 @@ func (wts *wordTokenizerState) handleBackslashes() {
 	}
 }
 
+func (wts *wordTokenizerState) handleShellQuote() {
+      /* Parse a matched pair of quote characters. */
+      if gps.MBTEST(shellquote (character))
+	{
+	  push_delimiter (dstack, character);
+	  ttok = parse_matched_pair (character, character, character, &ttoklen, (character == '`') ? P_COMMAND : 0);
+	  pop_delimiter (dstack);
+	  if (ttok == &matched_pair_error)
+	    return -1;		/* Bail immediately. */
+	  RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
+				  token_buffer_size, TOKEN_DEFAULT_GROW_SIZE);
+	  token[token_index++] = character;
+	  strcpy (token + token_index, ttok);
+	  token_index += ttoklen;
+	  all_digit_token = 0;
+	  quoted = 1;
+	  dollar_present |= (character == '"' && strchr (ttok, '$') != 0);
+	  goto next_character;
+	}
+}
+
+
+
 func (gps *ParserState) read_token_word(character int) int {
   wts := new(wordTokenizerState)
 
@@ -4795,24 +4818,7 @@ func (gps *ParserState) read_token_word(character int) int {
 
       wts.handleBackslashes()
 
-      /* Parse a matched pair of quote characters. */
-      if gps.MBTEST(shellquote (character))
-	{
-	  push_delimiter (dstack, character);
-	  ttok = parse_matched_pair (character, character, character, &ttoklen, (character == '`') ? P_COMMAND : 0);
-	  pop_delimiter (dstack);
-	  if (ttok == &matched_pair_error)
-	    return -1;		/* Bail immediately. */
-	  RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
-				  token_buffer_size, TOKEN_DEFAULT_GROW_SIZE);
-	  token[token_index++] = character;
-	  strcpy (token + token_index, ttok);
-	  token_index += ttoklen;
-	  all_digit_token = 0;
-	  quoted = 1;
-	  dollar_present |= (character == '"' && strchr (ttok, '$') != 0);
-	  goto next_character;
-	}
+      wts.handleShellQuote()
 
       /* When parsing a regexp as a single word inside a conditional command,
 	 we need to special-case characters special to both the shell and
