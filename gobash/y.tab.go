@@ -4760,7 +4760,7 @@ func (wts *wordTokenizerState) handleBackslashes() {
         wts.pass_next_character = true
       }
 
-      quoted = true
+      wts.quoted = true
       goto got_character;
     }
   }
@@ -4786,7 +4786,7 @@ func (wts *wordTokenizerState) handleShellQuote() {
 	  strcpy (token + token_index, ttok);
 	  token_index += ttoklen;
 	  all_digit_token = 0;
-	  quoted = 1;
+	  wts.quoted = true
 	  dollar_present |= (wts.character == '"' && strchr (ttok, '$') != 0);
 	  goto next_character;
 	}
@@ -4926,7 +4926,7 @@ func (wts *wordTokenizerState) handleShellExp() {
                               TOKEN_DEFAULT_GROW_SIZE);
       strcpy (token + token_index, ttrans);
       token_index += ttranslen;
-      quoted = 1;
+      wts.quoted = true
       all_digit_token = 0;
       goto next_character;
     /* This could eventually be extended to recognize all of the
@@ -5098,7 +5098,7 @@ got_token:
 
   /* Aliases are expanded iff EXPAND_ALIASES is non-zero, and quoting
      inhibits alias expansion. */
-  if (expand_aliases && quoted == 0) {
+  if (expand_aliases && !wts.quoted) {
     result = alias_expand_token (token);
     if (result == RE_READ_TOKEN) {
       return (RE_READ_TOKEN);
@@ -5122,7 +5122,7 @@ got_token:
   if (dollar_present) {
     the_word.flags |= W_HASDOLLAR;
   }
-  if (quoted) {
+  if (wts.quoted) {
     the_word.flags |= W_QUOTED;		/*(*/
   }
   if (compound_assignment && token[token_index-1] == ')') {
