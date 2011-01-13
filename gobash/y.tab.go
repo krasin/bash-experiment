@@ -4705,36 +4705,44 @@ func (gps *ParserState) parse_cond_command() *Command {
 //  return r;
 //}
 //
-func (gps *ParserState) read_token_word(character int) int {
+
+type wordTokenizerState struct {
   /* The value for YYLVAL when a WORD is read. */
-  word_desc *the_word;
+  the_word *word_desc
 
   /* Index into the token that we are building. */
-  int token_index;
+  token_index int
 
   /* ALL_DIGITS becomes zero when we see a non-digit. */
-  int all_digit_token;
+  all_digit_token int
 
   /* DOLLAR_PRESENT becomes non-zero if we see a `$'. */
-  int dollar_present;
+  dollar_present int
 
   /* COMPOUND_ASSIGNMENT becomes non-zero if we are parsing a compound
      assignment. */
-  int compound_assignment;
+  compound_assignment int
 
   /* QUOTED becomes non-zero if we see one of ("), ('), (`), or (\). */
-  int quoted;
+  quoted int
 
   /* Non-zero means to ignore the value of the next character, and just
      to add it no matter what. */
- int pass_next_character;
+  pass_next_character int
 
   /* The current delimiting character. */
-  int cd;
-  int result, peek_char;
-  char *ttok, *ttrans;
-  int ttoklen, ttranslen;
-  intmax_t lvalue;
+  cd int
+  result int
+  peek_char int
+  ttok string
+  ttrans string
+  ttoklen int
+  translen int
+  lvalue int64
+}
+
+func (gps *ParserState) read_token_word(character int) int {
+  wts := new(wordTokenizerState)
 
   if (token_buffer_size < TOKEN_DEFAULT_INITIAL_SIZE)
     token = (char *)xrealloc (token, token_buffer_size = TOKEN_DEFAULT_INITIAL_SIZE);
