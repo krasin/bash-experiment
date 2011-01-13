@@ -3644,7 +3644,7 @@ const LEX_INWORD = 0x400
 //static char matched_pair_error;
 //
 
-func parse_matched_pair(qc int, open int, cloze int, flags int) (ret string, err os.Error) {
+func parse_matched_pair(qc int, open int, cloze int, flags int) (ret *StringBuilder, err os.Error) {
 	// TODO(krasin): implement this
 	panic("parse_matched_pair: not implemented")
 }
@@ -4392,7 +4392,6 @@ func (gps *ParserState) parse_dparen (c int) int {
    error, for example EOF. */
 func (gps *ParserState) parse_arith_cmd(adddq bool) (rval int, tokstr string) {
   var c int
-  var ttok string
 
   ttok, err := parse_matched_pair (0, '(', ')', 0);
   if err != nil {
@@ -4409,9 +4408,9 @@ func (gps *ParserState) parse_arith_cmd(adddq bool) (rval int, tokstr string) {
   /* if ADDDQ != 0 then (( ... )) -> "..." */
   switch {
   case rval == 1 && adddq:	/* arith cmd, add double quotes */
-      tokstr = fmt.Sprintf("\"%s\"", ttok)
+      tokstr = fmt.Sprintf("\"%s\"", ttok.String())
   case rval == 1:		/* arith cmd, don't add double quotes */
-      tokstr = ttok
+      tokstr = ttok.String()
   default:			/* nested subshell */
       tokstr = fmt.Sprintf("(%s)%s", runesToString([]int { c }))
   }
@@ -4703,8 +4702,8 @@ type wordTokenizerState struct {
   cd int
   result int
   peek_char int
-  ttok string
-  ttrans string
+  ttok *StringBuilder
+  ttrans *StringBuilder
   ttoklen int
   translen int
 }
@@ -4755,16 +4754,16 @@ func (wts *wordTokenizerState) handleShellQuote() readTokenWordState {
             flags = P_COMMAND
           }
       var err os.Error
-	  ttok, err = parse_matched_pair (wts.character, wts.character, wts.character, flags)
+	  wts.ttok, err = parse_matched_pair (wts.character, wts.character, wts.character, flags)
 	  pop_delimiter (dstack);
 	  if err != nil {
 	    return RTS_BAIL_IMMEDIATELY
       }
       wts.token.Add(wts.character)
-      wts.token.Append(ttok)
+      wts.token.Append(wts.ttok)
 	  wts.all_digit_token = false
 	  wts.quoted = true
-	  wts.dollar_present |= (wts.character == '"' && strchr (ttok, '$') != 0);
+	  wts.dollar_present |= (wts.character == '"' && strchr (wts.ttok, '$') != 0);
       return RTS_NEXT_CHARACTER
   }
   return RTS_PASS
@@ -4780,7 +4779,7 @@ func (wts *wordTokenizerState) handleRegexp() readTokenWordState {
       }
 
 	  push_delimiter (dstack, wts.character);
-	  ttok = parse_matched_pair (cd, '(', ')', &ttoklen, 0);
+	  wts.ttok = parse_matched_pair (cd, '(', ')', &ttoklen, 0);
 	  pop_delimiter (dstack);
 	  if (ttok == &matched_pair_error) {
         return RTS_BAIL_IMMEDIATELY

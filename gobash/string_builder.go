@@ -48,12 +48,15 @@ func (sb *StringBuilder) Add(rune int) {
   sb.cnt++
 }
 
-func (sb *StringBuilder) Append(runes []int) {
-  sb.ensureCapacity(sb.cnt + len(runes))
-  for i, v := range runes {
+func (sb *StringBuilder) Append(another *StringBuilder) {
+  if another == nil {
+    return
+  }
+  sb.ensureCapacity(sb.cnt + another.cnt)
+  for i, v := range another.runes {
     sb.runes[sb.cnt + i] = v
   }
-  sb.cnt += len(runes)
+  sb.cnt += another.cnt
 }
 
 func (sb *StringBuilder) String() string {
