@@ -5115,27 +5115,27 @@ got_token:
     CHECK_FOR_RESERVED_WORD (token);
   }
 
-  the_word = xmalloc (sizeof (word_desc));
-  the_word.word = xmalloc (1 + token_index);
-  the_word.flags = 0;
-  strcpy (the_word.word, token);
+  wts.the_word = xmalloc (sizeof (word_desc));
+  wts.the_word.word = xmalloc (1 + token_index);
+  wts.the_word.flags = 0;
+  strcpy (wts.the_word.word, token);
   if (wts.dollar_present) {
-    the_word.flags |= W_HASDOLLAR;
+    wts.the_word.flags |= W_HASDOLLAR;
   }
   if (wts.quoted) {
-    the_word.flags |= W_QUOTED;		/*(*/
+    wts.the_word.flags |= W_QUOTED;		/*(*/
   }
   if (compound_assignment && token[token_index-1] == ')') {
-    the_word.flags |= W_COMPASSIGN;
+    wts.the_word.flags |= W_COMPASSIGN;
   }
   /* A word is an assignment if it appears at the beginning of a
      simple command, or after another assignment word.  This is
      context-dependent, so it cannot be handled in the grammar. */
   if (assignment (token, (gps.parser_state & PST_COMPASSIGN) != 0)) {
-    the_word.flags |= W_ASSIGNMENT;
+    wts.the_word.flags |= W_ASSIGNMENT;
       /* Don't perform word splitting on assignment statements. */
     if (assignment_acceptable (gps.last_read_token) || (gps.parser_state & PST_COMPASSIGN) != 0) {
-      the_word.flags |= W_NOSPLIT;
+      wts.the_word.flags |= W_NOSPLIT;
     }
   }
 
@@ -5150,20 +5150,20 @@ got_token:
     }
   }
 
-  gps.yylval.word = the_word;
+  gps.yylval.word = wts.the_word;
 
   if (token[0] == '{' && token[token_index-1] == '}' &&
       (wts.character == '<' || wts.character == '>')) {
-      /* can use token; already copied to the_word */
+      /* can use token; already copied to wts.the_word */
       token[token_index-1] = 0
       if (legal_identifier (token+1)) {
-        strcpy (the_word.word, token+1);
-/*itrace("read_token_word: returning REDIR_WORD for %s", the_word->word);*/
+        strcpy (wts.the_word.word, token+1);
+/*itrace("read_token_word: returning REDIR_WORD for %s", wts.the_word->word);*/
 	    return (REDIR_WORD);
       }
   }
 
-  if ((the_word.flags & (W_ASSIGNMENT|W_NOSPLIT)) == (W_ASSIGNMENT|W_NOSPLIT)) {
+  if ((wts.the_word.flags & (W_ASSIGNMENT|W_NOSPLIT)) == (W_ASSIGNMENT|W_NOSPLIT)) {
     result = ASSIGNMENT_WORD
   } else {
     result = WORD
