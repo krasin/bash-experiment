@@ -178,6 +178,9 @@ type StringSaver struct {
 
 type ParserState struct {
 
+// TODO(krasin): consider moving this to options
+posixly_correct bool
+
 bashInput BashInput
 
 pushed_string_list *StringSaver
@@ -5059,7 +5062,7 @@ func (gps *ParserState) read_token_word(ch int) int {
   /* Posix.2 does not allow reserved words to be aliased, so check for all
      of them, including special cases, before expanding the current token
      as an alias. */
-  if (posixly_correct) {
+  if (gps.posixly_correct) {
     if tok := wts.CHECK_FOR_RESERVED_WORD (token_word); tok != NO_TOKEN {
       return tok
     }
@@ -5080,7 +5083,7 @@ func (gps *ParserState) read_token_word(ch int) int {
 
   /* If not in Posix.2 mode, check for reserved words after alias
      expansion. */
-  if (posixly_correct == 0) {
+  if !gps.posixly_correct {
     if tok := wts.CHECK_FOR_RESERVED_WORD (token_word); tok != NO_TOKEN {
       return tok
     }
@@ -5485,7 +5488,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //  if (wl == &parse_string_error)
 //    {
 //      last_command_exit_value = EXECUTION_FAILURE;
-//      if (posixly_correct)
+//      if (gps.posixly_correct)
 //	jump_to_top_level (FORCE_EOF);
 //      else
 //	jump_to_top_level (DISCARD);
@@ -5547,7 +5550,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //    {
 //      last_command_exit_value = EXECUTION_FAILURE;
 //      gps.last_read_token = '\n';	/* XXX */
-//      if (posixly_correct)
+//      if (gps.posixly_correct)
 //	jump_to_top_level (FORCE_EOF);
 //      else
 //	jump_to_top_level (DISCARD);
