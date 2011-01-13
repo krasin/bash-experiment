@@ -4852,7 +4852,8 @@ func (wts *wordTokenizerState) handleExtendedGlob() {
 func (wts *wordTokenizerState) handleShellExp() {
   /* If the delimiter character is not single quote, parse some of
      the shell expansions that must be read as a single word. */
-  if (shellexp (character)) {
+  switch {
+  case shellexp(character):
     peek_char = gps.shell_getc (1);
     switch {
     /* $(...), <(...), >(...), $((...)), ${...}, and $[...] constructs */
@@ -4947,14 +4948,13 @@ func (wts *wordTokenizerState) handleShellExp() {
       default:
           gps.shell_ungetc (peek_char);
       }
-    }
 
       /* Identify possible array subscript assignment; match [...].  If
      gps.parser_state&PST_COMPASSIGN, we need to parse [sub]=words treating
      `sub' as if it were enclosed in double quotes. */
-      else if gps.MBTEST(character == '[' &&        /* ] */
-             ((token_index > 0 && assignment_acceptable (gps.last_read_token) && token_is_ident (token, token_index)) ||
-              (token_index == 0 && (gps.parser_state&PST_COMPASSIGN)))) {
+  case gps.MBTEST(character == '[' &&        /* ] */
+       ((token_index > 0 && assignment_acceptable (gps.last_read_token) && token_is_ident (token, token_index)) ||
+       (token_index == 0 && (gps.parser_state&PST_COMPASSIGN)))):
       ttok = parse_matched_pair (cd, '[', ']', &ttoklen, P_ARRAYSUB);
       if (ttok == &matched_pair_error) {
         return -1;        /* Bail immediately. */
@@ -4968,9 +4968,9 @@ func (wts *wordTokenizerState) handleShellExp() {
       token_index += ttoklen;
       all_digit_token = 0;
       goto next_character;
-        }
+
       /* Identify possible compound array variable assignment. */
-      else if gps.MBTEST(character == '=' && token_index > 0 && (assignment_acceptable (gps.last_read_token) || (gps.parser_state & PST_ASSIGNOK)) && token_is_assignment (token, token_index)) {
+  case gps.MBTEST(character == '=' && token_index > 0 && (assignment_acceptable (gps.last_read_token) || (gps.parser_state & PST_ASSIGNOK)) && token_is_assignment (token, token_index)):
       peek_char = gps.shell_getc (1);
       if gps.MBTEST(peek_char == '(') {        /* ) */
           ttok = parse_compound_assignment (&ttoklen);
@@ -4987,21 +4987,23 @@ func (wts *wordTokenizerState) handleShellExp() {
           strcpy (token + token_index, ttok);
           token_index += ttoklen;
               }
-          token[token_index++] = ')';
+          token[token_index] = ')';
+          token_index++
           all_digit_token = 0;
           compound_assignment = 1;
           goto next_character;
       } else {
         gps.shell_ungetc (peek_char);
           }
-      }
+  }
 }
 
 func (gps *ParserState) read_token_word(character int) int {
   wts := new(wordTokenizerState)
 
-  if (token_buffer_size < TOKEN_DEFAULT_INITIAL_SIZE)
-    token = (char *)xrealloc (token, token_buffer_size = TOKEN_DEFAULT_INITIAL_SIZE);
+  if (token_buffer_size < TOKEN_DEFAULT_INITIAL_SIZE) {
+    token = xrealloc (token, token_buffer_size = TOKEN_DEFAULT_INITIAL_SIZE);
+  }
 
   token_index = 0;
   all_digit_token = DIGIT (character);
