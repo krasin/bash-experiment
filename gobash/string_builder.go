@@ -48,6 +48,15 @@ func (sb *StringBuilder) Add(rune int) {
   sb.cnt++
 }
 
+func (sb *StringBuilder) HasRune(rune int) bool {
+  for _, v := range sb.runes {
+    if v == rune {
+      return true
+    }
+  }
+  return false
+}
+
 func (sb *StringBuilder) Append(another *StringBuilder) {
   if another == nil {
     return

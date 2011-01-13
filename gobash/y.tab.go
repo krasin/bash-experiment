@@ -4763,7 +4763,7 @@ func (wts *wordTokenizerState) handleShellQuote() readTokenWordState {
       wts.token.Append(wts.ttok)
 	  wts.all_digit_token = false
 	  wts.quoted = true
-	  wts.dollar_present |= (wts.character == '"' && strchr (wts.ttok, '$') != 0);
+	  wts.dollar_present = wts.dollar_present || (wts.character == '"' && wts.ttok.HasRune('$'))
       return RTS_NEXT_CHARACTER
   }
   return RTS_PASS
