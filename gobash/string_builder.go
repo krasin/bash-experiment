@@ -20,6 +20,10 @@ func NewStringBuilder() *StringBuilder {
   return sb
 }
 
+func (sb *StringBuilder) Len() int {
+  return sb.cnt
+}
+
 func (sb *StringBuilder) At(index int) int {
   if index < 0 {
     panic(fmt.Sprintf("StringBuilder.At(index=%d): index must be non-negative", index))
@@ -28,6 +32,14 @@ func (sb *StringBuilder) At(index int) int {
     panic(fmt.Sprintf("StringBuilder.At(index=%d): index out of range. Current length is %d", index, sb.cnt))
   }
   return sb.runes[index]
+}
+
+func (sb *StringBuilder) AtFirst() int {
+  return sb.At(0)
+}
+
+func (sb *StringBuilder) AtLast() int {
+  return sb.At(sb.Len() - 1)
 }
 
 func (sb *StringBuilder) Add(rune int) {
@@ -45,7 +57,23 @@ func (sb *StringBuilder) Append(runes []int) {
 }
 
 func (sb *StringBuilder) String() string {
-	runes := sb.runes[:sb.cnt]
+	return runesToString(sb.runes[:sb.cnt])
+}
+
+func (sb *StringBuilder) RangeString(from, to int) string {
+    if from < 0 {
+      panic(fmt.Sprintf("StringBuilder.RangeString(from=%d, to=%d): from must be non negative", from, to))
+    }
+    if to < from {
+      panic(fmt.Sprintf("StringBuilder.RangeString(from=%d, to=%d): from must be non greater than to", from, to))
+    }
+    if to >= sb.cnt {
+      panic(fmt.Sprintf("StringBuilder.RangeString(from=%d, to=%d): to is out of bounds. Current length is %d", from, to, sb.cnt))
+    }
+    return runesToString(sb.runes[from : to])
+}
+
+func runesToString(runes []int) string {
     length := 0
 	for _, v := range runes {
 		length += utf8.RuneLen(v)

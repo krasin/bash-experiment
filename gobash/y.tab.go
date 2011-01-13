@@ -50,7 +50,6 @@ import (
 	"math"
 	"os"
     "strconv"
-	"utf8"
 )
 
 const EOF = -1
@@ -2913,21 +2912,6 @@ var word_token_alist = map[string] int {
 //
 //#define pop_delimiter(ds)	ds.delimiter_depth--
 
-func runesToString(arr []int) string {
-	cnt := 0
-	for _, v := range arr {
-		cnt += utf8.RuneLen(v)
-	}
-	data := make([]byte, cnt)
-	cur := data
-	for _, v := range arr {
-		rl := utf8.RuneLen(v)
-		utf8.EncodeRune(cur[0:rl], v)
-		cur = cur[rl:]
-	}
-	return string(data)
-}
-
 func stringToRunes(str string) (arr []int) {
 	cnt := 0
 	for _, _ = range str {
@@ -4702,8 +4686,8 @@ type wordTokenizerState struct {
   /* The value for YYLVAL when a WORD is read. */
   the_word *word_desc
 
-  /* Index into the token that we are building. */
-  token_index int
+  /* The token that we are building. */
+  token *StringBuilder
 
   /* ALL_DIGITS becomes zero when we see a non-digit. */
   all_digit_token bool
@@ -4783,12 +4767,8 @@ func (wts *wordTokenizerState) handleShellQuote() readTokenWordState {
 	  if err != nil {
 	    return RTS_BAIL_IMMEDIATELY
       }
-	  RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
-				  token_buffer_size, TOKEN_DEFAULT_GROW_SIZE);
-	  token[token_index] = wts.character;
-          token_index++
-	  strcpy (token + token_index, ttok);
-	  token_index += ttoklen;
+      wts.token.Add(wts.character)
+      wts.token.Append(ttok)
 	  wts.all_digit_token = false
 	  wts.quoted = true
 	  wts.dollar_present |= (wts.character == '"' && strchr (ttok, '$') != 0);
@@ -4812,13 +4792,9 @@ func (wts *wordTokenizerState) handleRegexp() readTokenWordState {
 	  if (ttok == &matched_pair_error) {
         return RTS_BAIL_IMMEDIATELY
       }
-	  RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
-				  token_buffer_size, TOKEN_DEFAULT_GROW_SIZE);
-	  token[token_index] = wts.character;
-          token_index++
-	  strcpy (token + token_index, ttok);
-	  token_index += ttoklen;
-          wts.dollar_present = false
+	  wts.token.Add(wts.character)
+	  wts.token.Append(ttok)
+      wts.dollar_present = false
 	  wts.all_digit_token = false
       return RTS_NEXT_CHARACTER
 	}
@@ -4836,15 +4812,9 @@ func (wts *wordTokenizerState) handleExtendedGlob() readTokenWordState {
 	      if (ttok == &matched_pair_error) {
             return RTS_BAIL_IMMEDIATELY
           }
-	      RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
-				      token_buffer_size,
-				      TOKEN_DEFAULT_GROW_SIZE);
-	      token[token_index] = wts.character;
-              token_index++
-	      token[token_index] = wts.peek_char;
-              token_index++
-	      strcpy (token + token_index, ttok);
-	      token_index += ttoklen;
+	      wts.token.Add(wts.character)
+	      wts.token.Add(wts.peek_char)
+          wts.token.Append(ttok)
 	      wts.dollar_present = false
           wts.all_digit_token = false
           return RTS_NEXT_CHARACTER
@@ -4884,15 +4854,9 @@ func (wts *wordTokenizerState) handleShellExp() readTokenWordState {
       if (ttok == &matched_pair_error) {
         return RTS_BAIL_IMMEDIATELY
       }
-      RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
-                              token_buffer_size,
-                              TOKEN_DEFAULT_GROW_SIZE);
-      token[token_index] = wts.character;
-      token_index++
-      token[token_index] = wts.peek_char;
-      token_index++
-      strcpy (token + token_index, ttok);
-      token_index += ttoklen;
+      wts.token.Add(wts.character)
+      wts.token.Add(wts.peek_char)
+      wts.token.Append(ttok)
       wts.dollar_present = true
       wts.all_digit_token = false
       return RTS_NEXT_CHARACTER
@@ -4928,11 +4892,7 @@ func (wts *wordTokenizerState) handleShellExp() readTokenWordState {
         ttrans = ttok;
       }
 
-      RESIZE_MALLOCED_BUFFER (token, token_index, ttranslen + 2,
-                              token_buffer_size,
-                              TOKEN_DEFAULT_GROW_SIZE);
-      strcpy (token + token_index, ttrans);
-      token_index += ttranslen;
+      wts.token.Append(ttrans)
       wts.quoted = true
       wts.all_digit_token = false
       return RTS_NEXT_CHARACTER
@@ -4943,11 +4903,7 @@ func (wts *wordTokenizerState) handleShellExp() readTokenWordState {
       ttok[0] = '$'
       ttok[1] = '$';
       ttok[2] = 0
-      RESIZE_MALLOCED_BUFFER (token, token_index, 3,
-                              token_buffer_size,
-                              TOKEN_DEFAULT_GROW_SIZE);
-      strcpy (token + token_index, ttok);
-      token_index += 2;
+      wts.token.Append(ttok)
       wts.dollar_present = true
       wts.all_digit_token = false
       return RTS_NEXT_CHARACTER
@@ -4959,42 +4915,28 @@ func (wts *wordTokenizerState) handleShellExp() readTokenWordState {
      wts.gps.parser_state&PST_COMPASSIGN, we need to parse [sub]=words treating
      `sub' as if it were enclosed in double quotes. */
   case (wts.character == '[' &&        /* ] */
-       ((token_index > 0 && assignment_acceptable (wts.gps.last_read_token) && token_is_ident (token, token_index)) ||
+       ((wts.token.Len() > 0 && assignment_acceptable (wts.gps.last_read_token) && token_is_ident (wts.token)) ||
        (token_index == 0 && (wts.gps.parser_state&PST_COMPASSIGN)))):
     ttok = parse_matched_pair (cd, '[', ']', &ttoklen, P_ARRAYSUB);
     if (ttok == &matched_pair_error) {
       return RTS_BAIL_IMMEDIATELY
     }
-    RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
-                            token_buffer_size,
-                            TOKEN_DEFAULT_GROW_SIZE);
-    token[token_index] = wts.character;
-    token_index++
-    strcpy (token + token_index, ttok);
-    token_index += ttoklen;
+    wts.token.Add(wts.character)
+    wts.token.Append(ttok)
     wts.all_digit_token = false
     return RTS_NEXT_CHARACTER
 
       /* Identify possible compound array variable assignment. */
-  case (wts.character == '=' && token_index > 0 && (assignment_acceptable (wts.gps.last_read_token) || (wts.gps.parser_state & PST_ASSIGNOK)) && token_is_assignment (token, token_index)):
+  case (wts.character == '=' && wts.token.Len() > 0 && (assignment_acceptable (wts.gps.last_read_token) || (wts.gps.parser_state & PST_ASSIGNOK)) && token_is_assignment (wts.token)):
     wts.peek_char = wts.gps.shell_getc (1);
     if (wts.peek_char == '(') {        /* ) */
       ttok = parse_compound_assignment (&ttoklen);
-
-      RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 4,
-                              token_buffer_size,
-                              TOKEN_DEFAULT_GROW_SIZE);
-
-      token[token_index] = '=';
-      token_index++
-      token[token_index] = '(';
-      token_index++
+      wts.token.Add('=')
+      wts.token.Add('(')
       if (ttok) {
-        strcpy (token + token_index, ttok);
-        token_index += ttoklen;
+        wts.token.Append(ttok)
       }
-      token[token_index] = ')';
-      token_index++
+      wts.token.Add(')')
       wts.all_digit_token = false
       compound_assignment = 1;
       return RTS_NEXT_CHARACTER
@@ -5047,11 +4989,6 @@ func (gps *ParserState) read_token_word(ch int) int {
   wts.gps = gps
   wts.character = ch
 
-  if (token_buffer_size < TOKEN_DEFAULT_INITIAL_SIZE) {
-    gps.token_buffer_size = TOKEN_DEFAULT_INITIAL_SIZE
-    gps.token = enlargeBuffer(gps.token, gps.token_buffer_size)
-  }
-
   wts.all_digit_token = unicode.IsDigit(wts.character)
 
   rts_state := RTS_PASS
@@ -5065,8 +5002,7 @@ func (gps *ParserState) read_token_word(ch int) int {
 
     case RTS_GOT_CHARACTER:
       if (wts.character == CTLESC || wts.character == CTLNUL) {
-        token[token_index] = CTLESC;
-        token_index++
+        wts.token.Add(CTLESC)
       }
       fallthrough
 
@@ -5074,11 +5010,7 @@ func (gps *ParserState) read_token_word(ch int) int {
       wts.all_digit_token &= unicode.IsDigit(wts.character);
       wts.dollar_present |= wts.character == '$';
 
-      token[token_index] = wts.character;
-      token_index++
-
-      RESIZE_MALLOCED_BUFFER (token, token_index, 1, token_buffer_size,
-                              TOKEN_DEFAULT_GROW_SIZE);
+      wts.token.Add(wts.character)
       fallthrough
 
     case RTS_NEXT_CHARACTER:
@@ -5096,9 +5028,6 @@ func (gps *ParserState) read_token_word(ch int) int {
     rts_state = RTS_PASS
   }  /* end for { */
 
-
-  token[token_index] = 0
-
   /* Check to see what thing we should return.  If the gps.last_read_token
      is a `<', or a `&', or the character which ended this token is
      a '>' or '<', then, and ONLY then, is this input token a NUMBER.
@@ -5106,7 +5035,7 @@ func (gps *ParserState) read_token_word(ch int) int {
   if (wts.all_digit_token && (wts.character == '<' || wts.character == '>' ||
       gps.last_read_token == LESS_AND ||
       gps.last_read_token == GREATER_AND)) {
-    if lvalue, err := strconv.Atoi64(token); err == nil && int64(int(lvalue)) == lvalue {
+    if lvalue, err := strconv.Atoi64(wts.token.String()); err == nil && int64(int(lvalue)) == lvalue {
 	  gps.yylval.number = lvalue;
 	} else {
 	  gps.yylval.number = -1;
@@ -5114,8 +5043,10 @@ func (gps *ParserState) read_token_word(ch int) int {
 	return (NUMBER);
   }
 
+  token_word := wts.token.String()
+
   /* Check for special case tokens. */
-  result = special_case_tokens (token)
+  result = special_case_tokens (token_word)
   if result >= 0 {
     return result;
   }
@@ -5124,7 +5055,7 @@ func (gps *ParserState) read_token_word(ch int) int {
      of them, including special cases, before expanding the current token
      as an alias. */
   if (posixly_correct) {
-    if tok := wts.CHECK_FOR_RESERVED_WORD (token); tok != NO_TOKEN {
+    if tok := wts.CHECK_FOR_RESERVED_WORD (token_word); tok != NO_TOKEN {
       return tok
     }
   }
@@ -5132,7 +5063,7 @@ func (gps *ParserState) read_token_word(ch int) int {
   /* Aliases are expanded iff EXPAND_ALIASES is non-zero, and quoting
      inhibits alias expansion. */
   if (expand_aliases && !wts.quoted) {
-    result = alias_expand_token (token);
+    result = alias_expand_token (token_word);
     if (result == RE_READ_TOKEN) {
       return (RE_READ_TOKEN);
     } else {
@@ -5145,27 +5076,26 @@ func (gps *ParserState) read_token_word(ch int) int {
   /* If not in Posix.2 mode, check for reserved words after alias
      expansion. */
   if (posixly_correct == 0) {
-    if tok := wts.CHECK_FOR_RESERVED_WORD (token); tok != NO_TOKEN {
+    if tok := wts.CHECK_FOR_RESERVED_WORD (token_word); tok != NO_TOKEN {
       return tok
     }
   }
 
   wts.the_word = new(word_desc)
-  wts.the_word.word = xmalloc (1 + token_index);
-  strcpy (wts.the_word.word, token);
+  wts.the_word.word = wts.token.String()
   if (wts.dollar_present) {
     wts.the_word.flags |= W_HASDOLLAR;
   }
   if (wts.quoted) {
     wts.the_word.flags |= W_QUOTED;		/*(*/
   }
-  if (compound_assignment && token[token_index-1] == ')') {
+  if (compound_assignment && wts.token.AtLast() == ')') {
     wts.the_word.flags |= W_COMPASSIGN;
   }
   /* A word is an assignment if it appears at the beginning of a
      simple command, or after another assignment word.  This is
      context-dependent, so it cannot be handled in the grammar. */
-  if (assignment (token, (gps.parser_state & PST_COMPASSIGN) != 0)) {
+  if (assignment (token_word, (gps.parser_state & PST_COMPASSIGN) != 0)) {
     wts.the_word.flags |= W_ASSIGNMENT;
       /* Don't perform word splitting on assignment statements. */
     if (assignment_acceptable (gps.last_read_token) || (gps.parser_state & PST_COMPASSIGN) != 0) {
@@ -5174,11 +5104,11 @@ func (gps *ParserState) read_token_word(ch int) int {
   }
 
   if (command_token_position (gps.last_read_token)) {
-    b := builtin_address_internal (token, 0);
+    b := builtin_address_internal (token_word, 0);
     if (b && (b.flags & ASSIGNMENT_BUILTIN)) {
       gps.parser_state |= PST_ASSIGNOK;
     } else {
-      if (STREQ (token, "eval") || STREQ (token, "let")) {
+      if token_word == "eval" || token == "let" {
         gps.parser_state |= PST_ASSIGNOK;
       }
     }
@@ -5186,12 +5116,11 @@ func (gps *ParserState) read_token_word(ch int) int {
 
   gps.yylval.word = wts.the_word;
 
-  if (token[0] == '{' && token[token_index-1] == '}' &&
+  if (wts.token.AtFirst() == '{' && wts.token.AtLast() == '}' &&
       (wts.character == '<' || wts.character == '>')) {
-      /* can use token; already copied to wts.the_word */
-      token[token_index-1] = 0
-      if (legal_identifier (token+1)) {
-        strcpy (wts.the_word.word, token+1);
+      trimmed := wts.token.RangeString(1, wts.token.Len()-1)
+      if legal_identifier (trimmed) {
+        wts.the_word.word = trimmed
 /*itrace("read_token_word: returning REDIR_WORD for %s", wts.the_word->word);*/
 	    return (REDIR_WORD);
       }
