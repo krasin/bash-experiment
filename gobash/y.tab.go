@@ -4822,6 +4822,11 @@ func localeexpand(str *StringBuilder, lineno int) *StringBuilder {
   panic("localeexpand: not implemented")
 }
 
+func sh_mkdoublequoted(str *StringBuilder, flags int) *StringBuilder {
+  // TODO(krasin): implement this
+  panic("sh_mkdoublequoted: not implemented")
+}
+
 func (wts *wordTokenizerState) handleShellExp() readTokenWordState {
   /* If the delimiter character is not single quote, parse some of
      the shell expansions that must be read as a single word. */
