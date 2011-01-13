@@ -4815,6 +4815,33 @@ func (wts *wordTokenizerState) handleRegexp() {
 	}
 }
 
+func (wts *wordTokenizerState) handleExtendedGlob() {
+      /* Parse a ksh-style extended pattern matching specification. */
+      if gps.MBTEST(gps.extended_glob && PATTERN_CHAR (character))
+	{
+	  peek_char = gps.shell_getc (1);
+	  if gps.MBTEST(peek_char == '(')		/* ) */
+	    {
+	      push_delimiter (dstack, peek_char);
+	      ttok = parse_matched_pair (cd, '(', ')', &ttoklen, 0);
+	      pop_delimiter (dstack);
+	      if (ttok == &matched_pair_error)
+		return -1;		/* Bail immediately. */
+	      RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
+				      token_buffer_size,
+				      TOKEN_DEFAULT_GROW_SIZE);
+	      token[token_index++] = character;
+	      token[token_index++] = peek_char;
+	      strcpy (token + token_index, ttok);
+	      token_index += ttoklen;
+	      dollar_present = all_digit_token = 0;
+	      goto next_character;
+	    }
+	  else
+	    gps.shell_ungetc (peek_char);
+	}
+}
+
 func (gps *ParserState) read_token_word(character int) int {
   wts := new(wordTokenizerState)
 
@@ -4844,30 +4871,7 @@ func (gps *ParserState) read_token_word(character int) int {
 
       wts.handleRegexp()
 
-      /* Parse a ksh-style extended pattern matching specification. */
-      if gps.MBTEST(gps.extended_glob && PATTERN_CHAR (character))
-	{
-	  peek_char = gps.shell_getc (1);
-	  if gps.MBTEST(peek_char == '(')		/* ) */
-	    {
-	      push_delimiter (dstack, peek_char);
-	      ttok = parse_matched_pair (cd, '(', ')', &ttoklen, 0);
-	      pop_delimiter (dstack);
-	      if (ttok == &matched_pair_error)
-		return -1;		/* Bail immediately. */
-	      RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
-				      token_buffer_size,
-				      TOKEN_DEFAULT_GROW_SIZE);
-	      token[token_index++] = character;
-	      token[token_index++] = peek_char;
-	      strcpy (token + token_index, ttok);
-	      token_index += ttoklen;
-	      dollar_present = all_digit_token = 0;
-	      goto next_character;
-	    }
-	  else
-	    gps.shell_ungetc (peek_char);
-	}
+      wts.handleExtendedGlob()
 
       /* If the delimiter character is not single quote, parse some of
 	 the shell expansions that must be read as a single word. */
