@@ -5174,14 +5174,12 @@ got_token:
     case FUNCTION:
       gps.parser_state |= PST_ALLOWOPNBRC;
       gps.function_dstart = gps.line_number;
-      break;
     case CASE:
     case SELECT:
     case FOR:
       if (gps.word_top < MAX_CASE_NEST) {
         gps.word_top++;
         gps.word_lineno[gps.word_top] = gps.line_number;
-        break;
       }
   }
 
