@@ -4741,29 +4741,7 @@ type wordTokenizerState struct {
   lvalue int64
 }
 
-func (gps *ParserState) read_token_word(character int) int {
-  wts := new(wordTokenizerState)
-
-  if (token_buffer_size < TOKEN_DEFAULT_INITIAL_SIZE)
-    token = (char *)xrealloc (token, token_buffer_size = TOKEN_DEFAULT_INITIAL_SIZE);
-
-  token_index = 0;
-  all_digit_token = DIGIT (character);
-  dollar_present = quoted = pass_next_character = compound_assignment = 0;
-
-  for (;;)
-    {
-      if (character == EOF)
-	goto got_token;
-
-      if (pass_next_character)
-	{
-	  pass_next_character = 0;
-	  goto got_escaped_character;
-	}
-
-      cd = current_delimiter (dstack);
-
+func (wts *wordTokenizerState) handleBackslashes() {
       /* Handle backslashes.  Quote lots of things when not inside of
 	 double-quotes, quote some things inside of double-quotes. */
       if gps.MBTEST(character == '\\')
@@ -4790,6 +4768,32 @@ func (gps *ParserState) read_token_word(character int) int {
 	      goto got_character;
 	    }
 	}
+}
+
+func (gps *ParserState) read_token_word(character int) int {
+  wts := new(wordTokenizerState)
+
+  if (token_buffer_size < TOKEN_DEFAULT_INITIAL_SIZE)
+    token = (char *)xrealloc (token, token_buffer_size = TOKEN_DEFAULT_INITIAL_SIZE);
+
+  token_index = 0;
+  all_digit_token = DIGIT (character);
+  dollar_present = quoted = pass_next_character = compound_assignment = 0;
+
+  for (;;)
+    {
+      if (character == EOF)
+	goto got_token;
+
+      if (pass_next_character)
+	{
+	  pass_next_character = 0;
+	  goto got_escaped_character;
+	}
+
+      cd = current_delimiter (dstack);
+
+      wts.handleBackslashes()
 
       /* Parse a matched pair of quote characters. */
       if gps.MBTEST(shellquote (character))
