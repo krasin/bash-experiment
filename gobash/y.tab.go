@@ -5007,7 +5007,7 @@ func (gps *ParserState) read_token_word(ch int) int {
     gps.token = enlargeBuffer(gps.token, gps.token_buffer_size)
   }
 
-  wts.all_digit_token = DIGIT (wts.character);
+  wts.all_digit_token = unicode.IsDigit(wts.character)
 
   for {
     if (wts.character == EOF) {
@@ -5019,16 +5019,12 @@ func (gps *ParserState) read_token_word(ch int) int {
 	  goto got_escaped_character;
 	}
 
-    cd = current_delimiter (dstack);
+    wts.cd = current_delimiter(dstack);
 
     wts.handleBackslashes()
-
     wts.handleShellQuote()
-
     wts.handleRegexp()
-
     wts.handleExtendedGlob()
-
     wts.handleShellExp()
 
     /* When not parsing a multi-character word construct, shell meta-
@@ -5047,7 +5043,7 @@ func (gps *ParserState) read_token_word(ch int) int {
 
     got_escaped_character:
 
-      wts.all_digit_token &= DIGIT (wts.character);
+      wts.all_digit_token &= unicode.IsDigit(wts.character);
       wts.dollar_present |= wts.character == '$';
 
       token[token_index] = wts.character;
@@ -5115,9 +5111,8 @@ got_token:
     CHECK_FOR_RESERVED_WORD (token);
   }
 
-  wts.the_word = xmalloc (sizeof (word_desc));
+  wts.the_word = new(word_desc)
   wts.the_word.word = xmalloc (1 + token_index);
-  wts.the_word.flags = 0;
   strcpy (wts.the_word.word, token);
   if (wts.dollar_present) {
     wts.the_word.flags |= W_HASDOLLAR;
