@@ -4797,22 +4797,25 @@ func (wts *wordTokenizerState) handleRegexp() {
       /* When parsing a regexp as a single word inside a conditional command,
 	 we need to special-case characters special to both the shell and
 	 regular expressions.  Right now, that is only '(' and '|'. */ /*)*/
-      if gps.MBTEST((gps.parser_state & PST_REGEXP) && (character == '(' || character == '|'))		/*)*/
-	{
-	  if (character == '|')
+      if gps.MBTEST((gps.parser_state & PST_REGEXP) && (character == '(' || character == '|')) { /*)*/
+	  if (character == '|') {
 	    goto got_character;
+          }
 
 	  push_delimiter (dstack, character);
 	  ttok = parse_matched_pair (cd, '(', ')', &ttoklen, 0);
 	  pop_delimiter (dstack);
-	  if (ttok == &matched_pair_error)
+	  if (ttok == &matched_pair_error) {
 	    return -1;		/* Bail immediately. */
+          }
 	  RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
 				  token_buffer_size, TOKEN_DEFAULT_GROW_SIZE);
-	  token[token_index++] = character;
+	  token[token_index] = character;
+          token_index++
 	  strcpy (token + token_index, ttok);
 	  token_index += ttoklen;
-	  dollar_present = all_digit_token = 0;
+          dollar_present = false
+	  all_digit_token = false
 	  goto next_character;
 	}
 }
