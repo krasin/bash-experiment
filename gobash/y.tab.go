@@ -49,6 +49,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+    "strconv"
 	"utf8"
 )
 
@@ -4729,7 +4730,6 @@ type wordTokenizerState struct {
   ttrans string
   ttoklen int
   translen int
-  lvalue int64
 }
 
 type readTokenWordState int
@@ -4777,9 +4777,10 @@ func (wts *wordTokenizerState) handleShellQuote() readTokenWordState {
           if wts.character == '`' {
             flags = P_COMMAND
           }
-	  ttok = parse_matched_pair (wts.character, wts.character, wts.character, &ttoklen, flags)
+      var err os.Error
+	  ttok, err = parse_matched_pair (wts.character, wts.character, wts.character, flags)
 	  pop_delimiter (dstack);
-	  if (ttok == &matched_pair_error) {
+	  if err != nil {
 	    return RTS_BAIL_IMMEDIATELY
       }
 	  RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
@@ -5103,9 +5104,9 @@ func (gps *ParserState) read_token_word(ch int) int {
      a '>' or '<', then, and ONLY then, is this input token a NUMBER.
      Otherwise, it is just a word, and should be returned as such. */
   if (wts.all_digit_token && (wts.character == '<' || wts.character == '>' ||
-		    gps.last_read_token == LESS_AND ||
-		    gps.last_read_token == GREATER_AND)) {
-	if (legal_number (token, &lvalue) && int64(int(lvalue)) == lvalue) {
+      gps.last_read_token == LESS_AND ||
+      gps.last_read_token == GREATER_AND)) {
+    if lvalue, err := strconv.Atoi64(token); err == nil && int64(int(lvalue)) == lvalue {
 	  gps.yylval.number = lvalue;
 	} else {
 	  gps.yylval.number = -1;
