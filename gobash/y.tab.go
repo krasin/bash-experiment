@@ -295,6 +295,13 @@ eol_ungetc_lookahead int
 // TODO(krasin): this should go to the options.
 echo_input_at_read bool
 
+/* Place to remember the token.  We try to keep the buffer
+   at a reasonable size, but it can grow. */
+token []int
+
+/* Current size of the token buffer. */
+token_buffer_size int
+
 } // ParserState
 
 func newParserState(bashInput BashInput) *ParserState {
@@ -3125,13 +3132,6 @@ func (gps *ParserState) discard_until(character int) {
 //  }
 //}
 //
-///* Place to remember the token.  We try to keep the buffer
-//   at a reasonable size, but it can grow. */
-//static char *token = nil;
-//
-///* Current size of the token buffer. */
-//static int token_buffer_size;
-//
 /* Command to read_token () explaining what we want it to do. */
 const READ = 0
 const RESET = 1
@@ -5002,55 +5002,55 @@ func (gps *ParserState) read_token_word(character int) int {
   wts := new(wordTokenizerState)
 
   if (token_buffer_size < TOKEN_DEFAULT_INITIAL_SIZE) {
-    token = xrealloc (token, token_buffer_size = TOKEN_DEFAULT_INITIAL_SIZE);
+    gps.token_buffer_size = TOKEN_DEFAULT_INITIAL_SIZE
+    gps.token = enlargeBuffer(gps.token, gps.token_buffer_size)
   }
 
-  token_index = 0;
   all_digit_token = DIGIT (character);
-  dollar_present = quoted = pass_next_character = compound_assignment = 0;
 
-  for (;;)
-    {
-      if (character == EOF)
-	goto got_token;
+  for {
+    if (character == EOF) {
+      goto got_token;
+    }
 
-      if (pass_next_character)
-	{
+    if (pass_next_character) {
 	  pass_next_character = 0;
 	  goto got_escaped_character;
 	}
 
-      cd = current_delimiter (dstack);
+    cd = current_delimiter (dstack);
 
-      wts.handleBackslashes()
+    wts.handleBackslashes()
 
-      wts.handleShellQuote()
+    wts.handleShellQuote()
 
-      wts.handleRegexp()
+    wts.handleRegexp()
 
-      wts.handleExtendedGlob()
+    wts.handleExtendedGlob()
 
-      wts.handleShellExp()
+    wts.handleShellExp()
 
-      /* When not parsing a multi-character word construct, shell meta-
-	 characters break words. */
-      if gps.MBTEST(shellbreak (character))
-	{
+    /* When not parsing a multi-character word construct, shell meta-
+       characters break words. */
+    if gps.MBTEST(shellbreak (character)) {
 	  gps.shell_ungetc (character);
 	  goto got_token;
 	}
 
     got_character:
 
-      if (character == CTLESC || character == CTLNUL)
-	token[token_index++] = CTLESC;
+    if (character == CTLESC || character == CTLNUL) {
+      token[token_index] = CTLESC;
+      token_index++
+    }
 
     got_escaped_character:
 
       all_digit_token &= DIGIT (character);
       dollar_present |= character == '$';
 
-      token[token_index++] = character;
+      token[token_index] = character;
+      token_index++
 
       RESIZE_MALLOCED_BUFFER (token, token_index, 1, token_buffer_size,
 			      TOKEN_DEFAULT_GROW_SIZE);
@@ -5061,105 +5061,115 @@ func (gps *ParserState) read_token_word(character int) int {
 	 set (the shell equivalent of literal-next). */
       cd = current_delimiter (dstack);
       character = gps.shell_getc (cd != '\'' && pass_next_character == 0);
-    }	/* end for (;;) */
+  }  /* end for { */
 
 got_token:
 
-  token[token_index] = '\0';
+  token[token_index] = 0
 
   /* Check to see what thing we should return.  If the gps.last_read_token
      is a `<', or a `&', or the character which ended this token is
      a '>' or '<', then, and ONLY then, is this input token a NUMBER.
      Otherwise, it is just a word, and should be returned as such. */
-  if gps.MBTEST(all_digit_token && (character == '<' || character == '>' || \
-		    gps.last_read_token == LESS_AND || \
-		    gps.last_read_token == GREATER_AND))
-      {
-	if (legal_number (token, &lvalue) && (int)lvalue == lvalue)
+  if gps.MBTEST(all_digit_token && (character == '<' || character == '>' ||
+		    gps.last_read_token == LESS_AND ||
+		    gps.last_read_token == GREATER_AND)) {
+	if (legal_number (token, &lvalue) && int64(int(lvalue)) == lvalue) {
 	  gps.yylval.number = lvalue;
-	else
+	} else {
 	  gps.yylval.number = -1;
+    }
 	return (NUMBER);
-      }
+  }
 
   /* Check for special case tokens. */
-  result = (last_shell_getc_is_singlebyte) ? special_case_tokens (token) : -1;
-  if (result >= 0)
+  result = special_case_tokens (token)
+  if result >= 0 {
     return result;
+  }
 
   /* Posix.2 does not allow reserved words to be aliased, so check for all
      of them, including special cases, before expanding the current token
      as an alias. */
-  if gps.MBTEST(posixly_correct)
+  if gps.MBTEST(posixly_correct) {
     CHECK_FOR_RESERVED_WORD (token);
+  }
 
   /* Aliases are expanded iff EXPAND_ALIASES is non-zero, and quoting
      inhibits alias expansion. */
-  if (expand_aliases && quoted == 0)
-    {
-      result = alias_expand_token (token);
-      if (result == RE_READ_TOKEN)
-	return (RE_READ_TOKEN);
-      else if (result == NO_EXPANSION)
-	gps.parser_state &= ^PST_ALEXPNEXT;
+  if (expand_aliases && quoted == 0) {
+    result = alias_expand_token (token);
+    if (result == RE_READ_TOKEN) {
+      return (RE_READ_TOKEN);
+    } else {
+      if (result == NO_EXPANSION) {
+        gps.parser_state &= ^PST_ALEXPNEXT;
+      }
     }
+  }
 
   /* If not in Posix.2 mode, check for reserved words after alias
      expansion. */
-  if gps.MBTEST(posixly_correct == 0)
+  if gps.MBTEST(posixly_correct == 0) {
     CHECK_FOR_RESERVED_WORD (token);
+  }
 
-  the_word = (word_desc *)xmalloc (sizeof (word_desc));
-  the_word.word = (char *)xmalloc (1 + token_index);
+  the_word = xmalloc (sizeof (word_desc));
+  the_word.word = xmalloc (1 + token_index);
   the_word.flags = 0;
   strcpy (the_word.word, token);
-  if (dollar_present)
+  if (dollar_present) {
     the_word.flags |= W_HASDOLLAR;
-  if (quoted)
+  }
+  if (quoted) {
     the_word.flags |= W_QUOTED;		/*(*/
-  if (compound_assignment && token[token_index-1] == ')')
+  }
+  if (compound_assignment && token[token_index-1] == ')') {
     the_word.flags |= W_COMPASSIGN;
+  }
   /* A word is an assignment if it appears at the beginning of a
      simple command, or after another assignment word.  This is
      context-dependent, so it cannot be handled in the grammar. */
-  if (assignment (token, (gps.parser_state & PST_COMPASSIGN) != 0))
-    {
-      the_word.flags |= W_ASSIGNMENT;
+  if (assignment (token, (gps.parser_state & PST_COMPASSIGN) != 0)) {
+    the_word.flags |= W_ASSIGNMENT;
       /* Don't perform word splitting on assignment statements. */
-      if (assignment_acceptable (gps.last_read_token) || (gps.parser_state & PST_COMPASSIGN) != 0)
-	the_word.flags |= W_NOSPLIT;
+    if (assignment_acceptable (gps.last_read_token) || (gps.parser_state & PST_COMPASSIGN) != 0) {
+      the_word.flags |= W_NOSPLIT;
     }
+  }
 
-  if (command_token_position (gps.last_read_token))
-    {
-      struct builtin *b;
-      b = builtin_address_internal (token, 0);
-      if (b && (b.flags & ASSIGNMENT_BUILTIN))
-	gps.parser_state |= PST_ASSIGNOK;
-      else if (STREQ (token, "eval") || STREQ (token, "let"))
-	gps.parser_state |= PST_ASSIGNOK;
+  if (command_token_position (gps.last_read_token)) {
+    b := builtin_address_internal (token, 0);
+    if (b && (b.flags & ASSIGNMENT_BUILTIN)) {
+      gps.parser_state |= PST_ASSIGNOK;
+    } else {
+      if (STREQ (token, "eval") || STREQ (token, "let")) {
+        gps.parser_state |= PST_ASSIGNOK;
+      }
     }
+  }
 
   gps.yylval.word = the_word;
 
   if (token[0] == '{' && token[token_index-1] == '}' &&
-      (character == '<' || character == '>'))
-    {
+      (character == '<' || character == '>')) {
       /* can use token; already copied to the_word */
-      token[token_index-1] = '\0';
-      if (legal_identifier (token+1))
-	{
-	  strcpy (the_word.word, token+1);
+      token[token_index-1] = 0
+      if (legal_identifier (token+1)) {
+        strcpy (the_word.word, token+1);
 /*itrace("read_token_word: returning REDIR_WORD for %s", the_word->word);*/
-	  return (REDIR_WORD);
-	}
-    }
+	    return (REDIR_WORD);
+      }
+  }
 
-  result = ((the_word.flags & (W_ASSIGNMENT|W_NOSPLIT)) == (W_ASSIGNMENT|W_NOSPLIT))
-		? ASSIGNMENT_WORD : WORD;
+  if ((the_word.flags & (W_ASSIGNMENT|W_NOSPLIT)) == (W_ASSIGNMENT|W_NOSPLIT)) {
+    result = ASSIGNMENT_WORD
+  } else {
+    result = WORD
+  }
 
-  switch (gps.last_read_token)
-    {
+
+  switch (gps.last_read_token) {
     case FUNCTION:
       gps.parser_state |= PST_ALLOWOPNBRC;
       gps.function_dstart = gps.line_number;
@@ -5167,13 +5177,14 @@ got_token:
     case CASE:
     case SELECT:
     case FOR:
-      if (gps.word_top < MAX_CASE_NEST)
-	gps.word_top++;
-      gps.word_lineno[gps.word_top] = gps.line_number;
-      break;
-    }
+      if (gps.word_top < MAX_CASE_NEST) {
+        gps.word_top++;
+        gps.word_lineno[gps.word_top] = gps.line_number;
+        break;
+      }
+  }
 
-  return (result);
+  return result
 }
 
 /* Return 1 if TOKSYM is a token that after being read would allow
