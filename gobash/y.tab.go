@@ -5088,6 +5088,9 @@ func (gps *ParserState) read_token_word(ch int) int {
       wts.character = gps.shell_getc (cd != '\'' && !wts.pass_next_character);
     case RTS_GOT_TOKEN:
       break rts_loop
+
+    case RTS_BAIL_IMMEDIATELY:
+      return -1
     }
     rts_state = RTS_PASS
   }  /* end for { */
