@@ -3178,39 +3178,32 @@ func (gps *ParserState) gather_here_documents() {
 //#define assignment_acceptable(token) \
 //  (command_token_position(token) && ((gps.parser_state & PST_CASEPAT) == 0))
 //
-///* Check to see if TOKEN is a reserved word and return the token
-//   value if it is. */
-//#define CHECK_FOR_RESERVED_WORD(tok) \
-//  do { \
-//    if (!dollar_present && !quoted && \
-//	reserved_word_acceptable (gps.last_read_token)) \
-//      { \
-//	int i; \
-//	for (i = 0; word_token_alist[i].word != nil; i++) \
-//	  if (STREQ (tok, word_token_alist[i].word)) \
-//	    { \
-//	      if ((gps.parser_state & PST_CASEPAT) && (word_token_alist[i].token != ESAC)) \
-//		break; \
-//	      if (word_token_alist[i].token == TIME && time_command_acceptable () == 0) \
-//		break; \
-//	      if (word_token_alist[i].token == ESAC) \
-//		gps.parser_state &= ^(PST_CASEPAT|PST_CASESTMT); \
-//	      else if (word_token_alist[i].token == CASE) \
-//		gps.parser_state |= PST_CASESTMT; \
-//	      else if (word_token_alist[i].token == COND_END) \
-//		gps.parser_state &= ^(PST_CONDCMD|PST_CONDEXPR); \
-//	      else if (word_token_alist[i].token == COND_START) \
-//		gps.parser_state |= PST_CONDCMD; \
-//	      else if (word_token_alist[i].token == '{') \
-//		gps.open_brace_count++; \
-//	      else if (word_token_alist[i].token == '}' && gps.open_brace_count) \
-//		gps.open_brace_count--; \
-//	      return (word_token_alist[i].token); \
-//	    } \
-//      } \
-//  } while (0)
-//
-//
+/* Check to see if TOKEN is a reserved word and return the token
+   value if it is. */
+func (gps *ParserState) CHECK_FOR_RESERVED_WORD(tok string, dollar_present bool, quoted bool) {
+    if !dollar_present && !quoted && gps.reserved_word_acceptable(gps.last_read_token) {
+	  for i := 0; word_token_alist[i].word != nil; i++ {
+        if tok == word_token_alist[i].word {
+	      if (gps.parser_state & PST_CASEPAT != 0) && (word_token_alist[i].token != ESAC) {
+		    break;
+          }
+	      if word_token_alist[i].token == TIME && time_command_acceptable () == 0 {
+            break;
+          }
+          switch {
+	      case word_token_alist[i].token == ESAC:  gps.parser_state &= ^(PST_CASEPAT|PST_CASESTMT)
+	      case word_token_alist[i].token == CASE:  gps.parser_state |= PST_CASESTMT
+	      case word_token_alist[i].token == COND_END:  gps.parser_state &= ^(PST_CONDCMD|PST_CONDEXPR)
+	      case word_token_alist[i].token == COND_START: gps.parser_state |= PST_CONDCMD
+	      case word_token_alist[i].token == '{': gps.open_brace_count++;
+	      case word_token_alist[i].token == '}' && gps.open_brace_count > 0: gps.open_brace_count--;
+          }
+	      return word_token_alist[i].token
+	    }
+      }
+    }
+}
+
 //    /* OK, we have a token.  Let's try to alias expand it, if (and only if)
 //       it's eligible.
 //
