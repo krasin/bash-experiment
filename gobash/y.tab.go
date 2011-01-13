@@ -4872,6 +4872,7 @@ func (wts *wordTokenizerState) handleShellExp() {
         default:
           ttok = parse_matched_pair (cd, '[', ']', &ttoklen, 0);
         }
+
         if (ttok == &matched_pair_error) {
           return -1;        /* Bail immediately. */
         }
@@ -4889,8 +4890,7 @@ func (wts *wordTokenizerState) handleShellExp() {
         goto next_character;
     }
       /* This handles $'...' and $"..." new-style quoted strings. */
-      else if gps.MBTEST(character == '$' && (peek_char == '\'' || peek_char == '"'))
-        {
+      else if gps.MBTEST(character == '$' && (peek_char == '\'' || peek_char == '"')) {
           int first_line;
 
           first_line = gps.line_number;
@@ -4899,36 +4899,37 @@ func (wts *wordTokenizerState) handleShellExp() {
                      &ttoklen,
                      (peek_char == '\'') ? P_ALLOWESC : 0);
           pop_delimiter (dstack);
-          if (ttok == &matched_pair_error)
-        return -1;
+          if (ttok == &matched_pair_error) {
+            return -1;
+          }
           if (peek_char == '\'') {
-          ttrans = ansiexpand (ttok, 0, ttoklen - 1, &ttranslen);
+            ttrans = ansiexpand (ttok, 0, ttoklen - 1, &ttranslen);
 
-          /* Insert the single quotes and correctly quote any
-             embedded single quotes (allowed because P_ALLOWESC was
-             passed to parse_matched_pair). */
-          ttok = sh_single_quote (ttrans);
-          ttranslen = strlen (ttok);
-          ttrans = ttok;
+            /* Insert the single quotes and correctly quote any
+               embedded single quotes (allowed because P_ALLOWESC was
+               passed to parse_matched_pair). */
+            ttok = sh_single_quote (ttrans);
+            ttranslen = strlen (ttok);
+            ttrans = ttok;
           } else {
-          /* Try to locale-expand the converted string. */
-          ttrans = localeexpand (ttok, 0, ttoklen - 1, first_line, &ttranslen);
+            /* Try to locale-expand the converted string. */
+            ttrans = localeexpand (ttok, 0, ttoklen - 1, first_line, &ttranslen);
 
-          /* Add the double quotes back */
-          ttok = sh_mkdoublequoted (ttrans, ttranslen, 0);
-          ttranslen += 2;
-          ttrans = ttok;
-              }
+            /* Add the double quotes back */
+            ttok = sh_mkdoublequoted (ttrans, ttranslen, 0);
+            ttranslen += 2;
+            ttrans = ttok;
+          }
 
           RESIZE_MALLOCED_BUFFER (token, token_index, ttranslen + 2,
-                      token_buffer_size,
-                      TOKEN_DEFAULT_GROW_SIZE);
+                                  token_buffer_size,
+                                  TOKEN_DEFAULT_GROW_SIZE);
           strcpy (token + token_index, ttrans);
           token_index += ttranslen;
           quoted = 1;
           all_digit_token = 0;
           goto next_character;
-        }
+      }
       /* This could eventually be extended to recognize all of the
          shell's single-character parameter expansions, and set flags.*/
       else if gps.MBTEST(character == '$' && peek_char == '$') {
