@@ -4709,21 +4709,21 @@ type wordTokenizerState struct {
   token_index int
 
   /* ALL_DIGITS becomes zero when we see a non-digit. */
-  all_digit_token int
+  all_digit_token bool
 
   /* DOLLAR_PRESENT becomes non-zero if we see a `$'. */
-  dollar_present int
+  dollar_present bool
 
   /* COMPOUND_ASSIGNMENT becomes non-zero if we are parsing a compound
      assignment. */
-  compound_assignment int
+  compound_assignment bool
 
   /* QUOTED becomes non-zero if we see one of ("), ('), (`), or (\). */
-  quoted int
+  quoted bool
 
   /* Non-zero means to ignore the value of the next character, and just
      to add it no matter what. */
-  pass_next_character int
+  pass_next_character bool
 
   /* The current delimiting character. */
   cd int
@@ -4739,7 +4739,7 @@ type wordTokenizerState struct {
 func (wts *wordTokenizerState) handleBackslashes() {
   /* Handle backslashes.  Quote lots of things when not inside of
      double-quotes, quote some things inside of double-quotes. */
-  if (character == '\\') {
+  if character == '\\' {
     peek_char = gps.shell_getc (0);
 
     /* Backslash-newline is ignored in all cases except
@@ -4753,7 +4753,7 @@ func (wts *wordTokenizerState) handleBackslashes() {
       /* If the next character is to be quoted, note it now. */
       if (cd == 0 || cd == '`' ||
           (cd == '"' && peek_char >= 0 && (sh_syntaxtab[peek_char] & CBSDQUOTE))) {
-	pass_next_character++;
+        pass_next_character++;
       }
 
       quoted = 1;
