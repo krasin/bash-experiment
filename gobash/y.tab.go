@@ -4852,11 +4852,10 @@ func (wts *wordTokenizerState) handleExtendedGlob() {
 func (wts *wordTokenizerState) handleShellExp() {
       /* If the delimiter character is not single quote, parse some of
 	 the shell expansions that must be read as a single word. */
-      if (shellexp (character))
-	{
+      if (shellexp (character)) {
 	  peek_char = gps.shell_getc (1);
 	  /* $(...), <(...), >(...), $((...)), ${...}, and $[...] constructs */
-	  if gps.MBTEST(peek_char == '(' || \
+	  if gps.MBTEST(peek_char == '(' ||
 		((peek_char == '{' || peek_char == '[') && character == '$'))	/* ) ] } */
 	    {
 	      if (peek_char == '{')		/* } */
