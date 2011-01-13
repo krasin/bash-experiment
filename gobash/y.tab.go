@@ -4732,7 +4732,17 @@ type wordTokenizerState struct {
   lvalue int64
 }
 
-func (wts *wordTokenizerState) handleBackslashes() {
+type readTokenWordState int
+const (
+  RTS_BAIL_IMMEDIATELY = readTokenWordState(-1)
+  RTS_PASS = readTokenWordState(0)
+  RTS_GOT_CHARACTER = readTokenWordState(iota)
+  RTS_GOT_ESCAPED_CHARACTER = readTokenWordState(iota)
+  RTS_NEXT_CHARACTER = readTokenWordState(iota)
+  RTS_GOT_TOKEN = readTokenWordState(iota)
+)
+
+func (wts *wordTokenizerState) handleBackslashes() readTokenWordState {
   /* Handle backslashes.  Quote lots of things when not inside of
      double-quotes, quote some things inside of double-quotes. */
   if wts.character == '\\' {
@@ -4742,7 +4752,7 @@ func (wts *wordTokenizerState) handleBackslashes() {
        when quoted with single quotes. */
     if (wts.peek_char == '\n') {
       wts.character = '\n';
-      goto next_character;
+      return RTS_NEXT_CHARACTER
     } else {
       wts.gps.shell_ungetc (wts.peek_char);
 
@@ -4753,14 +4763,15 @@ func (wts *wordTokenizerState) handleBackslashes() {
       }
 
       wts.quoted = true
-      goto got_character;
+      return RTS_GOT_CHARACTER
     }
   }
+  return RTS_PASS
 }
 
-func (wts *wordTokenizerState) handleShellQuote() {
+func (wts *wordTokenizerState) handleShellQuote() readTokenWordState {
       /* Parse a matched pair of quote characters. */
-      if (shellquote (wts.character)) {
+  if (shellquote (wts.character)) {
 	  push_delimiter (dstack, wts.character);
           flags := 0
           if wts.character == '`' {
@@ -4769,8 +4780,8 @@ func (wts *wordTokenizerState) handleShellQuote() {
 	  ttok = parse_matched_pair (wts.character, wts.character, wts.character, &ttoklen, flags)
 	  pop_delimiter (dstack);
 	  if (ttok == &matched_pair_error) {
-	    return -1;		/* Bail immediately. */
-          }
+	    return RTS_BAIL_IMMEDIATELY
+      }
 	  RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
 				  token_buffer_size, TOKEN_DEFAULT_GROW_SIZE);
 	  token[token_index] = wts.character;
@@ -4780,25 +4791,26 @@ func (wts *wordTokenizerState) handleShellQuote() {
 	  wts.all_digit_token = false
 	  wts.quoted = true
 	  wts.dollar_present |= (wts.character == '"' && strchr (ttok, '$') != 0);
-	  goto next_character;
-	}
+      return RTS_NEXT_CHARACTER
+  }
+  return RTS_PASS
 }
 
-func (wts *wordTokenizerState) handleRegexp() {
+func (wts *wordTokenizerState) handleRegexp() readTokenWordState {
       /* When parsing a regexp as a single word inside a conditional command,
 	 we need to special-case characters special to both the shell and
 	 regular expressions.  Right now, that is only '(' and '|'. */ /*)*/
       if ((wts.gps.parser_state & PST_REGEXP) && (wts.character == '(' || wts.character == '|')) { /*)*/
 	  if (wts.character == '|') {
-	    goto got_character;
-          }
+        return RTS_GOT_CHARACTER
+      }
 
 	  push_delimiter (dstack, wts.character);
 	  ttok = parse_matched_pair (cd, '(', ')', &ttoklen, 0);
 	  pop_delimiter (dstack);
 	  if (ttok == &matched_pair_error) {
-	    return -1;		/* Bail immediately. */
-          }
+        return RTS_BAIL_IMMEDIATELY
+      }
 	  RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
 				  token_buffer_size, TOKEN_DEFAULT_GROW_SIZE);
 	  token[token_index] = wts.character;
@@ -4807,11 +4819,12 @@ func (wts *wordTokenizerState) handleRegexp() {
 	  token_index += ttoklen;
           wts.dollar_present = false
 	  wts.all_digit_token = false
-	  goto next_character;
+      return RTS_NEXT_CHARACTER
 	}
+  return RTS_PASS
 }
 
-func (wts *wordTokenizerState) handleExtendedGlob() {
+func (wts *wordTokenizerState) handleExtendedGlob() readTokenWordState {
       /* Parse a ksh-style extended pattern matching specification. */
       if (wts.gps.extended_glob && PATTERN_CHAR (wts.character)) {
 	  wts.peek_char = wts.gps.shell_getc (1);
@@ -4820,8 +4833,8 @@ func (wts *wordTokenizerState) handleExtendedGlob() {
 	      ttok = parse_matched_pair (cd, '(', ')', &ttoklen, 0);
 	      pop_delimiter (dstack);
 	      if (ttok == &matched_pair_error) {
-		return -1;		/* Bail immediately. */
-              }
+            return RTS_BAIL_IMMEDIATELY
+          }
 	      RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
 				      token_buffer_size,
 				      TOKEN_DEFAULT_GROW_SIZE);
@@ -4833,14 +4846,15 @@ func (wts *wordTokenizerState) handleExtendedGlob() {
 	      token_index += ttoklen;
 	      wts.dollar_present = false
           wts.all_digit_token = false
-	      goto next_character;
-	 } else {
-	    wts.gps.shell_ungetc (wts.peek_char);
-         }
-      }
+          return RTS_NEXT_CHARACTER
+    } else {
+      wts.gps.shell_ungetc (wts.peek_char);
+    }
+  }
+  return RTS_PASS
 }
 
-func (wts *wordTokenizerState) handleShellExp() {
+func (wts *wordTokenizerState) handleShellExp() readTokenWordState {
   /* If the delimiter character is not single quote, parse some of
      the shell expansions that must be read as a single word. */
   switch {
@@ -4867,7 +4881,7 @@ func (wts *wordTokenizerState) handleShellExp() {
       }
 
       if (ttok == &matched_pair_error) {
-        return -1;        /* Bail immediately. */
+        return RTS_BAIL_IMMEDIATELY
       }
       RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
                               token_buffer_size,
@@ -4880,7 +4894,7 @@ func (wts *wordTokenizerState) handleShellExp() {
       token_index += ttoklen;
       wts.dollar_present = true
       wts.all_digit_token = false
-      goto next_character;
+      return RTS_NEXT_CHARACTER
     /* This handles $'...' and $"..." new-style quoted strings. */
     case (wts.character == '$' && (wts.peek_char == '\'' || wts.peek_char == '"')):
       first_line := wts.gps.line_number;
@@ -4892,7 +4906,7 @@ func (wts *wordTokenizerState) handleShellExp() {
       ttok = parse_matched_pair (wts.peek_char, wts.peek_char, wts.peek_char, &ttoklen, flags)
       pop_delimiter (dstack);
       if (ttok == &matched_pair_error) {
-        return -1;
+        return RTS_BAIL_IMMEDIATELY
       }
       if (wts.peek_char == '\'') {
         ttrans = ansiexpand (ttok, 0, ttoklen - 1, &ttranslen);
@@ -4920,7 +4934,7 @@ func (wts *wordTokenizerState) handleShellExp() {
       token_index += ttranslen;
       wts.quoted = true
       wts.all_digit_token = false
-      goto next_character;
+      return RTS_NEXT_CHARACTER
     /* This could eventually be extended to recognize all of the
        shell's single-character parameter expansions, and set flags.*/
     case (wts.character == '$' && wts.peek_char == '$'):
@@ -4935,7 +4949,7 @@ func (wts *wordTokenizerState) handleShellExp() {
       token_index += 2;
       wts.dollar_present = true
       wts.all_digit_token = false
-      goto next_character;
+      return RTS_NEXT_CHARACTER
     default:
       wts.gps.shell_ungetc (wts.peek_char);
     }
@@ -4948,7 +4962,7 @@ func (wts *wordTokenizerState) handleShellExp() {
        (token_index == 0 && (wts.gps.parser_state&PST_COMPASSIGN)))):
     ttok = parse_matched_pair (cd, '[', ']', &ttoklen, P_ARRAYSUB);
     if (ttok == &matched_pair_error) {
-      return -1;        /* Bail immediately. */
+      return RTS_BAIL_IMMEDIATELY
     }
     RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
                             token_buffer_size,
@@ -4958,7 +4972,7 @@ func (wts *wordTokenizerState) handleShellExp() {
     strcpy (token + token_index, ttok);
     token_index += ttoklen;
     wts.all_digit_token = false
-    goto next_character;
+    return RTS_NEXT_CHARACTER
 
       /* Identify possible compound array variable assignment. */
   case (wts.character == '=' && token_index > 0 && (assignment_acceptable (wts.gps.last_read_token) || (wts.gps.parser_state & PST_ASSIGNOK)) && token_is_assignment (token, token_index)):
@@ -4982,11 +4996,49 @@ func (wts *wordTokenizerState) handleShellExp() {
       token_index++
       wts.all_digit_token = false
       compound_assignment = 1;
-      goto next_character;
+      return RTS_NEXT_CHARACTER
     } else {
       wts.gps.shell_ungetc (wts.peek_char);
     }
   }
+  return RTS_PASS
+}
+
+func (wts *wordTokenizerState) handleChar() (rts_state readTokenWordState) {
+  if wts.character == EOF {
+    return RTS_GOT_TOKEN
+  }
+
+  if wts.pass_next_character {
+    wts.pass_next_character = false
+    return RTS_GOT_ESCAPED_CHARACTER
+  }
+
+  wts.cd = current_delimiter(dstack);
+
+  if rts_state = wts.handleBackslashes(); rts_state != RTS_PASS {
+    return rts_state
+  }
+  if rts_state = wts.handleShellQuote(); rts_state != RTS_PASS {
+    return rts_state
+  }
+  if rts_state = wts.handleRegexp(); rts_state != RTS_PASS {
+    return rts_state
+  }
+  if rts_state = wts.handleExtendedGlob(); rts_state != RTS_PASS {
+    return rts_state
+  }
+  if rts_state = wts.handleShellExp(); rts_state != RTS_PASS {
+    return rts_state
+  }
+
+  /* When not parsing a multi-character word construct, shell meta-
+     characters break words. */
+  if shellbreak (wts.character) {
+    gps.shell_ungetc (wts.character);
+    return RTS_GOT_TOKEN;
+  }
+  return RTS_PASS
 }
 
 func (gps *ParserState) read_token_word(ch int) int {
@@ -5001,40 +5053,23 @@ func (gps *ParserState) read_token_word(ch int) int {
 
   wts.all_digit_token = unicode.IsDigit(wts.character)
 
-  for {
-    if (wts.character == EOF) {
-      goto got_token;
-    }
+  rts_state := RTS_PASS
+  rts_loop: for {
+    switch rts_state {
+    case RTS_PASS:
+      read_state = wts.handleChar()
+      if read_state == PASS {
+        fallthrough
+      }
 
-    if (wts.pass_next_character) {
-	  wts.pass_next_character = false
-	  goto got_escaped_character;
-	}
+    case RTS_GOT_CHARACTER:
+      if (wts.character == CTLESC || wts.character == CTLNUL) {
+        token[token_index] = CTLESC;
+        token_index++
+      }
+      fallthrough
 
-    wts.cd = current_delimiter(dstack);
-
-    wts.handleBackslashes()
-    wts.handleShellQuote()
-    wts.handleRegexp()
-    wts.handleExtendedGlob()
-    wts.handleShellExp()
-
-    /* When not parsing a multi-character word construct, shell meta-
-       characters break words. */
-    if (shellbreak (wts.character)) {
-	  gps.shell_ungetc (wts.character);
-	  goto got_token;
-	}
-
-    got_character:
-
-    if (wts.character == CTLESC || wts.character == CTLNUL) {
-      token[token_index] = CTLESC;
-      token_index++
-    }
-
-    got_escaped_character:
-
+    case RTS_GOT_ESCAPED_CHARACTER:
       wts.all_digit_token &= unicode.IsDigit(wts.character);
       wts.dollar_present |= wts.character == '$';
 
@@ -5042,17 +5077,21 @@ func (gps *ParserState) read_token_word(ch int) int {
       token_index++
 
       RESIZE_MALLOCED_BUFFER (token, token_index, 1, token_buffer_size,
-			      TOKEN_DEFAULT_GROW_SIZE);
+                              TOKEN_DEFAULT_GROW_SIZE);
+      fallthrough
 
-    next_character:
+    case RTS_NEXT_CHARACTER:
       /* We want to remove quoted newlines (that is, a \<newline> pair)
-	 unless we are within single quotes or wts.pass_next_character is
-	 set (the shell equivalent of literal-next). */
+         unless we are within single quotes or wts.pass_next_character is
+         set (the shell equivalent of literal-next). */
       cd = current_delimiter (dstack);
       wts.character = gps.shell_getc (cd != '\'' && !wts.pass_next_character);
+    case RTS_GOT_TOKEN:
+      break rts_loop
+    }
+    rts_state = RTS_PASS
   }  /* end for { */
 
-got_token:
 
   token[token_index] = 0
 
