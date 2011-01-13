@@ -4785,7 +4785,7 @@ func (wts *wordTokenizerState) handleShellQuote() {
           token_index++
 	  strcpy (token + token_index, ttok);
 	  token_index += ttoklen;
-	  all_digit_token = 0;
+	  wts.all_digit_token = false
 	  wts.quoted = true
 	  dollar_present |= (wts.character == '"' && strchr (ttok, '$') != 0);
 	  goto next_character;
@@ -4814,7 +4814,7 @@ func (wts *wordTokenizerState) handleRegexp() {
 	  strcpy (token + token_index, ttok);
 	  token_index += ttoklen;
           dollar_present = false
-	  all_digit_token = false
+	  wts.all_digit_token = false
 	  goto next_character;
 	}
 }
@@ -4840,7 +4840,7 @@ func (wts *wordTokenizerState) handleExtendedGlob() {
 	      strcpy (token + token_index, ttok);
 	      token_index += ttoklen;
 	      dollar_present = false
-              all_digit_token = false
+          wts.all_digit_token = false
 	      goto next_character;
 	 } else {
 	    wts.gps.shell_ungetc (wts.peek_char);
@@ -4887,7 +4887,7 @@ func (wts *wordTokenizerState) handleShellExp() {
       strcpy (token + token_index, ttok);
       token_index += ttoklen;
       dollar_present = 1;
-      all_digit_token = 0;
+      wts.all_digit_token = false
       goto next_character;
     /* This handles $'...' and $"..." new-style quoted strings. */
     case (wts.character == '$' && (wts.peek_char == '\'' || wts.peek_char == '"')):
@@ -4927,7 +4927,7 @@ func (wts *wordTokenizerState) handleShellExp() {
       strcpy (token + token_index, ttrans);
       token_index += ttranslen;
       wts.quoted = true
-      all_digit_token = 0;
+      wts.all_digit_token = false
       goto next_character;
     /* This could eventually be extended to recognize all of the
        shell's single-character parameter expansions, and set flags.*/
@@ -4942,7 +4942,7 @@ func (wts *wordTokenizerState) handleShellExp() {
       strcpy (token + token_index, ttok);
       token_index += 2;
       dollar_present = 1;
-      all_digit_token = 0;
+      wts.all_digit_token = false
       goto next_character;
     default:
       wts.gps.shell_ungetc (wts.peek_char);
@@ -4965,7 +4965,7 @@ func (wts *wordTokenizerState) handleShellExp() {
     token_index++
     strcpy (token + token_index, ttok);
     token_index += ttoklen;
-    all_digit_token = 0;
+    wts.all_digit_token = false
     goto next_character;
 
       /* Identify possible compound array variable assignment. */
@@ -4988,7 +4988,7 @@ func (wts *wordTokenizerState) handleShellExp() {
       }
       token[token_index] = ')';
       token_index++
-      all_digit_token = 0;
+      wts.all_digit_token = false
       compound_assignment = 1;
       goto next_character;
     } else {
@@ -5007,7 +5007,7 @@ func (gps *ParserState) read_token_word(ch int) int {
     gps.token = enlargeBuffer(gps.token, gps.token_buffer_size)
   }
 
-  all_digit_token = DIGIT (wts.character);
+  wts.all_digit_token = DIGIT (wts.character);
 
   for {
     if (wts.character == EOF) {
@@ -5047,7 +5047,7 @@ func (gps *ParserState) read_token_word(ch int) int {
 
     got_escaped_character:
 
-      all_digit_token &= DIGIT (wts.character);
+      wts.all_digit_token &= DIGIT (wts.character);
       dollar_present |= wts.character == '$';
 
       token[token_index] = wts.character;
@@ -5072,7 +5072,7 @@ got_token:
      is a `<', or a `&', or the character which ended this token is
      a '>' or '<', then, and ONLY then, is this input token a NUMBER.
      Otherwise, it is just a word, and should be returned as such. */
-  if (all_digit_token && (wts.character == '<' || wts.character == '>' ||
+  if (wts.all_digit_token && (wts.character == '<' || wts.character == '>' ||
 		    gps.last_read_token == LESS_AND ||
 		    gps.last_read_token == GREATER_AND)) {
 	if (legal_number (token, &lvalue) && int64(int(lvalue)) == lvalue) {
