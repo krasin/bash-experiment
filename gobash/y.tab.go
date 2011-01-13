@@ -4827,6 +4827,12 @@ func sh_mkdoublequoted(str *StringBuilder, flags int) *StringBuilder {
   panic("sh_mkdoublequoted: not implemented")
 }
 
+func sh_single_quote(str *StringBuilder) *StringBuilder {
+  // TODO(krasin): implement this
+  panic("sh_single_quote: not implemented")
+}
+
+
 func (wts *wordTokenizerState) handleShellExp() readTokenWordState {
   /* If the delimiter character is not single quote, parse some of
      the shell expansions that must be read as a single word. */
