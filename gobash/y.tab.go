@@ -4891,13 +4891,13 @@ func (wts *wordTokenizerState) handleShellExp() {
         goto next_character;
       /* This handles $'...' and $"..." new-style quoted strings. */
       case gps.MBTEST(character == '$' && (peek_char == '\'' || peek_char == '"')):
-          int first_line;
-
-          first_line = gps.line_number;
+          first_line := gps.line_number;
           push_delimiter (dstack, peek_char);
-          ttok = parse_matched_pair (peek_char, peek_char, peek_char,
-                     &ttoklen,
-                     (peek_char == '\'') ? P_ALLOWESC : 0);
+          flags := 0
+          if peek_char == '\'' {
+            flags = P_ALLOWESC
+          }
+          ttok = parse_matched_pair (peek_char, peek_char, peek_char, &ttoklen, flags)
           pop_delimiter (dstack);
           if (ttok == &matched_pair_error) {
             return -1;
@@ -4932,9 +4932,10 @@ func (wts *wordTokenizerState) handleShellExp() {
       /* This could eventually be extended to recognize all of the
          shell's single-character parameter expansions, and set flags.*/
       case gps.MBTEST(character == '$' && peek_char == '$'):
-          ttok = (char *)xmalloc (3);
-          ttok[0] = ttok[1] = '$';
-          ttok[2] = '\0';
+          ttok = xmalloc (3);
+          ttok[0] = '$'
+          ttok[1] = '$';
+          ttok[2] = 0
           RESIZE_MALLOCED_BUFFER (token, token_index, 3,
                       token_buffer_size,
                       TOKEN_DEFAULT_GROW_SIZE);
