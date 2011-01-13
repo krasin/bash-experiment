@@ -4755,12 +4755,12 @@ func (wts *wordTokenizerState) handleBackslashes() {
       wts.gps.shell_ungetc (wts.peek_char);
 
       /* If the next character is to be quoted, note it now. */
-      if (cd == 0 || cd == '`' ||
-          (cd == '"' && wts.peek_char >= 0 && (sh_syntaxtab[wts.peek_char] & CBSDQUOTE))) {
-        pass_next_character++;
+      if (wts.cd == 0 || wts.cd == '`' ||
+          (wts.cd == '"' && wts.peek_char >= 0 && (sh_syntaxtab[wts.peek_char] & CBSDQUOTE != 0))) {
+        wts.pass_next_character = true
       }
 
-      quoted = 1;
+      quoted = true
       goto got_character;
     }
   }
@@ -4997,25 +4997,25 @@ func (wts *wordTokenizerState) handleShellExp() {
   }
 }
 
-func (gps *ParserState) read_token_word(character int) int {
+func (gps *ParserState) read_token_word(ch int) int {
   wts := new(wordTokenizerState)
   wts.gps = gps
-  wts.character = character
+  wts.character = ch
 
   if (token_buffer_size < TOKEN_DEFAULT_INITIAL_SIZE) {
     gps.token_buffer_size = TOKEN_DEFAULT_INITIAL_SIZE
     gps.token = enlargeBuffer(gps.token, gps.token_buffer_size)
   }
 
-  all_digit_token = DIGIT (character);
+  all_digit_token = DIGIT (wts.character);
 
   for {
-    if (character == EOF) {
+    if (wts.character == EOF) {
       goto got_token;
     }
 
-    if (pass_next_character) {
-	  pass_next_character = 0;
+    if (wts.pass_next_character) {
+	  wts.pass_next_character = false
 	  goto got_escaped_character;
 	}
 
@@ -5033,24 +5033,24 @@ func (gps *ParserState) read_token_word(character int) int {
 
     /* When not parsing a multi-character word construct, shell meta-
        characters break words. */
-    if (shellbreak (character)) {
-	  gps.shell_ungetc (character);
+    if (shellbreak (wts.character)) {
+	  gps.shell_ungetc (wts.character);
 	  goto got_token;
 	}
 
     got_character:
 
-    if (character == CTLESC || character == CTLNUL) {
+    if (wts.character == CTLESC || wts.character == CTLNUL) {
       token[token_index] = CTLESC;
       token_index++
     }
 
     got_escaped_character:
 
-      all_digit_token &= DIGIT (character);
-      dollar_present |= character == '$';
+      all_digit_token &= DIGIT (wts.character);
+      dollar_present |= wts.character == '$';
 
-      token[token_index] = character;
+      token[token_index] = wts.character;
       token_index++
 
       RESIZE_MALLOCED_BUFFER (token, token_index, 1, token_buffer_size,
@@ -5058,10 +5058,10 @@ func (gps *ParserState) read_token_word(character int) int {
 
     next_character:
       /* We want to remove quoted newlines (that is, a \<newline> pair)
-	 unless we are within single quotes or pass_next_character is
+	 unless we are within single quotes or wts.pass_next_character is
 	 set (the shell equivalent of literal-next). */
       cd = current_delimiter (dstack);
-      character = gps.shell_getc (cd != '\'' && pass_next_character == 0);
+      wts.character = gps.shell_getc (cd != '\'' && !wts.pass_next_character);
   }  /* end for { */
 
 got_token:
@@ -5072,7 +5072,7 @@ got_token:
      is a `<', or a `&', or the character which ended this token is
      a '>' or '<', then, and ONLY then, is this input token a NUMBER.
      Otherwise, it is just a word, and should be returned as such. */
-  if (all_digit_token && (character == '<' || character == '>' ||
+  if (all_digit_token && (wts.character == '<' || wts.character == '>' ||
 		    gps.last_read_token == LESS_AND ||
 		    gps.last_read_token == GREATER_AND)) {
 	if (legal_number (token, &lvalue) && int64(int(lvalue)) == lvalue) {
@@ -5153,7 +5153,7 @@ got_token:
   gps.yylval.word = the_word;
 
   if (token[0] == '{' && token[token_index-1] == '}' &&
-      (character == '<' || character == '>')) {
+      (wts.character == '<' || wts.character == '>')) {
       /* can use token; already copied to the_word */
       token[token_index-1] = 0
       if (legal_identifier (token+1)) {
