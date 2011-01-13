@@ -72,6 +72,7 @@ const YYLSP_NEEDED = 0
 
 
 /* Tokens.  */
+const NO_TOKEN = 0
 const IF = 258
 const THEN = 259
 const ELSE = 260
@@ -2815,33 +2816,33 @@ func (gps *ParserState) free_string_list () {
 ///*								    */
 ///* **************************************************************** */
 //
-///* Reserved words.  These are only recognized as the first word of a
-//   command. */
-//STRING_INT_ALIST word_token_alist[] = {
-//  { "if", IF },
-//  { "then", THEN },
-//  { "else", ELSE },
-//  { "elif", ELIF },
-//  { "fi", FI },
-//  { "case", CASE },
-//  { "esac", ESAC },
-//  { "for", FOR },
-//  { "select", SELECT },
-//  { "while", WHILE },
-//  { "until", UNTIL },
-//  { "do", DO },
-//  { "done", DONE },
-//  { "in", IN },
-//  { "function", FUNCTION },
-//  { "time", TIME },
-//  { "{", '{' },
-//  { "}", '}' },
-//  { "!", BANG },
-//  { "[[", COND_START },
-//  { "]]", COND_END },
-//  { (char *)NULL, 0}
-//};
-//
+/* Reserved words.  These are only recognized as the first word of a
+   command. */
+var word_token_alist = map[string] int {
+  "if": IF,
+   "then": THEN,
+   "else": ELSE,
+   "elif": ELIF,
+   "fi": FI,
+   "case": CASE,
+   "esac": ESAC,
+   "for": FOR,
+   "select": SELECT,
+   "while": WHILE,
+   "until": UNTIL,
+   "do": DO,
+   "done": DONE,
+   "in": IN,
+   "function": FUNCTION,
+   "time": TIME,
+   "{": '{',
+   "}": ',',
+   "!": BANG,
+   "[[": COND_START,
+   "]]": COND_END,
+   "": 0,
+}
+
 ///* other tokens that can be returned by read_token() */
 //STRING_INT_ALIST other_token_alist[] = {
 //  /* Multiple-character tokens with special values */
@@ -3180,28 +3181,29 @@ func (gps *ParserState) gather_here_documents() {
 //
 /* Check to see if TOKEN is a reserved word and return the token
    value if it is. */
-func (gps *ParserState) CHECK_FOR_RESERVED_WORD(tok string, dollar_present bool, quoted bool) {
-    if !dollar_present && !quoted && reserved_word_acceptable(gps.last_read_token) {
-	  for i := 0; word_token_alist[i].word != nil; i++ {
-        if tok == word_token_alist[i].word {
-	      if (gps.parser_state & PST_CASEPAT != 0) && (word_token_alist[i].token != ESAC) {
-		    break;
-          }
-	      if word_token_alist[i].token == TIME && !gps.time_command_acceptable () {
-            break;
-          }
-          switch {
-	      case word_token_alist[i].token == ESAC:  gps.parser_state &= ^(PST_CASEPAT|PST_CASESTMT)
-	      case word_token_alist[i].token == CASE:  gps.parser_state |= PST_CASESTMT
-	      case word_token_alist[i].token == COND_END:  gps.parser_state &= ^(PST_CONDCMD|PST_CONDEXPR)
-	      case word_token_alist[i].token == COND_START: gps.parser_state |= PST_CONDCMD
-	      case word_token_alist[i].token == '{': gps.open_brace_count++;
-	      case word_token_alist[i].token == '}' && gps.open_brace_count > 0: gps.open_brace_count--;
-          }
-	      return word_token_alist[i].token
-	    }
-      }
-    }
+func (gps *ParserState) CHECK_FOR_RESERVED_WORD(word string, dollar_present bool, quoted bool) int {
+  if dollar_present || quoted || !reserved_word_acceptable(gps.last_read_token) {
+    return NO_TOKEN
+  }
+  tok, ok := word_token_alist[word]
+  if !ok {
+    return NO_TOKEN
+  }
+  if (gps.parser_state & PST_CASEPAT != 0) && (tok != ESAC) {
+    return NO_TOKEN
+  }
+  if tok == TIME && !gps.time_command_acceptable () {
+    return NO_TOKEN
+  }
+  switch tok {
+  case ESAC:  gps.parser_state &= ^(PST_CASEPAT|PST_CASESTMT)
+  case CASE:  gps.parser_state |= PST_CASESTMT
+  case COND_END:  gps.parser_state &= ^(PST_CONDCMD|PST_CONDEXPR)
+  case COND_START: gps.parser_state |= PST_CONDCMD
+  case '{': gps.open_brace_count++;
+  case '}': if gps.open_brace_count > 0 { gps.open_brace_count--; }
+  }
+  return tok
 }
 
 //    /* OK, we have a token.  Let's try to alias expand it, if (and only if)
@@ -3281,9 +3283,8 @@ func (gps *ParserState) time_command_acceptable() bool {
     case '{':		/* } */
     case '(':		/* ) */
       return true
-    default:
-      return false
-    }
+  }
+  return false
 }
 
 ///* Handle special cases of token recognition:
@@ -5080,7 +5081,9 @@ got_token:
      of them, including special cases, before expanding the current token
      as an alias. */
   if (posixly_correct) {
-    CHECK_FOR_RESERVED_WORD (token);
+    if tok := gps.CHECK_FOR_RESERVED_WORD (token); tok != NO_TOKEN {
+      return tok
+    }
   }
 
   /* Aliases are expanded iff EXPAND_ALIASES is non-zero, and quoting
@@ -5099,7 +5102,9 @@ got_token:
   /* If not in Posix.2 mode, check for reserved words after alias
      expansion. */
   if (posixly_correct == 0) {
-    CHECK_FOR_RESERVED_WORD (token);
+    if tok := gps.CHECK_FOR_RESERVED_WORD (token); tok != NO_TOKEN {
+      return tok
+    }
   }
 
   wts.the_word = new(word_desc)
