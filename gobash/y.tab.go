@@ -3181,13 +3181,13 @@ func (gps *ParserState) gather_here_documents() {
 /* Check to see if TOKEN is a reserved word and return the token
    value if it is. */
 func (gps *ParserState) CHECK_FOR_RESERVED_WORD(tok string, dollar_present bool, quoted bool) {
-    if !dollar_present && !quoted && gps.reserved_word_acceptable(gps.last_read_token) {
+    if !dollar_present && !quoted && reserved_word_acceptable(gps.last_read_token) {
 	  for i := 0; word_token_alist[i].word != nil; i++ {
         if tok == word_token_alist[i].word {
 	      if (gps.parser_state & PST_CASEPAT != 0) && (word_token_alist[i].token != ESAC) {
 		    break;
           }
-	      if word_token_alist[i].token == TIME && time_command_acceptable () == 0 {
+	      if word_token_alist[i].token == TIME && !gps.time_command_acceptable () {
             break;
           }
           switch {
@@ -3266,28 +3266,26 @@ func (gps *ParserState) CHECK_FOR_RESERVED_WORD(tok string, dollar_present bool,
 //    }
 //  return (NO_EXPANSION);
 //}
-//
-//static int
-//time_command_acceptable ()
-//{
-//  switch (gps.last_read_token) {
-//    case 0:
-//    case ';':
-//    case '\n':
-//    case AND_AND:
-//    case OR_OR:
-//    case '&':
-//    case DO:
-//    case THEN:
-//    case ELSE:
-//    case '{':		/* } */
-//    case '(':		/* ) */
-//      return 1;
-//    default:
-//      return 0;
-//    }
-//}
-//
+
+func (gps *ParserState) time_command_acceptable() bool {
+  switch gps.last_read_token {
+    case 0:
+    case ';':
+    case '\n':
+    case AND_AND:
+    case OR_OR:
+    case '&':
+    case DO:
+    case THEN:
+    case ELSE:
+    case '{':		/* } */
+    case '(':		/* ) */
+      return true
+    default:
+      return false
+    }
+}
+
 ///* Handle special cases of token recognition:
 //	IN is recognized if the last token was WORD and the token
 //	before that was FOR or CASE or SELECT.
