@@ -3181,27 +3181,27 @@ func (gps *ParserState) gather_here_documents() {
 //
 /* Check to see if TOKEN is a reserved word and return the token
    value if it is. */
-func (gps *ParserState) CHECK_FOR_RESERVED_WORD(word string, dollar_present bool, quoted bool) int {
-  if dollar_present || quoted || !reserved_word_acceptable(gps.last_read_token) {
+func (wts *wordTokenizerState) CHECK_FOR_RESERVED_WORD(word string) int {
+  if wts.dollar_present || wts.quoted || !reserved_word_acceptable(wts.gps.last_read_token) {
     return NO_TOKEN
   }
   tok, ok := word_token_alist[word]
   if !ok {
     return NO_TOKEN
   }
-  if (gps.parser_state & PST_CASEPAT != 0) && (tok != ESAC) {
+  if (wts.gps.parser_state & PST_CASEPAT != 0) && (tok != ESAC) {
     return NO_TOKEN
   }
-  if tok == TIME && !gps.time_command_acceptable () {
+  if tok == TIME && !wts.gps.time_command_acceptable () {
     return NO_TOKEN
   }
   switch tok {
-  case ESAC:  gps.parser_state &= ^(PST_CASEPAT|PST_CASESTMT)
-  case CASE:  gps.parser_state |= PST_CASESTMT
-  case COND_END:  gps.parser_state &= ^(PST_CONDCMD|PST_CONDEXPR)
-  case COND_START: gps.parser_state |= PST_CONDCMD
-  case '{': gps.open_brace_count++;
-  case '}': if gps.open_brace_count > 0 { gps.open_brace_count--; }
+  case ESAC:  wts.gps.parser_state &= ^(PST_CASEPAT|PST_CASESTMT)
+  case CASE:  wts.gps.parser_state |= PST_CASESTMT
+  case COND_END:  wts.gps.parser_state &= ^(PST_CONDCMD|PST_CONDEXPR)
+  case COND_START: wts.gps.parser_state |= PST_CONDCMD
+  case '{': wts.gps.open_brace_count++;
+  case '}': if wts.gps.open_brace_count > 0 { wts.gps.open_brace_count--; }
   }
   return tok
 }
@@ -5081,7 +5081,7 @@ got_token:
      of them, including special cases, before expanding the current token
      as an alias. */
   if (posixly_correct) {
-    if tok := gps.CHECK_FOR_RESERVED_WORD (token); tok != NO_TOKEN {
+    if tok := wts.CHECK_FOR_RESERVED_WORD (token); tok != NO_TOKEN {
       return tok
     }
   }
@@ -5102,7 +5102,7 @@ got_token:
   /* If not in Posix.2 mode, check for reserved words after alias
      expansion. */
   if (posixly_correct == 0) {
-    if tok := gps.CHECK_FOR_RESERVED_WORD (token); tok != NO_TOKEN {
+    if tok := wts.CHECK_FOR_RESERVED_WORD (token); tok != NO_TOKEN {
       return tok
     }
   }
