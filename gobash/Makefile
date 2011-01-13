@@ -10,6 +10,7 @@ GOFILES=\
 	syntax.go\
 	subst.go\
 	stack.go\
+    string_builder.go\
 	array.go\
 	error.go\
 	command.go\
