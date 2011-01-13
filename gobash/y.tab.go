@@ -3297,6 +3297,11 @@ func (gps *ParserState) time_command_acceptable() bool {
 //	preceded by one of `;', `\n', `||', `&&', or `&'.
 //*/
 //
+func (gps *ParserState) special_case_tokens(tokstr string) bool {
+  // TODO(krasin): implement this
+  panic("ParserState.special_case_tokens: not implemented")
+}
+
 //static int
 //special_case_tokens (tokstr)
 //     char *tokstr;
