@@ -4859,142 +4859,142 @@ func (wts *wordTokenizerState) handleShellExp() {
     /* $(...), <(...), >(...), $((...)), ${...}, and $[...] constructs */
     case gps.MBTEST(peek_char == '(' ||
         ((peek_char == '{' || peek_char == '[') && character == '$')):    /* ) ] } */
-        switch {
-        case peek_char == '{':        /* } */
-          ttok = parse_matched_pair (cd, '{', '}', &ttoklen, P_FIRSTCLOSE);
-        case peek_char == '(':        /* ) */
-          /* XXX - push and pop the `(' as a delimiter for use by
-             the command-oriented-history code.  This way newlines
-             appearing in the $(...) string get added to the
-             history literally rather than causing a possibly-
-             incorrect `;' to be added. ) */
-          push_delimiter (dstack, peek_char);
-          ttok = parse_comsub (cd, '(', ')', &ttoklen, P_COMMAND);
-          pop_delimiter (dstack);
-        default:
-          ttok = parse_matched_pair (cd, '[', ']', &ttoklen, 0);
-        }
-
-        if (ttok == &matched_pair_error) {
-          return -1;        /* Bail immediately. */
-        }
-        RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
-                                token_buffer_size,
-                                TOKEN_DEFAULT_GROW_SIZE);
-        token[token_index] = character;
-        token_index++
-        token[token_index] = peek_char;
-        token_index++
-        strcpy (token + token_index, ttok);
-        token_index += ttoklen;
-        dollar_present = 1;
-        all_digit_token = 0;
-        goto next_character;
-      /* This handles $'...' and $"..." new-style quoted strings. */
-      case gps.MBTEST(character == '$' && (peek_char == '\'' || peek_char == '"')):
-          first_line := gps.line_number;
-          push_delimiter (dstack, peek_char);
-          flags := 0
-          if peek_char == '\'' {
-            flags = P_ALLOWESC
-          }
-          ttok = parse_matched_pair (peek_char, peek_char, peek_char, &ttoklen, flags)
-          pop_delimiter (dstack);
-          if (ttok == &matched_pair_error) {
-            return -1;
-          }
-          if (peek_char == '\'') {
-            ttrans = ansiexpand (ttok, 0, ttoklen - 1, &ttranslen);
-
-            /* Insert the single quotes and correctly quote any
-               embedded single quotes (allowed because P_ALLOWESC was
-               passed to parse_matched_pair). */
-            ttok = sh_single_quote (ttrans);
-            ttranslen = strlen (ttok);
-            ttrans = ttok;
-          } else {
-            /* Try to locale-expand the converted string. */
-            ttrans = localeexpand (ttok, 0, ttoklen - 1, first_line, &ttranslen);
-
-            /* Add the double quotes back */
-            ttok = sh_mkdoublequoted (ttrans, ttranslen, 0);
-            ttranslen += 2;
-            ttrans = ttok;
-          }
-
-          RESIZE_MALLOCED_BUFFER (token, token_index, ttranslen + 2,
-                                  token_buffer_size,
-                                  TOKEN_DEFAULT_GROW_SIZE);
-          strcpy (token + token_index, ttrans);
-          token_index += ttranslen;
-          quoted = 1;
-          all_digit_token = 0;
-          goto next_character;
-      /* This could eventually be extended to recognize all of the
-         shell's single-character parameter expansions, and set flags.*/
-      case gps.MBTEST(character == '$' && peek_char == '$'):
-          ttok = xmalloc (3);
-          ttok[0] = '$'
-          ttok[1] = '$';
-          ttok[2] = 0
-          RESIZE_MALLOCED_BUFFER (token, token_index, 3,
-                      token_buffer_size,
-                      TOKEN_DEFAULT_GROW_SIZE);
-          strcpy (token + token_index, ttok);
-          token_index += 2;
-          dollar_present = 1;
-          all_digit_token = 0;
-          goto next_character;
+      switch {
+      case peek_char == '{':        /* } */
+        ttok = parse_matched_pair (cd, '{', '}', &ttoklen, P_FIRSTCLOSE);
+      case peek_char == '(':        /* ) */
+        /* XXX - push and pop the `(' as a delimiter for use by
+           the command-oriented-history code.  This way newlines
+           appearing in the $(...) string get added to the
+           history literally rather than causing a possibly-
+           incorrect `;' to be added. ) */
+        push_delimiter (dstack, peek_char);
+        ttok = parse_comsub (cd, '(', ')', &ttoklen, P_COMMAND);
+        pop_delimiter (dstack);
       default:
-          gps.shell_ungetc (peek_char);
+        ttok = parse_matched_pair (cd, '[', ']', &ttoklen, 0);
       }
 
-      /* Identify possible array subscript assignment; match [...].  If
+      if (ttok == &matched_pair_error) {
+        return -1;        /* Bail immediately. */
+      }
+      RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
+                              token_buffer_size,
+                              TOKEN_DEFAULT_GROW_SIZE);
+      token[token_index] = character;
+      token_index++
+      token[token_index] = peek_char;
+      token_index++
+      strcpy (token + token_index, ttok);
+      token_index += ttoklen;
+      dollar_present = 1;
+      all_digit_token = 0;
+      goto next_character;
+    /* This handles $'...' and $"..." new-style quoted strings. */
+    case gps.MBTEST(character == '$' && (peek_char == '\'' || peek_char == '"')):
+      first_line := gps.line_number;
+      push_delimiter (dstack, peek_char);
+      flags := 0
+      if peek_char == '\'' {
+        flags = P_ALLOWESC
+      }
+      ttok = parse_matched_pair (peek_char, peek_char, peek_char, &ttoklen, flags)
+      pop_delimiter (dstack);
+      if (ttok == &matched_pair_error) {
+        return -1;
+      }
+      if (peek_char == '\'') {
+        ttrans = ansiexpand (ttok, 0, ttoklen - 1, &ttranslen);
+
+        /* Insert the single quotes and correctly quote any
+           embedded single quotes (allowed because P_ALLOWESC was
+           passed to parse_matched_pair). */
+        ttok = sh_single_quote (ttrans);
+        ttranslen = strlen (ttok);
+        ttrans = ttok;
+      } else {
+        /* Try to locale-expand the converted string. */
+        ttrans = localeexpand (ttok, 0, ttoklen - 1, first_line, &ttranslen);
+
+        /* Add the double quotes back */
+        ttok = sh_mkdoublequoted (ttrans, ttranslen, 0);
+        ttranslen += 2;
+        ttrans = ttok;
+      }
+
+      RESIZE_MALLOCED_BUFFER (token, token_index, ttranslen + 2,
+                              token_buffer_size,
+                              TOKEN_DEFAULT_GROW_SIZE);
+      strcpy (token + token_index, ttrans);
+      token_index += ttranslen;
+      quoted = 1;
+      all_digit_token = 0;
+      goto next_character;
+    /* This could eventually be extended to recognize all of the
+       shell's single-character parameter expansions, and set flags.*/
+    case gps.MBTEST(character == '$' && peek_char == '$'):
+      ttok = xmalloc (3);
+      ttok[0] = '$'
+      ttok[1] = '$';
+      ttok[2] = 0
+      RESIZE_MALLOCED_BUFFER (token, token_index, 3,
+                              token_buffer_size,
+                              TOKEN_DEFAULT_GROW_SIZE);
+      strcpy (token + token_index, ttok);
+      token_index += 2;
+      dollar_present = 1;
+      all_digit_token = 0;
+      goto next_character;
+    default:
+      gps.shell_ungetc (peek_char);
+    }
+
+  /* Identify possible array subscript assignment; match [...].  If
      gps.parser_state&PST_COMPASSIGN, we need to parse [sub]=words treating
      `sub' as if it were enclosed in double quotes. */
   case gps.MBTEST(character == '[' &&        /* ] */
        ((token_index > 0 && assignment_acceptable (gps.last_read_token) && token_is_ident (token, token_index)) ||
        (token_index == 0 && (gps.parser_state&PST_COMPASSIGN)))):
-      ttok = parse_matched_pair (cd, '[', ']', &ttoklen, P_ARRAYSUB);
-      if (ttok == &matched_pair_error) {
-        return -1;        /* Bail immediately. */
-          }
-      RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
-                  token_buffer_size,
-                  TOKEN_DEFAULT_GROW_SIZE);
-      token[token_index] = character;
-          token_index++
-      strcpy (token + token_index, ttok);
-      token_index += ttoklen;
-      all_digit_token = 0;
-      goto next_character;
+    ttok = parse_matched_pair (cd, '[', ']', &ttoklen, P_ARRAYSUB);
+    if (ttok == &matched_pair_error) {
+      return -1;        /* Bail immediately. */
+    }
+    RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
+                            token_buffer_size,
+                            TOKEN_DEFAULT_GROW_SIZE);
+    token[token_index] = character;
+    token_index++
+    strcpy (token + token_index, ttok);
+    token_index += ttoklen;
+    all_digit_token = 0;
+    goto next_character;
 
       /* Identify possible compound array variable assignment. */
   case gps.MBTEST(character == '=' && token_index > 0 && (assignment_acceptable (gps.last_read_token) || (gps.parser_state & PST_ASSIGNOK)) && token_is_assignment (token, token_index)):
-      peek_char = gps.shell_getc (1);
-      if gps.MBTEST(peek_char == '(') {        /* ) */
-          ttok = parse_compound_assignment (&ttoklen);
+    peek_char = gps.shell_getc (1);
+    if gps.MBTEST(peek_char == '(') {        /* ) */
+      ttok = parse_compound_assignment (&ttoklen);
 
-          RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 4,
-                      token_buffer_size,
-                      TOKEN_DEFAULT_GROW_SIZE);
+      RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 4,
+                              token_buffer_size,
+                              TOKEN_DEFAULT_GROW_SIZE);
 
-          token[token_index] = '=';
-              token_index++
-          token[token_index] = '(';
-              token_index++
-          if (ttok) {
-          strcpy (token + token_index, ttok);
-          token_index += ttoklen;
-              }
-          token[token_index] = ')';
-          token_index++
-          all_digit_token = 0;
-          compound_assignment = 1;
-          goto next_character;
-      } else {
-        gps.shell_ungetc (peek_char);
-          }
+      token[token_index] = '=';
+      token_index++
+      token[token_index] = '(';
+      token_index++
+      if (ttok) {
+        strcpy (token + token_index, ttok);
+        token_index += ttoklen;
+      }
+      token[token_index] = ')';
+      token_index++
+      all_digit_token = 0;
+      compound_assignment = 1;
+      goto next_character;
+    } else {
+      gps.shell_ungetc (peek_char);
+    }
   }
 }
 
