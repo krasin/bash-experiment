@@ -4648,12 +4648,12 @@ func (gps *ParserState) parse_cond_command() *Command {
   return gps.make_cond_command(cexp)
 }
 
-func token_is_assignment(t string, i int) bool {
+func token_is_assignment(t *StringBuilder, i int) bool {
   // TODO(krasin): implement this
   panic("token_is_assignment: not implemented")
 }
 
-func token_is_ident(t string, i int) bool {
+func token_is_ident(t *StringBuilder, i int) bool {
   // TODO(krasin): implement this
   panic("token_is_ident: not implemented")
 }
