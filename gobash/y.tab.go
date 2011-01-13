@@ -4769,16 +4769,21 @@ func (wts *wordTokenizerState) handleBackslashes() {
 
 func (wts *wordTokenizerState) handleShellQuote() {
       /* Parse a matched pair of quote characters. */
-      if gps.MBTEST(shellquote (character))
-	{
+      if gps.MBTEST(shellquote (character)) {
 	  push_delimiter (dstack, character);
-	  ttok = parse_matched_pair (character, character, character, &ttoklen, (character == '`') ? P_COMMAND : 0);
+          flags := 0
+          if character == '`' {
+            flags = P_COMMAND
+          }
+	  ttok = parse_matched_pair (character, character, character, &ttoklen, flags)
 	  pop_delimiter (dstack);
-	  if (ttok == &matched_pair_error)
+	  if (ttok == &matched_pair_error) {
 	    return -1;		/* Bail immediately. */
+          }
 	  RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
 				  token_buffer_size, TOKEN_DEFAULT_GROW_SIZE);
-	  token[token_index++] = character;
+	  token[token_index] = character;
+          token_index++
 	  strcpy (token + token_index, ttok);
 	  token_index += ttoklen;
 	  all_digit_token = 0;
