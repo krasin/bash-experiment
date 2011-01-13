@@ -292,13 +292,6 @@ eol_ungetc_lookahead int
 // TODO(krasin): this should go to the options.
 echo_input_at_read bool
 
-/* Place to remember the token.  We try to keep the buffer
-   at a reasonable size, but it can grow. */
-token []int
-
-/* Current size of the token buffer. */
-token_buffer_size int
-
 } // ParserState
 
 func newParserState(bashInput BashInput) *ParserState {
