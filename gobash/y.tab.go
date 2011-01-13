@@ -4857,10 +4857,10 @@ func (wts *wordTokenizerState) handleShellExp() {
     /* $(...), <(...), >(...), $((...)), ${...}, and $[...] constructs */
     if gps.MBTEST(peek_char == '(' ||
         ((peek_char == '{' || peek_char == '[') && character == '$')) {    /* ) ] } */
-          if (peek_char == '{')        /* } */
-        ttok = parse_matched_pair (cd, '{', '}', &ttoklen, P_FIRSTCLOSE);
-          else if (peek_char == '(')        /* ) */
-        {
+        switch {
+        case peek_char == '{':        /* } */
+          ttok = parse_matched_pair (cd, '{', '}', &ttoklen, P_FIRSTCLOSE);
+        case peek_char == '(':        /* ) */
           /* XXX - push and pop the `(' as a delimiter for use by
              the command-oriented-history code.  This way newlines
              appearing in the $(...) string get added to the
@@ -4869,26 +4869,25 @@ func (wts *wordTokenizerState) handleShellExp() {
           push_delimiter (dstack, peek_char);
           ttok = parse_comsub (cd, '(', ')', &ttoklen, P_COMMAND);
           pop_delimiter (dstack);
+        default:
+          ttok = parse_matched_pair (cd, '[', ']', &ttoklen, 0);
         }
-          else {
-        ttok = parse_matched_pair (cd, '[', ']', &ttoklen, 0);
-              }
-          if (ttok == &matched_pair_error) {
-        return -1;        /* Bail immediately. */
-              }
-          RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
-                      token_buffer_size,
-                      TOKEN_DEFAULT_GROW_SIZE);
-          token[token_index] = character;
-              token_index++
-          token[token_index] = peek_char;
-              token_index++
-          strcpy (token + token_index, ttok);
-          token_index += ttoklen;
-          dollar_present = 1;
-          all_digit_token = 0;
-          goto next_character;
+        if (ttok == &matched_pair_error) {
+          return -1;        /* Bail immediately. */
         }
+        RESIZE_MALLOCED_BUFFER (token, token_index, ttoklen + 2,
+                                token_buffer_size,
+                                TOKEN_DEFAULT_GROW_SIZE);
+        token[token_index] = character;
+        token_index++
+        token[token_index] = peek_char;
+        token_index++
+        strcpy (token + token_index, ttok);
+        token_index += ttoklen;
+        dollar_present = 1;
+        all_digit_token = 0;
+        goto next_character;
+    }
       /* This handles $'...' and $"..." new-style quoted strings. */
       else if gps.MBTEST(character == '$' && (peek_char == '\'' || peek_char == '"'))
         {
