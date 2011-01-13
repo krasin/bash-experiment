@@ -6,11 +6,12 @@ include $(GOROOT)/src/Make.inc
 
 TARG=gobash
 GOFILES=\
+	lib/sh/strtrans.go\
 	alias.go\
 	syntax.go\
 	subst.go\
 	stack.go\
-    string_builder.go\
+	string_builder.go\
 	array.go\
 	error.go\
 	command.go\

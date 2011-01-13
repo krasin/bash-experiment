@@ -23,6 +23,10 @@ package gobash
 //	 char *string;
 //	 int len, flags, *sawc, *rlen;
 //{
+func ansicstr(str *StringBuilder, flags int, sawc *int) *StringBuilder {
+  // TODO(krasin): implement this
+  panic("ansicstr: not implemented")
+}
 //	int c, temp;
 //	char *ret, *r, *s;
 //
@@ -255,25 +259,10 @@ package gobash
 
 /* $'...' ANSI-C expand the portion of STRING between START and END and return the result.  The result cannot be longer than the
    input string. */
-char *ansiexpand(string, start, end, lenp)
-	 char *string;
-	 int start, end, *lenp;
-{
-	char *temp, *t;
-	int len, tlen;
-
-	temp = (char *)xmalloc(end - start + 1);
-	for (tlen = 0, len = start; len < end;)
-		temp[tlen++] = string[len++];
-	temp[tlen] = '\0';
-
-	if (*temp) {
-		t = ansicstr(temp, tlen, 2, (int *)NULL, lenp);
-		free(temp);
-		return (t);
-	} else {
-		if (lenp)
-			*lenp = 0;
-		return (temp);
-	}
+func ansiexpand(str *StringBuilder) *StringBuilder {
+  if str == nil || str.Len() == 0 {
+    return NewStringBuilder()
+  }
+  return ansicstr(str, 2, nil)
 }
+
