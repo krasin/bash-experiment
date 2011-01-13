@@ -2909,6 +2909,11 @@ var word_token_alist = map[string] int {
 //
 //#define pop_delimiter(ds)	ds.delimiter_depth--
 
+func current_delimiter(ds *dstack) int {
+  // TODO(krasin): implement this
+  panic("current_delimiter: not implemented")
+}
+
 func push_delimiter(ds *dstack, character int) {
   // TODO(krasin): implement this
   panic("push_delimiter: not implemented")
