@@ -4854,9 +4854,10 @@ func (wts *wordTokenizerState) handleShellExp() {
      the shell expansions that must be read as a single word. */
   if (shellexp (character)) {
     peek_char = gps.shell_getc (1);
+    switch {
     /* $(...), <(...), >(...), $((...)), ${...}, and $[...] constructs */
-    if gps.MBTEST(peek_char == '(' ||
-        ((peek_char == '{' || peek_char == '[') && character == '$')) {    /* ) ] } */
+    case gps.MBTEST(peek_char == '(' ||
+        ((peek_char == '{' || peek_char == '[') && character == '$')):    /* ) ] } */
         switch {
         case peek_char == '{':        /* } */
           ttok = parse_matched_pair (cd, '{', '}', &ttoklen, P_FIRSTCLOSE);
@@ -4888,9 +4889,8 @@ func (wts *wordTokenizerState) handleShellExp() {
         dollar_present = 1;
         all_digit_token = 0;
         goto next_character;
-    }
       /* This handles $'...' and $"..." new-style quoted strings. */
-      else if gps.MBTEST(character == '$' && (peek_char == '\'' || peek_char == '"')) {
+      case gps.MBTEST(character == '$' && (peek_char == '\'' || peek_char == '"')):
           int first_line;
 
           first_line = gps.line_number;
@@ -4929,10 +4929,9 @@ func (wts *wordTokenizerState) handleShellExp() {
           quoted = 1;
           all_digit_token = 0;
           goto next_character;
-      }
       /* This could eventually be extended to recognize all of the
          shell's single-character parameter expansions, and set flags.*/
-      else if gps.MBTEST(character == '$' && peek_char == '$') {
+      case gps.MBTEST(character == '$' && peek_char == '$'):
           ttok = (char *)xmalloc (3);
           ttok[0] = ttok[1] = '$';
           ttok[2] = '\0';
@@ -4944,9 +4943,9 @@ func (wts *wordTokenizerState) handleShellExp() {
           dollar_present = 1;
           all_digit_token = 0;
           goto next_character;
-        } else {
-              gps.shell_ungetc (peek_char);
-            }
+      default:
+          gps.shell_ungetc (peek_char);
+      }
     }
 
       /* Identify possible array subscript assignment; match [...].  If
