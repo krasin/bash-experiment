@@ -4742,32 +4742,29 @@ type wordTokenizerState struct {
 }
 
 func (wts *wordTokenizerState) handleBackslashes() {
-      /* Handle backslashes.  Quote lots of things when not inside of
-	 double-quotes, quote some things inside of double-quotes. */
-      if gps.MBTEST(character == '\\')
-	{
-	  peek_char = gps.shell_getc (0);
+  /* Handle backslashes.  Quote lots of things when not inside of
+     double-quotes, quote some things inside of double-quotes. */
+  if gps.MBTEST(character == '\\') {
+    peek_char = gps.shell_getc (0);
 
-	  /* Backslash-newline is ignored in all cases except
-	     when quoted with single quotes. */
-	  if (peek_char == '\n')
-	    {
-	      character = '\n';
-	      goto next_character;
-	    }
-	  else
-	    {
-	      gps.shell_ungetc (peek_char);
+    /* Backslash-newline is ignored in all cases except
+       when quoted with single quotes. */
+    if (peek_char == '\n') {
+      character = '\n';
+      goto next_character;
+    } else {
+      gps.shell_ungetc (peek_char);
 
-	      /* If the next character is to be quoted, note it now. */
-	      if (cd == 0 || cd == '`' ||
-		  (cd == '"' && peek_char >= 0 && (sh_syntaxtab[peek_char] & CBSDQUOTE)))
-		pass_next_character++;
+      /* If the next character is to be quoted, note it now. */
+      if (cd == 0 || cd == '`' ||
+          (cd == '"' && peek_char >= 0 && (sh_syntaxtab[peek_char] & CBSDQUOTE))) {
+	pass_next_character++;
+      }
 
-	      quoted = 1;
-	      goto got_character;
-	    }
-	}
+      quoted = 1;
+      goto got_character;
+    }
+  }
 }
 
 func (wts *wordTokenizerState) handleShellQuote() {
