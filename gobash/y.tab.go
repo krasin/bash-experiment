@@ -4787,7 +4787,7 @@ func (wts *wordTokenizerState) handleShellQuote() {
 	  token_index += ttoklen;
 	  wts.all_digit_token = false
 	  wts.quoted = true
-	  dollar_present |= (wts.character == '"' && strchr (ttok, '$') != 0);
+	  wts.dollar_present |= (wts.character == '"' && strchr (ttok, '$') != 0);
 	  goto next_character;
 	}
 }
@@ -4813,7 +4813,7 @@ func (wts *wordTokenizerState) handleRegexp() {
           token_index++
 	  strcpy (token + token_index, ttok);
 	  token_index += ttoklen;
-          dollar_present = false
+          wts.dollar_present = false
 	  wts.all_digit_token = false
 	  goto next_character;
 	}
@@ -4839,7 +4839,7 @@ func (wts *wordTokenizerState) handleExtendedGlob() {
               token_index++
 	      strcpy (token + token_index, ttok);
 	      token_index += ttoklen;
-	      dollar_present = false
+	      wts.dollar_present = false
           wts.all_digit_token = false
 	      goto next_character;
 	 } else {
@@ -4886,7 +4886,7 @@ func (wts *wordTokenizerState) handleShellExp() {
       token_index++
       strcpy (token + token_index, ttok);
       token_index += ttoklen;
-      dollar_present = 1;
+      wts.dollar_present = true
       wts.all_digit_token = false
       goto next_character;
     /* This handles $'...' and $"..." new-style quoted strings. */
@@ -4941,7 +4941,7 @@ func (wts *wordTokenizerState) handleShellExp() {
                               TOKEN_DEFAULT_GROW_SIZE);
       strcpy (token + token_index, ttok);
       token_index += 2;
-      dollar_present = 1;
+      wts.dollar_present = true
       wts.all_digit_token = false
       goto next_character;
     default:
@@ -5048,7 +5048,7 @@ func (gps *ParserState) read_token_word(ch int) int {
     got_escaped_character:
 
       wts.all_digit_token &= DIGIT (wts.character);
-      dollar_present |= wts.character == '$';
+      wts.dollar_present |= wts.character == '$';
 
       token[token_index] = wts.character;
       token_index++
@@ -5119,7 +5119,7 @@ got_token:
   the_word.word = xmalloc (1 + token_index);
   the_word.flags = 0;
   strcpy (the_word.word, token);
-  if (dollar_present) {
+  if (wts.dollar_present) {
     the_word.flags |= W_HASDOLLAR;
   }
   if (wts.quoted) {
