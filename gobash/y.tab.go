@@ -4817,6 +4817,11 @@ func (wts *wordTokenizerState) handleExtendedGlob() readTokenWordState {
   return RTS_PASS
 }
 
+func localeexpand(str *StringBuilder, lineno int) *StringBuilder {
+  // TODO(krasin): implement this
+  panic("localeexpand: not implemented")
+}
+
 func (wts *wordTokenizerState) handleShellExp() readTokenWordState {
   /* If the delimiter character is not single quote, parse some of
      the shell expansions that must be read as a single word. */
@@ -4876,7 +4881,7 @@ func (wts *wordTokenizerState) handleShellExp() readTokenWordState {
         wts.ttrans = wts.ttok;
       } else {
         /* Try to locale-expand the converted string. */
-        wts.ttrans = localeexpand (wts.ttok, 0, ttoklen - 1, first_line)
+        wts.ttrans = localeexpand (wts.ttok, first_line)
 
         /* Add the double quotes back */
         wts.ttok = sh_mkdoublequoted (wts.ttrans, ttranslen, 0);
