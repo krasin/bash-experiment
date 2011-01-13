@@ -2925,7 +2925,7 @@ func runesToString(arr []int) string {
 		utf8.EncodeRune(cur[0:rl], v)
 		cur = cur[rl:]
 	}
-	return string(cur)
+	return string(data)
 }
 
 func stringToRunes(str string) (arr []int) {
