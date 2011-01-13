@@ -4702,6 +4702,8 @@ func (gps *ParserState) parse_cond_command() *Command {
 //
 
 type wordTokenizerState struct {
+  gps *ParserState
+
   character int
 
   /* The value for YYLVAL when a WORD is read. */
@@ -4742,7 +4744,7 @@ func (wts *wordTokenizerState) handleBackslashes() {
   /* Handle backslashes.  Quote lots of things when not inside of
      double-quotes, quote some things inside of double-quotes. */
   if wts.character == '\\' {
-    wts.peek_char = gps.shell_getc (0);
+    wts.peek_char = wts.gps.shell_getc(false)
 
     /* Backslash-newline is ignored in all cases except
        when quoted with single quotes. */
@@ -4750,7 +4752,7 @@ func (wts *wordTokenizerState) handleBackslashes() {
       wts.character = '\n';
       goto next_character;
     } else {
-      gps.shell_ungetc (wts.peek_char);
+      wts.gps.shell_ungetc (wts.peek_char);
 
       /* If the next character is to be quoted, note it now. */
       if (cd == 0 || cd == '`' ||
@@ -4794,7 +4796,7 @@ func (wts *wordTokenizerState) handleRegexp() {
       /* When parsing a regexp as a single word inside a conditional command,
 	 we need to special-case characters special to both the shell and
 	 regular expressions.  Right now, that is only '(' and '|'. */ /*)*/
-      if ((gps.parser_state & PST_REGEXP) && (wts.character == '(' || wts.character == '|')) { /*)*/
+      if ((wts.gps.parser_state & PST_REGEXP) && (wts.character == '(' || wts.character == '|')) { /*)*/
 	  if (wts.character == '|') {
 	    goto got_character;
           }
@@ -4819,8 +4821,8 @@ func (wts *wordTokenizerState) handleRegexp() {
 
 func (wts *wordTokenizerState) handleExtendedGlob() {
       /* Parse a ksh-style extended pattern matching specification. */
-      if (gps.extended_glob && PATTERN_CHAR (wts.character)) {
-	  wts.peek_char = gps.shell_getc (1);
+      if (wts.gps.extended_glob && PATTERN_CHAR (wts.character)) {
+	  wts.peek_char = wts.gps.shell_getc (1);
 	  if (wts.peek_char == '(') {		/* ) */
 	      push_delimiter (dstack, wts.peek_char);
 	      ttok = parse_matched_pair (cd, '(', ')', &ttoklen, 0);
@@ -4841,7 +4843,7 @@ func (wts *wordTokenizerState) handleExtendedGlob() {
               all_digit_token = false
 	      goto next_character;
 	 } else {
-	    gps.shell_ungetc (wts.peek_char);
+	    wts.gps.shell_ungetc (wts.peek_char);
          }
       }
 }
@@ -4851,7 +4853,7 @@ func (wts *wordTokenizerState) handleShellExp() {
      the shell expansions that must be read as a single word. */
   switch {
   case shellexp(wts.character):
-    wts.peek_char = gps.shell_getc (1);
+    wts.peek_char = wts.gps.shell_getc (1);
     switch {
     /* $(...), <(...), >(...), $((...)), ${...}, and $[...] constructs */
     case (wts.peek_char == '(' ||
@@ -4889,7 +4891,7 @@ func (wts *wordTokenizerState) handleShellExp() {
       goto next_character;
     /* This handles $'...' and $"..." new-style quoted strings. */
     case (wts.character == '$' && (wts.peek_char == '\'' || wts.peek_char == '"')):
-      first_line := gps.line_number;
+      first_line := wts.gps.line_number;
       push_delimiter (dstack, wts.peek_char);
       flags := 0
       if wts.peek_char == '\'' {
@@ -4943,15 +4945,15 @@ func (wts *wordTokenizerState) handleShellExp() {
       all_digit_token = 0;
       goto next_character;
     default:
-      gps.shell_ungetc (wts.peek_char);
+      wts.gps.shell_ungetc (wts.peek_char);
     }
 
   /* Identify possible array subscript assignment; match [...].  If
-     gps.parser_state&PST_COMPASSIGN, we need to parse [sub]=words treating
+     wts.gps.parser_state&PST_COMPASSIGN, we need to parse [sub]=words treating
      `sub' as if it were enclosed in double quotes. */
   case (wts.character == '[' &&        /* ] */
-       ((token_index > 0 && assignment_acceptable (gps.last_read_token) && token_is_ident (token, token_index)) ||
-       (token_index == 0 && (gps.parser_state&PST_COMPASSIGN)))):
+       ((token_index > 0 && assignment_acceptable (wts.gps.last_read_token) && token_is_ident (token, token_index)) ||
+       (token_index == 0 && (wts.gps.parser_state&PST_COMPASSIGN)))):
     ttok = parse_matched_pair (cd, '[', ']', &ttoklen, P_ARRAYSUB);
     if (ttok == &matched_pair_error) {
       return -1;        /* Bail immediately. */
@@ -4967,8 +4969,8 @@ func (wts *wordTokenizerState) handleShellExp() {
     goto next_character;
 
       /* Identify possible compound array variable assignment. */
-  case (wts.character == '=' && token_index > 0 && (assignment_acceptable (gps.last_read_token) || (gps.parser_state & PST_ASSIGNOK)) && token_is_assignment (token, token_index)):
-    wts.peek_char = gps.shell_getc (1);
+  case (wts.character == '=' && token_index > 0 && (assignment_acceptable (wts.gps.last_read_token) || (wts.gps.parser_state & PST_ASSIGNOK)) && token_is_assignment (token, token_index)):
+    wts.peek_char = wts.gps.shell_getc (1);
     if (wts.peek_char == '(') {        /* ) */
       ttok = parse_compound_assignment (&ttoklen);
 
@@ -4990,13 +4992,14 @@ func (wts *wordTokenizerState) handleShellExp() {
       compound_assignment = 1;
       goto next_character;
     } else {
-      gps.shell_ungetc (wts.peek_char);
+      wts.gps.shell_ungetc (wts.peek_char);
     }
   }
 }
 
 func (gps *ParserState) read_token_word(character int) int {
   wts := new(wordTokenizerState)
+  wts.gps = gps
   wts.character = character
 
   if (token_buffer_size < TOKEN_DEFAULT_INITIAL_SIZE) {
