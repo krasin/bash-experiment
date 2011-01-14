@@ -3223,6 +3223,12 @@ func (wts *wordTokenizerState) CHECK_FOR_RESERVED_WORD(word string) int {
 //  return r;
 //}
 //
+
+func alias_expand_token(tokstr string) int {
+  // TODO(krasin): implement this
+  panic("alias_expand_token: not implemented")
+}
+
 //static int
 //alias_expand_token (tokstr)
 //     char *tokstr;
