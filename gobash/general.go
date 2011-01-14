@@ -16,6 +16,7 @@ package gobash
 
 import (
   "regexp"
+  "unicode"
 )
 
 ///* A standard error message to use when getcwd() returns NULL. */
@@ -180,53 +181,62 @@ func legal_identifier(name string) bool {
 //			return 0;
 //	return 1;
 //}
-//
-///* Returns non-zero if STRING is an assignment statement.  The returned value is the index of the `=' sign. */
-//int assignment(string, flags)
-//	 const char *string;
-//	 int flags;
-//{
-//	register unsigned char c;
-//	register int newi, indx;
-//
-//	c = string[indx = 0];
-//
-//#if defined (ARRAY_VARS)
-//	if ((legal_variable_starter(c) == 0) && (flags == 0 || c != '['))	/* ] */
-//#else
-//	if (legal_variable_starter(c) == 0)
-//#endif
-//		return (0);
-//
-//	while (c = string[indx]) {
-//		/* The following is safe.  Note that '=' at the start of a word is not an assignment statement. */
-//		if (c == '=')
-//			return (indx);
-//
-//#if defined (ARRAY_VARS)
-//		if (c == '[') {
-//			newi = skipsubscript(string, indx, 0);
-//			if (string[newi++] != ']')
-//				return (0);
-//			if (string[newi] == '+' && string[newi + 1] == '=')
-//				return (newi + 1);
-//			return ((string[newi] == '=') ? newi : 0);
-//		}
-//#endif /* ARRAY_VARS */
-//
-//		/* Check for `+=' */
-//		if (c == '+' && string[indx + 1] == '=')
-//			return (indx + 1);
-//
-//		/* Variable names in assignment statements may contain only letters, digits, and `_'. */
-//		if (legal_variable_char(c) == 0)
-//			return (0);
-//
-//		indx++;
-//	}
-//	return (0);
-//}
-//
+
+/* Define exactly what a legal shell identifier consists of. */
+func legal_variable_starter(c int) bool {
+  return unicode.IsLetter(c) || c == '_'
+}
+
+
+func legal_variable_char(c int) bool {
+  return unicode.IsLetter(c) || unicode.IsDigit(c) || c == '_'
+}
+
+
+/* Returns non-zero if STRING is an assignment statement.  The returned value is the index of the `=' sign. */
+func assignment(str []int, flags bool) int {
+	if (!legal_variable_starter(str[0]) && (!flags || str[0] != '[')) { /* ] */
+		return 0
+    }
+
+	for indx, c := range str {
+		/* The following is safe.  Note that '=' at the start of a word is not an assignment statement. */
+		if c == '=' {
+			return indx
+        }
+
+		if c == '[' {
+			newi := skipsubscript(str[indx:], 0) + indx
+			if str[newi] != ']' {
+				return 0
+            }
+            newi++
+            if newi >= len(str) {
+              return 0
+            }
+			if str[newi] == '+' && str[newi + 1] == '=' {
+				return newi + 1
+            }
+            if str[newi] == '=' {
+              return newi
+            } else {
+              return 0
+            }
+		}
+
+		/* Check for `+=' */
+		if c == '+' && indx + 1 < len(str) && str[indx + 1] == '=' {
+			return indx + 1
+        }
+
+		/* Variable names in assignment statements may contain only letters, digits, and `_'. */
+		if !legal_variable_char(c) {
+			return 0
+        }
+	}
+	return 0
+}
+
 ///* **************************************************************** */
 ///* */
 ///* Functions to manage files and file descriptors */
