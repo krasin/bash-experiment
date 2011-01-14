@@ -324,7 +324,7 @@ func (cmd *Command) String() string {
 	default: out = v
   }
 
-  return fmt.Sprintf("%d: %v # Type: %s\n", cmd.line, out, getCommandName(cmd.typ))
+  return fmt.Sprintf("%d: %v # Type: %s", cmd.line, out, getCommandName(cmd.typ))
 }
 
 func (cmd *Command) AddRedirect(r *Redirect) {
