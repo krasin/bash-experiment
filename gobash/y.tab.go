@@ -3657,7 +3657,7 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
   start_lineno := gps.line_number;
 
   for count > 0 {
-    ch = gps.shell_getc (qc != '\'' && (tflags & LEX_PASSNEXT) == 0);
+    ch := gps.shell_getc (qc != '\'' && (tflags & LEX_PASSNEXT) == 0);
 
     if (ch == EOF) {
       gps.parser_error (start_lineno, "unexpected EOF while looking for matching `%c'", cloze);
@@ -3679,15 +3679,15 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
       /* Not exactly right yet, should handle shell metacharacters, too.  If
      any changes are made to this test, make analogous changes to subst.c:
      extract_delimited_string(). */
-    case (tflags & LEX_CKCOMMENT != 0) && (tflags & LEX_INCOMMENT) == 0 && ch == '#' && (retind == 0 || ret[retind-1] == '\n' || shellblank (ret[retind - 1])):
+    case (tflags & LEX_CKCOMMENT != 0) && (tflags & LEX_INCOMMENT) == 0 && ch == '#' && (ret.Len() == 0 || ret.AtLast() == '\n' || shellblank (ret.AtLast())):
       tflags |= LEX_INCOMMENT;
     }
     switch {
     case tflags & LEX_PASSNEXT != 0:        /* last char was backslash */
       tflags &= ^LEX_PASSNEXT;
       if (qc != '\'' && ch == '\n') {    /* double-quoted \<newline> disappears. */
-        if (retind > 0) {
-          retind--;    /* swallow previously-added backslash */
+        if ret.Len() > 0 {
+          ret.Backspace(1)    /* swallow previously-added backslash */
         }
         continue;
       }
@@ -3712,7 +3712,7 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
     case ch == cloze:        /* ending delimiter */
       count--;
         /* handle nested ${...} specially. */
-    case open != cloze && (tflags & LEX_WASDOL) && open == '{' && ch == open: /* } */
+    case open != cloze && (tflags & LEX_WASDOL != 0) && open == '{' && ch == open: /* } */
       count++;
     case ((flags & P_FIRSTCLOSE) == 0) && ch == open:    /* nested begin */
       count++;
@@ -3727,7 +3727,7 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
     }
 
     if (open == '\'') {            /* '' inside grouping construct */
-      if ((flags & P_ALLOWESC) && ch == '\\') {
+      if ((flags & P_ALLOWESC != 0) && ch == '\\') {
         tflags |= LEX_PASSNEXT;
       }
       continue;
@@ -3744,17 +3744,17 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
       switch {
       case shellquote (ch):
         /* '', ``, or "" inside $(...) or other grouping construct. */
-        push_delimiter (dstack, ch);
-        if ((tflags & LEX_WASDOL) && ch == '\'') {    /* $'...' inside group */
+        gps.push_delimiter (ch);
+        if ((tflags & LEX_WASDOL != 0) && ch == '\'') {    /* $'...' inside group */
           nestret = gps.parse_matched_pair (ch, ch, ch, &nestlen, P_ALLOWESC|rflags);
         } else {
           nestret = gps.parse_matched_pair (ch, ch, ch, &nestlen, rflags);
         }
-        pop_delimiter (dstack);
+        gps.pop_delimiter ();
         CHECK_NESTRET_ERROR ();
 
         switch {
-        case (tflags & LEX_WASDOL) && ch == '\'' && (extended_quote || (rflags & P_DQUOTE) == 0):
+        case (tflags & LEX_WASDOL != 0) && ch == '\'' && (extended_quote || (rflags & P_DQUOTE) == 0):
             /* Translate $'...' here. */
             ttrans = ansiexpand (nestret, 0, nestlen - 1, &ttranslen);
 
@@ -3766,7 +3766,7 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
               nestlen = ttranslen;
             }
             retind -= 2;        /* back up before the $' */
-        case (tflags & LEX_WASDOL) && ch == '"' && (extended_quote || (rflags & P_DQUOTE) == 0):
+        case (tflags & LEX_WASDOL != 0) && ch == '"' && (extended_quote || (rflags & P_DQUOTE) == 0):
             /* Locale expand $"..." here. */
             ttrans = localeexpand (nestret, 0, nestlen - 1, start_lineno, &ttranslen);
 
