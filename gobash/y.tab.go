@@ -197,7 +197,7 @@ extended_glob bool
 /* If non-zero, $'...' and $"..." are expanded when they appear within
    a ${...} expansion, even when the expansion appears within double
    quotes. */
-extended_quote int
+extended_quote bool
 
 /* When non-zero, an open-brace used to create a group is awaiting a close
    brace partner. */
@@ -307,7 +307,7 @@ esacs_needed_count int
 func newParserState(bashInput BashInput) *ParserState {
 	state := new(ParserState)
 	state.bashInput = bashInput
-	state.extended_quote = 1
+	state.extended_quote = true
 	state.word_top = -1
 	state.dstack = newIntStack()
     state.builtins = NewBuiltinsManager()
@@ -3613,29 +3613,17 @@ const LEX_STRIPDOC = 0x200 /* <<- strip tabs from here doc delim */
 const LEX_INWORD = 0x400
 
 //#define COMSUB_META(ch)		((ch) == ';' || (ch) == '&' || (ch) == '|')
-//
-//#define CHECK_NESTRET_ERROR() \
-//  do { \
-//    if (nestret == &matched_pair_error) \
-//      { \
-//	return &matched_pair_error; \
-//      } \
-//  } while (0)
-//
-//#define APPEND_NESTRET() \
-//  do { \
-//    if (nestlen) \
-//      { \
-//	RESIZE_MALLOCED_BUFFER (ret, retind, nestlen, retsize, 64); \
-//	strcpy (ret + retind, nestret); \
-//	retind += nestlen; \
-//      } \
-//  } while (0)
-//
-//static char matched_pair_error;
-//
+
+type matchedPairError struct {
+}
+
+func (err *matchedPairError) String() string {
+  return "matched_pair_error"
+}
+
 
 func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags int) (ret *StringBuilder, err os.Error) {
+  var nestret *StringBuilder
 /*itrace("parse_matched_pair[%d]: open = %c close = %c flags = %d", gps.line_number, open, close, flags);*/
   count := 1;
   tflags := 0;
@@ -3662,7 +3650,7 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
     if (ch == EOF) {
       gps.parser_error (start_lineno, "unexpected EOF while looking for matching `%c'", cloze);
       gps.EOF_Reached = true;    /* XXX */
-      return (&matched_pair_error);
+      return nil, new(matchedPairError)
     }
 
     switch {
@@ -3746,49 +3734,49 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
         /* '', ``, or "" inside $(...) or other grouping construct. */
         gps.push_delimiter (ch);
         if ((tflags & LEX_WASDOL != 0) && ch == '\'') {    /* $'...' inside group */
-          nestret = gps.parse_matched_pair (ch, ch, ch, &nestlen, P_ALLOWESC|rflags);
+          nestret, err = gps.parse_matched_pair (ch, ch, ch, P_ALLOWESC|rflags);
         } else {
-          nestret = gps.parse_matched_pair (ch, ch, ch, &nestlen, rflags);
+          nestret, err = gps.parse_matched_pair (ch, ch, ch, rflags);
         }
         gps.pop_delimiter ();
-        CHECK_NESTRET_ERROR ();
+        if err != nil {
+          return nil, new(matchedPairError)
+        }
 
         switch {
-        case (tflags & LEX_WASDOL != 0) && ch == '\'' && (extended_quote || (rflags & P_DQUOTE) == 0):
+        case (tflags & LEX_WASDOL) != 0 && ch == '\'' && (gps.extended_quote || (rflags & P_DQUOTE == 0)):
             /* Translate $'...' here. */
-            ttrans = ansiexpand (nestret, 0, nestlen - 1, &ttranslen);
+            ttrans := ansiexpand (nestret);
 
             if ((rflags & P_DQUOTE) == 0) {
               nestret = sh_single_quote (ttrans);
-              nestlen = strlen (nestret);
             } else {
               nestret = ttrans;
-              nestlen = ttranslen;
             }
-            retind -= 2;        /* back up before the $' */
-        case (tflags & LEX_WASDOL != 0) && ch == '"' && (extended_quote || (rflags & P_DQUOTE) == 0):
+            ret.Backspace(2);        /* back up before the $' */
+        case (tflags & LEX_WASDOL != 0) && ch == '"' && (gps.extended_quote || (rflags & P_DQUOTE) == 0):
             /* Locale expand $"..." here. */
-            ttrans = localeexpand (nestret, 0, nestlen - 1, start_lineno, &ttranslen);
+            ttrans := localeexpand (nestret, start_lineno);
 
-            nestret = sh_mkdoublequoted (ttrans, ttranslen, 0);
-            nestlen = ttranslen + 2;
-            retind -= 2;        /* back up before the $" */
+            nestret = sh_mkdoublequoted (ttrans, 0);
+            ret.Backspace(2)        /* back up before the $" */
         }
-        APPEND_NESTRET ();
+        ret.Append(nestret)
 
-      case (flags & P_ARRAYSUB) && (tflags & LEX_WASDOL) && (ch == '(' || ch == '{' || ch == '['):    /* ) } ] */
+      case (flags & P_ARRAYSUB != 0) && (tflags & LEX_WASDOL != 0) && (ch == '(' || ch == '{' || ch == '['):    /* ) } ] */
         goto parse_dollar_word;
       }
         /* Parse an old-style command substitution within double quotes as a
        single word. */
         /* XXX - sh and ksh93 don't do this - XXX */
     case open == '"' && ch == '`':
-        nestret = gps.parse_matched_pair (0, '`', '`', &nestlen, rflags);
+        nestret, err = gps.parse_matched_pair (0, '`', '`', rflags);
+        if err != nil {
+          return nil, new(matchedPairError)
+        }
+        ret.Append(nestret)
 
-        CHECK_NESTRET_ERROR ();
-        APPEND_NESTRET ();
-
-    case open != '`' && (tflags & LEX_WASDOL) && (ch == '(' || ch == '{' || ch == '['):    /* ) } ] */
+    case open != '`' && (tflags & LEX_WASDOL != 0) && (ch == '(' || ch == '{' || ch == '['):    /* ) } ] */
       /* check for $(), $[], or ${} inside quoted string. */
   parse_dollar_word:
       if (open == ch) {    /* undo previous increment */
@@ -3796,15 +3784,16 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
       }
       switch {
       case ch == '(':        /* ) */
-        nestret = parse_comsub (0, '(', ')', &nestlen, (rflags|P_COMMAND) & ^P_DQUOTE);
+        nestret, err = parse_comsub (0, '(', ')', (rflags|P_COMMAND) & ^P_DQUOTE);
       case ch == '{':        /* } */
-        nestret = gps.parse_matched_pair (0, '{', '}', &nestlen, P_FIRSTCLOSE|rflags);
+        nestret, err = gps.parse_matched_pair (0, '{', '}', P_FIRSTCLOSE|rflags);
       case ch == '[':        /* ] */
-        nestret = gps.parse_matched_pair (0, '[', ']', &nestlen, rflags);
+        nestret, err = gps.parse_matched_pair (0, '[', ']', rflags);
       }
-
-      CHECK_NESTRET_ERROR ();
-      APPEND_NESTRET ();
+      if err != nil {
+        return nil, new(matchedPairError)
+      }
+      ret.Append(nestret)
     }
 
     if (ch == '$') {
@@ -4185,7 +4174,7 @@ func parse_comsub(qc int, open int, cloze int, flags int) (*StringBuilder, os.Er
 //	  pop_delimiter (dstack);
 //	  CHECK_NESTRET_ERROR ();
 //
-//	  if ((tflags & LEX_WASDOL) && ch == '\'' && (extended_quote || (rflags & P_DQUOTE) == 0))
+//	  if ((tflags & LEX_WASDOL) && ch == '\'' && (gps.extended_quote || (rflags & P_DQUOTE) == 0))
 //	    {
 //	      /* Translate $'...' here. */
 //	      ttrans = ansiexpand (nestret, 0, nestlen - 1, &ttranslen);
@@ -4202,7 +4191,7 @@ func parse_comsub(qc int, open int, cloze int, flags int) (*StringBuilder, os.Er
 //		}
 //	      retind -= 2;		/* back up before the $' */
 //	    }
-//	  else if ((tflags & LEX_WASDOL) && ch == '"' && (extended_quote || (rflags & P_DQUOTE) == 0))
+//	  else if ((tflags & LEX_WASDOL) && ch == '"' && (gps.extended_quote || (rflags & P_DQUOTE) == 0))
 //	    {
 //	      /* Locale expand $"..." here. */
 //	      ttrans = localeexpand (nestret, 0, nestlen - 1, start_lineno, &ttranslen);
