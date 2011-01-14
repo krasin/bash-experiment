@@ -26,7 +26,7 @@ const BASE_INDENT = 4
 
 /* The thing that we build the array of builtins out of. */
 type builtin struct {
-	name *char /* The name that the user types. */
+	name string /* The name that the user types. */
 	function *sh_builtin_func_t /* The address of the invoked function. */
 	flags int /* One of the consts  above. */
 	long_doc []string; /* Array of strings. */

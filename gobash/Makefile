@@ -14,6 +14,7 @@ GOFILES=\
 	string_builder.go\
 	array.go\
 	error.go\
+	builtins.go\
 	command.go\
 	general.go\
 	shell.go\
