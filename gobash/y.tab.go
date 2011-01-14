@@ -5036,10 +5036,10 @@ func (gps *ParserState) read_token_word(ch int) int {
     switch rts_state {
     case RTS_PASS:
       rts_state = wts.handleChar()
-      if rts_state == RTS_PASS {
-        fallthrough
+      if rts_state != RTS_PASS {
+        continue
       }
-
+      fallthrough
     case RTS_GOT_CHARACTER:
       if (wts.character == CTLESC || wts.character == CTLNUL) {
         wts.token.Add(CTLESC)
@@ -5144,14 +5144,16 @@ func (gps *ParserState) read_token_word(ch int) int {
   }
 
   if (gps.command_token_position (gps.last_read_token)) {
-    b := builtin_address_internal (token_word, 0);
-    if (b && (b.flags & ASSIGNMENT_BUILTIN)) {
-      gps.parser_state |= PST_ASSIGNOK;
-    } else {
-      if token_word == "eval" || token_word == "let" {
-        gps.parser_state |= PST_ASSIGNOK;
-      }
-    }
+    // TODO(krasin): implement builtins search
+    panic("builtins not implemented")
+//    b := builtin_address_internal (token_word, 0);
+//    if (b && (b.flags & ASSIGNMENT_BUILTIN)) {
+//      gps.parser_state |= PST_ASSIGNOK;
+//    } else {
+//      if token_word == "eval" || token_word == "let" {
+//        gps.parser_state |= PST_ASSIGNOK;
+//      }
+//    }
   }
 
   gps.yylval.word = wts.the_word;
