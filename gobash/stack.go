@@ -107,6 +107,10 @@ type YYSTYPEStack struct {
 	inner *stack
 }
 
+func (s *YYSTYPEStack) IsEmpty() bool {
+	return s.inner.IsEmpty()
+}
+
 func (s *YYSTYPEStack) Push(v YYSTYPE) {
 	s.inner.Push(v)
 }
