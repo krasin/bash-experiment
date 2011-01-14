@@ -3636,32 +3636,26 @@ const LEX_INWORD = 0x400
 //
 
 func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags int) (ret *StringBuilder, err os.Error) {
-  int count, ch, tflags;
-  int nestlen, ttranslen, start_lineno;
-  char *ret, *nestret, *ttrans;
-  int retind, retsize, rflags;
-
 /*itrace("parse_matched_pair[%d]: open = %c close = %c flags = %d", gps.line_number, open, close, flags);*/
-  count = 1;
-  tflags = 0;
+  count := 1;
+  tflags := 0;
 
   if ((flags & P_COMMAND) && qc != '`' && qc != '\'' && qc != '"' && (flags & P_DQUOTE) == 0) {
     tflags |= LEX_CKCOMMENT;
   }
 
+  ret := NewStringBuilder()
+
   /* RFLAGS is the set of flags we want to pass to recursive calls. */
-  rflags = (qc == '"') ? P_DQUOTE : (flags & P_DQUOTE);
+  rflags := (qc == '"') ? P_DQUOTE : (flags & P_DQUOTE);
 
-  ret = (char *)xmalloc (retsize = 64);
-  retind = 0;
+  start_lineno := gps.line_number;
 
-  start_lineno = gps.line_number;
-  while (count)
-    {
+  for count > 0 {
       ch = gps.shell_getc (qc != '\'' && (tflags & LEX_PASSNEXT) == 0);
 
       if (ch == EOF) {
-	  gps.parser_error (start_lineno, _("unexpected EOF while looking for matching `%c'"), close);
+	  gps.parser_error (start_lineno, _("unexpected EOF while looking for matching `%c'"), cloze);
 	  gps.EOF_Reached = true;	/* XXX */
 	  return (&matched_pair_error);
 	}
@@ -3719,10 +3713,10 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
 	  ret[retind++] = ch;
 	  continue;
 	}
-      else if (ch == close)		/* ending delimiter */
+      else if (ch == cloze)		/* ending delimiter */
 	count--;
       /* handle nested ${...} specially. */
-      else if (open != close && (tflags & LEX_WASDOL) && open == '{' && ch == open) /* } */
+      else if (open != cloze && (tflags & LEX_WASDOL) && open == '{' && ch == open) /* } */
 	count++;
       else if (((flags & P_FIRSTCLOSE) == 0) && ch == open)	/* nested begin */
 	count++;
@@ -3747,7 +3741,7 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
 
       /* Could also check open == '`' if we want to parse grouping constructs
 	 inside old-style command substitution. */
-      if (open != close)		/* a grouping construct */
+      if (open != cloze)		/* a grouping construct */
 	{
 	  if (shellquote (ch))
 	    {
