@@ -22,6 +22,10 @@ package gobash
 
 /* Instructions describing what kind of thing to do for a redirection. */
 
+import (
+	"fmt"
+)
+
 type r_instruction int
 
 const (
@@ -88,7 +92,8 @@ func TRANSLATE_REDIRECT(ri r_instruction) bool {
 type command_type int
 
 const (
-	cm_for = 0
+	cm_unknown = 0
+	cm_for = command_type(iota)
 	cm_case = command_type(iota)
 	cm_while = command_type(iota)
 	cm_if = command_type(iota)
@@ -104,6 +109,33 @@ const (
 	cm_subshell = command_type(iota)
 	cm_coproc = command_type(iota)
 )
+
+var commandTypeToName = map[command_type]string {
+	cm_unknown: "UNKNOWN",
+	cm_for: "FOR",
+	cm_case: "CASE",
+	cm_while: "WHILE",
+	cm_if: "IF",
+	cm_simple: "SIMPLE",
+	cm_select: "SELECT",
+	cm_connection: "CONNECTION",
+	cm_function_def: "FUNCTION_DEF",
+	cm_until: "UNTIL",
+	cm_group: "GROUP",
+	cm_arith: "ARITH",
+	cm_cond: "COND",
+	cm_arith_for: "ARITH_FOR",
+	cm_subshell: "SUBSHELL",
+	cm_coproc: "COPROC",
+}
+
+func getCommandName(typ command_type) string {
+	v, ok := commandTypeToName[typ]
+	if !ok {
+		return fmt.Sprintf("Command typ %d is out of the enum command_type", typ)
+	}
+	return v
+}
 
 /* Possible values for the `flags' field of a word_desc. */
 const W_HASDOLLAR = 0x000001 /* Dollar sign present. */
@@ -271,6 +303,13 @@ type Command struct {
   line int /* line number the command starts on */
   redirects *Redirect /* Special redirects for FOR CASE, etc. */
   value CommandValue
+}
+
+func (cmd *Command) String() string {
+  if cmd == nil {
+	return "nil"
+  }
+  return fmt.Sprintf("%d: %v # Type: %s\n", cmd.line, cmd.value, getCommandName(cmd.typ))
 }
 
 func (cmd *Command) AddRedirect(r *Redirect) {
