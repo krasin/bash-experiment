@@ -3644,10 +3644,15 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
     tflags |= LEX_CKCOMMENT;
   }
 
-  ret := NewStringBuilder()
+  ret = NewStringBuilder()
 
   /* RFLAGS is the set of flags we want to pass to recursive calls. */
-  rflags := (qc == '"') ? P_DQUOTE : (flags & P_DQUOTE);
+  var rflags int
+  if qc == '"' {
+    rflags = P_DQUOTE
+  } else {
+    rflags = flags & P_DQUOTE
+  }
 
   start_lineno := gps.line_number;
 
@@ -3655,24 +3660,23 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
       ch = gps.shell_getc (qc != '\'' && (tflags & LEX_PASSNEXT) == 0);
 
       if (ch == EOF) {
-	  gps.parser_error (start_lineno, _("unexpected EOF while looking for matching `%c'"), cloze);
+	  gps.parser_error (start_lineno, "unexpected EOF while looking for matching `%c'", cloze);
 	  gps.EOF_Reached = true;	/* XXX */
 	  return (&matched_pair_error);
 	}
 
       /* Don't bother counting parens or doing anything else if in a comment
 	 or part of a case statement */
-      if (tflags & LEX_INCOMMENT) {
-	  /* Add this character. */
-	  RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
-	  ret[retind++] = ch;
+      if tflags & LEX_INCOMMENT != 0 {
+	    /* Add this character. */
+        ret.Add(ch)
 
-	  if (ch == '\n') {
-	    tflags &= ^LEX_INCOMMENT;
+	    if (ch == '\n') {
+	      tflags &= ^LEX_INCOMMENT;
         }
 
-	  continue;
-	}
+	    continue;
+	  }
 
       /* Not exactly right yet, should handle shell metacharacters, too.  If
 	 any changes are made to this test, make analogous changes to subst.c:
@@ -3690,10 +3694,10 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
 	      continue;
 	    }
 
-	  RESIZE_MALLOCED_BUFFER (ret, retind, 2, retsize, 64);
-	  if (ch == CTLESC || ch == CTLNUL)
-	    ret[retind++] = CTLESC;
-	  ret[retind++] = ch;
+	  if (ch == CTLESC || ch == CTLNUL) {
+	    ret.Add(CTLESC)
+      }
+      ret.Add(ch)
 	  continue;
 	}
       /* If we're reparsing the input (e.g., from parse_string_to_word_list),
@@ -3702,15 +3706,13 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
 	 reparse, too. */
       else if ((gps.parser_state & PST_REPARSE) && open == '\'' && (ch == CTLESC || ch == CTLNUL))
 	{
-	  RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
-	  ret[retind++] = ch;
+      ret.Add(ch)
 	  continue;
 	}
       else if (ch == CTLESC || ch == CTLNUL)	/* special shell escapes */
 	{
-	  RESIZE_MALLOCED_BUFFER (ret, retind, 2, retsize, 64);
-	  ret[retind++] = CTLESC;
-	  ret[retind++] = ch;
+      ret.Add(CTLESC)
+      ret.Add(ch)
 	  continue;
 	}
       else if (ch == cloze)		/* ending delimiter */
@@ -3721,18 +3723,21 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
       else if (((flags & P_FIRSTCLOSE) == 0) && ch == open)	/* nested begin */
 	count++;
 
+
+
+
       /* Add this character. */
-      RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
-      ret[retind++] = ch;
+      ret.Add(ch)
 
       /* If we just read the ending character, don't bother continuing. */
-      if (count == 0)
-	break;
+      if (count == 0) {
+	     break;
+      }
 
-      if (open == '\'')			/* '' inside grouping construct */
-	{
-	  if ((flags & P_ALLOWESC) && ch == '\\')
+      if (open == '\'') {			/* '' inside grouping construct */
+	  if ((flags & P_ALLOWESC) && ch == '\\') {
 	    tflags |= LEX_PASSNEXT;
+      }
 	  continue;
 	}
 
