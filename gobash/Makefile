@@ -15,6 +15,7 @@ GOFILES=\
 	array.go\
 	error.go\
 	command.go\
+	general.go\
 	shell.go\
 	input.go\
 	parser.go\
