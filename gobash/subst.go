@@ -172,7 +172,6 @@ const WRPAREN = ')'
 //static int skip_double_quoted __P((char *, size_t, int));
 //static char *extract_delimited_string __P((char *, int *, char *, char *, char *, int));
 //static char *extract_dollar_brace_string __P((char *, int *, int, int));
-//static int skip_matched_pair __P((const char *, int, int, int, int));
 //
 //static char *pos_params __P((char *, int, int, int));
 //
@@ -1356,16 +1355,11 @@ const WRPAREN = ')'
 //
 //	CQ_RETURN(i);
 //}
-//
-//#if defined (ARRAY_VARS)
-//int skipsubscript(string, start, flags)
-//	 const char *string;
-//	 int start, flags;
-//{
-//	return (skip_matched_pair(string, start, '[', ']', flags));
-//}
-//#endif
-//
+
+func skipsubscript(str []int, flags int) int {
+	return skip_matched_pair(str, '[', ']', flags)
+}
+
 ///* Skip characters in STRING until we find a character in DELIMS, and return the index of that character.  START is the index
 //   into string at which we begin.  This is similar in spirit to strpbrk, but it returns an index into STRING and takes a starting 
 //   index.  This little piece of code knows quite a lot of shell syntax.  It's very similar to skip_double_quoted and other
