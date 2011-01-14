@@ -23,6 +23,7 @@ package gobash
 /* Instructions describing what kind of thing to do for a redirection. */
 
 import (
+	"bytes"
 	"fmt"
 )
 
@@ -177,6 +178,13 @@ type word_desc struct {
   flags int /* Flags associated with this word. */
 }
 
+func (wd *word_desc) String() string {
+	if wd == nil {
+		return "nil"
+	}
+	return "{" + wd.word + "}"
+}
+
 /* A linked list of words. */
 type word_list struct {
   next *word_list
@@ -309,7 +317,14 @@ func (cmd *Command) String() string {
   if cmd == nil {
 	return "nil"
   }
-  return fmt.Sprintf("%d: %v # Type: %s\n", cmd.line, cmd.value, getCommandName(cmd.typ))
+  v := cmd.value
+  var out interface{}
+  switch cmd.typ {
+	case cm_simple: out = v.Simple
+	default: out = v
+  }
+
+  return fmt.Sprintf("%d: %v # Type: %s\n", cmd.line, out, getCommandName(cmd.typ))
 }
 
 func (cmd *Command) AddRedirect(r *Redirect) {
@@ -435,6 +450,19 @@ type SimpleCom struct {
   words *word_list;		/* The program name, the arguments,
 				   variable assignments, etc. */
   redirects *Redirect /* Redirections to perform. */
+}
+
+func (cmd *SimpleCom) String() string {
+	if cmd == nil {
+		return "nil"
+	}
+	b := new(bytes.Buffer)
+	cur := cmd.words
+	for cur != nil {
+		fmt.Fprintf(b, "%v ", cur.word)
+		cur = cur.next
+	}
+	return string(b.Bytes())
 }
 
 func (cmd *SimpleCom) AddRedirect(r *Redirect) {
