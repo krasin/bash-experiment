@@ -3161,9 +3161,11 @@ func (gps *ParserState) gather_here_documents() {
 //  (((token) == ASSIGNMENT_WORD) || (gps.parser_state&PST_REDIRLIST) || \
 //   ((token) != SEMI_SEMI && (token) != SEMI_AND && (token) != SEMI_SEMI_AND && reserved_word_acceptable(token)))
 //
-//#define assignment_acceptable(token) \
-//  (command_token_position(token) && ((gps.parser_state & PST_CASEPAT) == 0))
-//
+
+func (gps *ParserState) assignment_acceptable(token int) bool {
+  return command_token_position(token) && (gps.parser_state & PST_CASEPAT) == 0
+}
+
 /* Check to see if TOKEN is a reserved word and return the token
    value if it is. */
 func (wts *wordTokenizerState) CHECK_FOR_RESERVED_WORD(word string) int {
@@ -4941,7 +4943,7 @@ func (wts *wordTokenizerState) handleShellExp() readTokenWordState {
      wts.gps.parser_state&PST_COMPASSIGN, we need to parse [sub]=words treating
      `sub' as if it were enclosed in double quotes. */
   case (wts.character == '[' &&        /* ] */
-       ((wts.token.Len() > 0 && assignment_acceptable (wts.gps.last_read_token) && token_is_ident (wts.token)) ||
+       ((wts.token.Len() > 0 && wts.gps.assignment_acceptable(wts.gps.last_read_token) && token_is_ident (wts.token)) ||
        (wts.token.Len() == 0 && (wts.gps.parser_state&PST_COMPASSIGN != 0)))):
     var err os.Error
     wts.ttok, err = parse_matched_pair (wts.cd, '[', ']', P_ARRAYSUB);
@@ -4954,7 +4956,7 @@ func (wts *wordTokenizerState) handleShellExp() readTokenWordState {
     return RTS_NEXT_CHARACTER
 
       /* Identify possible compound array variable assignment. */
-  case (wts.character == '=' && wts.token.Len() > 0 && (assignment_acceptable (wts.gps.last_read_token) || (wts.gps.parser_state & PST_ASSIGNOK)) && token_is_assignment (wts.token)):
+  case (wts.character == '=' && wts.token.Len() > 0 && (wts.gps.assignment_acceptable (wts.gps.last_read_token) || (wts.gps.parser_state & PST_ASSIGNOK != 0)) && token_is_assignment (wts.token)):
     wts.peek_char = wts.gps.shell_getc (true)
     if (wts.peek_char == '(') {        /* ) */
       wts.ttok = parse_compound_assignment()
@@ -5125,7 +5127,7 @@ func (gps *ParserState) read_token_word(ch int) int {
   if (assignment (token_word, (gps.parser_state & PST_COMPASSIGN) != 0)) {
     wts.the_word.flags |= W_ASSIGNMENT;
       /* Don't perform word splitting on assignment statements. */
-    if (assignment_acceptable (gps.last_read_token) || (gps.parser_state & PST_COMPASSIGN) != 0) {
+    if (gps.assignment_acceptable (gps.last_read_token) || (gps.parser_state & PST_COMPASSIGN) != 0) {
       wts.the_word.flags |= W_NOSPLIT;
     }
   }
