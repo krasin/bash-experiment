@@ -7,7 +7,7 @@ include $(GOROOT)/src/Make.inc
 TARG=gobash
 GOFILES=\
 	lib/sh/strtrans.go\
-    builtins/common.go\
+	builtins/common.go\
 	alias.go\
 	syntax.go\
 	subst.go\
