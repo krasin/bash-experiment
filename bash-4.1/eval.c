@@ -233,23 +233,38 @@ parse_command ()
   return (r);
 }
 
+// NOTE(Krasin): begin
+
+void KrasinPrintWordDesc(WORD_DESC *word) {
+  if (!word) {
+    fprintf(stderr, "{nil}");
+  }
+  fprintf(stderr, "{%s}", word->word);
+}
+
 void KrasinPrintSimple(SIMPLE_COM *val) {
   if (!val) {
     fprintf(stderr, "nil");
     return;
   }
-  fprintf(stderr, "%d: something", val->line);
+  fprintf(stderr, "%d: ", val->line);
+  WORD_LIST *cur = val->words;
+  while (cur) {
+    KrasinPrintWordDesc(cur->word);
+    fprintf(stderr, " ");
+    cur = cur->next;
+  }
 }
 
-// NOTE(Krasin): begin
 void KrasinPrintCommand(COMMAND *cmd) {
   if (!cmd) {
     fprintf(stderr, "nil");
     return;
   }
+  fprintf(stderr, "{ ");
   switch (cmd->type) {
     case cm_simple: 
-      fprintf(stderr, "SIMPLE {");
+      fprintf(stderr, "SIMPLE{");
       KrasinPrintSimple(cmd->value.Simple);
       break;
     default:
