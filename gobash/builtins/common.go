@@ -14,39 +14,40 @@ package gobash
    You should have received a copy of the GNU General Public License along with Bash.  If not, see
    <http://www.gnu.org/licenses/>. */
 
-#define ISOPTION(s, c)	(s[0] == '-' && !s[2] && s[1] == c)
 
 /* Flag values for parse_and_execute () */
-#define SEVAL_NONINT	0x001
-#define SEVAL_INTERACT	0x002
-#define SEVAL_NOHIST	0x004
-#define SEVAL_NOFREE	0x008
-#define SEVAL_RESETLINE	0x010
-#define SEVAL_PARSEONLY	0x020
-#define SEVAL_NOLONGJMP 0x040
+const SEVAL_NONINT = 0x001
+const SEVAL_INTERACT = 0x002
+const SEVAL_NOHIST = 0x004
+const SEVAL_NOFREE = 0x008
+const SEVAL_RESETLINE = 0x010
+const SEVAL_PARSEONLY = 0x020
+const SEVAL_NOLONGJMP = 0x040
 
 /* Flags for describe_command, shared between type.def and command.def */
-#define CDESC_ALL		0x001	/* type -a */
-#define CDESC_SHORTDESC		0x002	/* command -V */
-#define CDESC_REUSABLE		0x004	/* command -v */
-#define CDESC_TYPE		0x008	/* type -t */
-#define CDESC_PATH_ONLY		0x010	/* type -p */
-#define CDESC_FORCE_PATH	0x020	/* type -ap or type -P */
-#define CDESC_NOFUNCS		0x040	/* type -f */
-#define CDESC_ABSPATH		0x080	/* convert to absolute path, no ./ */
+const CDESC_ALL = 0x001 /* type -a */
+const CDESC_SHORTDESC = 0x002 /* command -V */
+const CDESC_REUSABLE = 0x004 /* command -v */
+const CDESC_TYPE = 0x008 /* type -t */
+const CDESC_PATH_ONLY = 0x010 /* type -p */
+const CDESC_FORCE_PATH = 0x020 /* type -ap or type -P */
+const CDESC_NOFUNCS = 0x040 /* type -f */
+const CDESC_ABSPATH = 0x080 /* convert to absolute path, no ./ */
 
 /* Flags for get_job_by_name */
-#define JM_PREFIX		0x01	/* prefix of job name */
-#define JM_SUBSTRING		0x02	/* substring of job name */
-#define JM_EXACT		0x04	/* match job name exactly */
-#define JM_STOPPED		0x08	/* match stopped jobs only */
-#define JM_FIRSTMATCH		0x10	/* return first matching job */
+const JM_PREFIX = 0x01 /* prefix of job name */
+const JM_SUBSTRING = 0x02 /* substring of job name */
+const JM_EXACT = 0x04 /* match job name exactly */
+const JM_STOPPED = 0x08 /* match stopped jobs only */
+const JM_FIRSTMATCH = 0x10 /* return first matching job */
 
 /* Flags for remember_args and value of changed_dollar_vars */
-#define ARGS_NONE		0x0
-#define ARGS_INVOC		0x01
-#define ARGS_FUNC		0x02
-#define ARGS_SETBLTIN		0x04
+const ARGS_NONE = 0x0
+const ARGS_INVOC = 0x01
+const ARGS_FUNC = 0x02
+const ARGS_SETBLTIN = 0x04
+
+#define ISOPTION(s, c)	(s[0] == '-' && !s[2] && s[1] == c)
 
 /* Used by some builtins and the mainline code. */
 sh_builtin_func_t *last_shell_builtin = (sh_builtin_func_t *) NULL;
