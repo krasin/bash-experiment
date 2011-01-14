@@ -93,8 +93,7 @@ func TRANSLATE_REDIRECT(ri r_instruction) bool {
 type command_type int
 
 const (
-	cm_unknown = 0
-	cm_for = command_type(iota)
+	cm_for = command_type(0)
 	cm_case = command_type(iota)
 	cm_while = command_type(iota)
 	cm_if = command_type(iota)
@@ -112,7 +111,6 @@ const (
 )
 
 var commandTypeToName = map[command_type]string {
-	cm_unknown: "UNKNOWN",
 	cm_for: "FOR",
 	cm_case: "CASE",
 	cm_while: "WHILE",
@@ -320,12 +318,25 @@ func (cmd *Command) String() string {
   v := cmd.value
   var out interface{}
   switch cmd.typ {
+	case cm_for: out = v.For
+	case cm_case: out = v.Case
+	case cm_while: out = v.While
+	case cm_if: out = v.If
 	case cm_simple: out = v.Simple
+	case cm_select: out = v.Select
 	case cm_connection: out = v.Connection
-	default: out = v
+	case cm_function_def: out = v.Function_def
+	case cm_until: out = v.While
+	case cm_group: out = v.Group
+	case cm_arith: out = v.Arith
+	case cm_cond: out = v.Cond
+	case cm_arith_for: out = v.ArithFor
+	case cm_subshell: out = v.Subshell
+	case cm_coproc: out = v.Coproc
+	default: panic(fmt.Sprintf("Unknown cm_type: %d", cmd.typ))
   }
 
-  return fmt.Sprintf("{%d: %s{ %v }}", cmd.line, getCommandName(cmd.typ), out)
+  return fmt.Sprintf("{ %s{%v}}", getCommandName(cmd.typ), out)
 }
 
 func (cmd *Command) AddRedirect(r *Redirect) {
@@ -466,6 +477,7 @@ func (cmd *SimpleCom) String() string {
 		return "nil"
 	}
 	b := new(bytes.Buffer)
+        fmt.Fprintf(b, "%d: ", cmd.line)
 	cur := cmd.words
 	for cur != nil {
 		fmt.Fprintf(b, "%v ", cur.word)
