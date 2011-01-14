@@ -3660,68 +3660,68 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
       ch = gps.shell_getc (qc != '\'' && (tflags & LEX_PASSNEXT) == 0);
 
       if (ch == EOF) {
-	  gps.parser_error (start_lineno, "unexpected EOF while looking for matching `%c'", cloze);
-	  gps.EOF_Reached = true;	/* XXX */
-	  return (&matched_pair_error);
-	}
+      gps.parser_error (start_lineno, "unexpected EOF while looking for matching `%c'", cloze);
+      gps.EOF_Reached = true;    /* XXX */
+      return (&matched_pair_error);
+    }
 
       /* Don't bother counting parens or doing anything else if in a comment
-	 or part of a case statement */
+     or part of a case statement */
       if tflags & LEX_INCOMMENT != 0 {
-	    /* Add this character. */
+        /* Add this character. */
         ret.Add(ch)
 
-	    if (ch == '\n') {
-	      tflags &= ^LEX_INCOMMENT;
+        if (ch == '\n') {
+          tflags &= ^LEX_INCOMMENT;
         }
 
-	    continue;
-	  }
+        continue;
+      }
 
       /* Not exactly right yet, should handle shell metacharacters, too.  If
-	 any changes are made to this test, make analogous changes to subst.c:
-	 extract_delimited_string(). */
+     any changes are made to this test, make analogous changes to subst.c:
+     extract_delimited_string(). */
       else if ((tflags & LEX_CKCOMMENT) && (tflags & LEX_INCOMMENT) == 0 && ch == '#' && (retind == 0 || ret[retind-1] == '\n' || shellblank (ret[retind - 1])))
-	tflags |= LEX_INCOMMENT;
+    tflags |= LEX_INCOMMENT;
 
-      if (tflags & LEX_PASSNEXT)		/* last char was backslash */
-	{
-	  tflags &= ^LEX_PASSNEXT;
-	  if (qc != '\'' && ch == '\n')	/* double-quoted \<newline> disappears. */
-	    {
-	      if (retind > 0)
-		retind--;	/* swallow previously-added backslash */
-	      continue;
-	    }
+      if (tflags & LEX_PASSNEXT)        /* last char was backslash */
+    {
+      tflags &= ^LEX_PASSNEXT;
+      if (qc != '\'' && ch == '\n')    /* double-quoted \<newline> disappears. */
+        {
+          if (retind > 0)
+        retind--;    /* swallow previously-added backslash */
+          continue;
+        }
 
-	  if (ch == CTLESC || ch == CTLNUL) {
-	    ret.Add(CTLESC)
+      if (ch == CTLESC || ch == CTLNUL) {
+        ret.Add(CTLESC)
       }
       ret.Add(ch)
-	  continue;
-	}
+      continue;
+    }
       /* If we're reparsing the input (e.g., from parse_string_to_word_list),
-	 we've already prepended CTLESC to single-quoted results of $'...'.
-	 We may want to do this for other CTLESC-quoted characters in
-	 reparse, too. */
+     we've already prepended CTLESC to single-quoted results of $'...'.
+     We may want to do this for other CTLESC-quoted characters in
+     reparse, too. */
       else if ((gps.parser_state & PST_REPARSE) && open == '\'' && (ch == CTLESC || ch == CTLNUL))
-	{
+    {
       ret.Add(ch)
-	  continue;
-	}
-      else if (ch == CTLESC || ch == CTLNUL)	/* special shell escapes */
-	{
+      continue;
+    }
+      else if (ch == CTLESC || ch == CTLNUL)    /* special shell escapes */
+    {
       ret.Add(CTLESC)
       ret.Add(ch)
-	  continue;
-	}
-      else if (ch == cloze)		/* ending delimiter */
-	count--;
+      continue;
+    }
+      else if (ch == cloze)        /* ending delimiter */
+    count--;
       /* handle nested ${...} specially. */
       else if (open != cloze && (tflags & LEX_WASDOL) && open == '{' && ch == open) /* } */
-	count++;
-      else if (((flags & P_FIRSTCLOSE) == 0) && ch == open)	/* nested begin */
-	count++;
+    count++;
+      else if (((flags & P_FIRSTCLOSE) == 0) && ch == open)    /* nested begin */
+    count++;
 
 
 
@@ -3731,98 +3731,98 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
 
       /* If we just read the ending character, don't bother continuing. */
       if (count == 0) {
-	     break;
+         break;
       }
 
-      if (open == '\'') {			/* '' inside grouping construct */
-	  if ((flags & P_ALLOWESC) && ch == '\\') {
-	    tflags |= LEX_PASSNEXT;
+      if (open == '\'') {            /* '' inside grouping construct */
+      if ((flags & P_ALLOWESC) && ch == '\\') {
+        tflags |= LEX_PASSNEXT;
       }
-	  continue;
-	}
+      continue;
+    }
 
-      if (ch == '\\')			/* backslashes */
-	tflags |= LEX_PASSNEXT;
+      if (ch == '\\')            /* backslashes */
+    tflags |= LEX_PASSNEXT;
 
       /* Could also check open == '`' if we want to parse grouping constructs
-	 inside old-style command substitution. */
-      if (open != cloze)		/* a grouping construct */
-	{
-	  if (shellquote (ch))
-	    {
-	      /* '', ``, or "" inside $(...) or other grouping construct. */
-	      push_delimiter (dstack, ch);
-	      if ((tflags & LEX_WASDOL) && ch == '\'')	/* $'...' inside group */
-		nestret = gps.parse_matched_pair (ch, ch, ch, &nestlen, P_ALLOWESC|rflags);
-	      else
-		nestret = gps.parse_matched_pair (ch, ch, ch, &nestlen, rflags);
-	      pop_delimiter (dstack);
-	      CHECK_NESTRET_ERROR ();
+     inside old-style command substitution. */
+      if (open != cloze)        /* a grouping construct */
+    {
+      if (shellquote (ch))
+        {
+          /* '', ``, or "" inside $(...) or other grouping construct. */
+          push_delimiter (dstack, ch);
+          if ((tflags & LEX_WASDOL) && ch == '\'')    /* $'...' inside group */
+        nestret = gps.parse_matched_pair (ch, ch, ch, &nestlen, P_ALLOWESC|rflags);
+          else
+        nestret = gps.parse_matched_pair (ch, ch, ch, &nestlen, rflags);
+          pop_delimiter (dstack);
+          CHECK_NESTRET_ERROR ();
 
-	      if ((tflags & LEX_WASDOL) && ch == '\'' && (extended_quote || (rflags & P_DQUOTE) == 0))
-		{
-		  /* Translate $'...' here. */
-		  ttrans = ansiexpand (nestret, 0, nestlen - 1, &ttranslen);
+          if ((tflags & LEX_WASDOL) && ch == '\'' && (extended_quote || (rflags & P_DQUOTE) == 0))
+        {
+          /* Translate $'...' here. */
+          ttrans = ansiexpand (nestret, 0, nestlen - 1, &ttranslen);
 
-		  if ((rflags & P_DQUOTE) == 0)
-		    {
-		      nestret = sh_single_quote (ttrans);
-		      nestlen = strlen (nestret);
-		    }
-		  else
-		    {
-		      nestret = ttrans;
-		      nestlen = ttranslen;
-		    }
-		  retind -= 2;		/* back up before the $' */
-		}
-	      else if ((tflags & LEX_WASDOL) && ch == '"' && (extended_quote || (rflags & P_DQUOTE) == 0))
-		{
-		  /* Locale expand $"..." here. */
-		  ttrans = localeexpand (nestret, 0, nestlen - 1, start_lineno, &ttranslen);
+          if ((rflags & P_DQUOTE) == 0)
+            {
+              nestret = sh_single_quote (ttrans);
+              nestlen = strlen (nestret);
+            }
+          else
+            {
+              nestret = ttrans;
+              nestlen = ttranslen;
+            }
+          retind -= 2;        /* back up before the $' */
+        }
+          else if ((tflags & LEX_WASDOL) && ch == '"' && (extended_quote || (rflags & P_DQUOTE) == 0))
+        {
+          /* Locale expand $"..." here. */
+          ttrans = localeexpand (nestret, 0, nestlen - 1, start_lineno, &ttranslen);
 
-		  nestret = sh_mkdoublequoted (ttrans, ttranslen, 0);
-		  nestlen = ttranslen + 2;
-		  retind -= 2;		/* back up before the $" */
-		}
+          nestret = sh_mkdoublequoted (ttrans, ttranslen, 0);
+          nestlen = ttranslen + 2;
+          retind -= 2;        /* back up before the $" */
+        }
 
-	      APPEND_NESTRET ();
-	    }
-	  else if ((flags & P_ARRAYSUB) && (tflags & LEX_WASDOL) && (ch == '(' || ch == '{' || ch == '['))	/* ) } ] */
-	    goto parse_dollar_word;
-	}
+          APPEND_NESTRET ();
+        }
+      else if ((flags & P_ARRAYSUB) && (tflags & LEX_WASDOL) && (ch == '(' || ch == '{' || ch == '['))    /* ) } ] */
+        goto parse_dollar_word;
+    }
       /* Parse an old-style command substitution within double quotes as a
-	 single word. */
+     single word. */
       /* XXX - sh and ksh93 don't do this - XXX */
       else if (open == '"' && ch == '`')
-	{
-	  nestret = gps.parse_matched_pair (0, '`', '`', &nestlen, rflags);
+    {
+      nestret = gps.parse_matched_pair (0, '`', '`', &nestlen, rflags);
 
-	  CHECK_NESTRET_ERROR ();
-	  APPEND_NESTRET ();
+      CHECK_NESTRET_ERROR ();
+      APPEND_NESTRET ();
 
-	}
-      else if (open != '`' && (tflags & LEX_WASDOL) && (ch == '(' || ch == '{' || ch == '['))	/* ) } ] */
-	/* check for $(), $[], or ${} inside quoted string. */
-	{
+    }
+      else if (open != '`' && (tflags & LEX_WASDOL) && (ch == '(' || ch == '{' || ch == '['))    /* ) } ] */
+    /* check for $(), $[], or ${} inside quoted string. */
+    {
 parse_dollar_word:
-	  if (open == ch)	/* undo previous increment */
-	    count--;
-	  if (ch == '(')		/* ) */
-	    nestret = parse_comsub (0, '(', ')', &nestlen, (rflags|P_COMMAND) & ^P_DQUOTE);
-	  else if (ch == '{')		/* } */
-	    nestret = gps.parse_matched_pair (0, '{', '}', &nestlen, P_FIRSTCLOSE|rflags);
-	  else if (ch == '[')		/* ] */
-	    nestret = gps.parse_matched_pair (0, '[', ']', &nestlen, rflags);
+      if (open == ch)    /* undo previous increment */
+        count--;
+      if (ch == '(')        /* ) */
+        nestret = parse_comsub (0, '(', ')', &nestlen, (rflags|P_COMMAND) & ^P_DQUOTE);
+      else if (ch == '{')        /* } */
+        nestret = gps.parse_matched_pair (0, '{', '}', &nestlen, P_FIRSTCLOSE|rflags);
+      else if (ch == '[')        /* ] */
+        nestret = gps.parse_matched_pair (0, '[', ']', &nestlen, rflags);
 
-	  CHECK_NESTRET_ERROR ();
-	  APPEND_NESTRET ();
+      CHECK_NESTRET_ERROR ();
+      APPEND_NESTRET ();
 
-	}
+    }
       if (ch == '$')
-	tflags |= LEX_WASDOL;
+    tflags |= LEX_WASDOL;
       else
-	tflags &= ^LEX_WASDOL;
+    tflags &= ^LEX_WASDOL;
     }
 
   ret[retind] = '\0';
