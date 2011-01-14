@@ -47,6 +47,16 @@ const ARGS_INVOC = 0x01
 const ARGS_FUNC = 0x02
 const ARGS_SETBLTIN = 0x04
 
+type BuiltinsManager struct {
+  shell_builtins map[string] *builtin
+}
+
+func NewBuiltinsManager() (bm *BuiltinsManager) {
+  bm = new(BuiltinsManager)
+  bm.shell_builtins = make(map[string] *builtin)
+  return
+}
+
 //#define ISOPTION(s, c)	(s[0] == '-' && !s[2] && s[1] == c)
 //
 ///* Used by some builtins and the mainline code. */
@@ -676,41 +686,14 @@ const ARGS_SETBLTIN = 0x04
 ///* Perform a binary search and return the address of the builtin function whose name is NAME.  If the function couldn't be found, 
 //   or the builtin is disabled or has no function associated with it, return NULL. Return the address of the builtin.
 //   DISABLED_OKAY means find it even if the builtin is disabled. */
-//struct builtin *builtin_address_internal(name, disabled_okay)
-//	 char *name;
-//	 int disabled_okay;
-//{
-//	int hi, lo, mid, j;
-//
-//	hi = num_shell_builtins - 1;
-//	lo = 0;
-//
-//	while (lo <= hi) {
-//		mid = (lo + hi) / 2;
-//
-//		j = shell_builtins[mid].name[0] - name[0];
-//
-//		if (j == 0)
-//			j = strcmp(shell_builtins[mid].name, name);
-//
-//		if (j == 0) {
-//			/* It must have a function pointer.  It must be enabled, or we must have explicitly allowed disabled functions to be
-//			   found, and it must not have been deleted. */
-//			if (shell_builtins[mid].function &&
-//				((shell_builtins[mid].flags & BUILTIN_DELETED) == 0) &&
-//				((shell_builtins[mid].flags & BUILTIN_ENABLED) || disabled_okay))
-//				return (&shell_builtins[mid]);
-//			else
-//				return ((struct builtin *)NULL);
-//		}
-//		if (j > 0)
-//			hi = mid - 1;
-//		else
-//			lo = mid + 1;
-//	}
-//	return ((struct builtin *)NULL);
-//}
-//
+func (bm *BuiltinsManager) builtin_address_internal(name string, disabled_okay bool) *builtin {
+  res, ok := bm.shell_builtins[name]
+  if ok && res.flags & BUILTIN_DELETED == 0 && (res.flags & BUILTIN_ENABLED != 0 || disabled_okay) {
+    return res
+  }
+  return nil
+}
+
 ///* Return the pointer to the function implementing builtin command NAME. */
 //sh_builtin_func_t *find_shell_builtin(name)
 //	 char *name;

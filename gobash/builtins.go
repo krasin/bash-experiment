@@ -24,6 +24,8 @@ const POSIX_BUILTIN = 0x20 /* This builtins is special in the Posix command sear
 
 const BASE_INDENT = 4
 
+type sh_builtin_func_t func(*word_list) int
+
 /* The thing that we build the array of builtins out of. */
 type builtin struct {
 	name string /* The name that the user types. */
@@ -31,5 +33,5 @@ type builtin struct {
 	flags int /* One of the consts  above. */
 	long_doc []string; /* Array of strings. */
 	short_doc string /* Short version of documentaion. */
-};
+}
 

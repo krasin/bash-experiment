@@ -287,6 +287,7 @@ cond_lineno int
 cond_token int
 
 dstack *intStack
+builtins *BuiltinsManager
 
 /* This implements one-character lookahead/lookbehind across physical input
    lines, to avoid something being lost because it's pushed back with
@@ -309,6 +310,7 @@ func newParserState(bashInput BashInput) *ParserState {
 	state.extended_quote = 1
 	state.word_top = -1
 	state.dstack = newIntStack()
+    state.builtins = NewBuiltinsManager()
 	return state
 }
 
@@ -5114,16 +5116,14 @@ func (gps *ParserState) read_token_word(ch int) int {
   }
 
   if (gps.command_token_position (gps.last_read_token)) {
-    // TODO(krasin): implement builtins search
-    panic("builtins not implemented")
-//    b := builtin_address_internal (token_word, 0);
-//    if (b && (b.flags & ASSIGNMENT_BUILTIN)) {
-//      gps.parser_state |= PST_ASSIGNOK;
-//    } else {
-//      if token_word == "eval" || token_word == "let" {
-//        gps.parser_state |= PST_ASSIGNOK;
-//      }
-//    }
+    b := gps.builtins.builtin_address_internal (token_word, false);
+    if b != nil && (b.flags & ASSIGNMENT_BUILTIN != 0) {
+      gps.parser_state |= PST_ASSIGNOK;
+    } else {
+      if token_word == "eval" || token_word == "let" {
+        gps.parser_state |= PST_ASSIGNOK;
+      }
+    }
   }
 
   gps.yylval.word = wts.the_word;
