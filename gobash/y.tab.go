@@ -3157,13 +3157,13 @@ func (gps *ParserState) gather_here_documents() {
 }
 
 
-//#define command_token_position(token) \
-//  (((token) == ASSIGNMENT_WORD) || (gps.parser_state&PST_REDIRLIST) || \
-//   ((token) != SEMI_SEMI && (token) != SEMI_AND && (token) != SEMI_SEMI_AND && reserved_word_acceptable(token)))
-//
+func (gps *ParserState) command_token_position(token int) bool {
+  return ((token) == ASSIGNMENT_WORD) || (gps.parser_state&PST_REDIRLIST != 0) ||
+   ((token) != SEMI_SEMI && (token) != SEMI_AND && (token) != SEMI_SEMI_AND && reserved_word_acceptable(token))
+}
 
 func (gps *ParserState) assignment_acceptable(token int) bool {
-  return command_token_position(token) && (gps.parser_state & PST_CASEPAT) == 0
+  return gps.command_token_position(token) && (gps.parser_state & PST_CASEPAT) == 0
 }
 
 /* Check to see if TOKEN is a reserved word and return the token
@@ -3230,7 +3230,7 @@ func (wts *wordTokenizerState) CHECK_FOR_RESERVED_WORD(word string) int {
 //  char *expanded;
 //  alias_t *ap;
 //
-//  if (((gps.parser_state & PST_ALEXPNEXT) || command_token_position (gps.last_read_token)) &&
+//  if (((gps.parser_state & PST_ALEXPNEXT) || gps.command_token_position (gps.last_read_token)) &&
 //	(gps.parser_state & PST_CASEPAT) == 0) {
 //      ap = find_alias (tokstr);
 //
@@ -5132,7 +5132,7 @@ func (gps *ParserState) read_token_word(ch int) int {
     }
   }
 
-  if (command_token_position (gps.last_read_token)) {
+  if (gps.command_token_position (gps.last_read_token)) {
     b := builtin_address_internal (token_word, 0);
     if (b && (b.flags & ASSIGNMENT_BUILTIN)) {
       gps.parser_state |= PST_ASSIGNOK;
