@@ -190,7 +190,7 @@ global_command *Command
 last_command_exit_value int
 
 /* Non-zero means we expand aliases in commands. */
-expand_aliases int
+expand_aliases bool
 
 extended_glob bool
 
@@ -5096,7 +5096,7 @@ func (gps *ParserState) read_token_word(ch int) int {
 
   /* Aliases are expanded iff EXPAND_ALIASES is non-zero, and quoting
      inhibits alias expansion. */
-  if (expand_aliases && !wts.quoted) {
+  if (gps.expand_aliases && !wts.quoted) {
     result = alias_expand_token (token_word);
     if (result == RE_READ_TOKEN) {
       return (RE_READ_TOKEN);
