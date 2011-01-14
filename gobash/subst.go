@@ -453,7 +453,6 @@ const WRPAREN = ')'
 //{
 //	size_t slen;
 //	int sindex, c;
-//	DECLARE_MBSTATE;
 //
 //	slen = strlen(string);
 //	sindex = 0;
@@ -463,13 +462,13 @@ const WRPAREN = ')'
 //
 //		switch (c) {
 //		default:
-//			ADVANCE_CHAR(string, slen, sindex);
+//			sindex++;
 //			break;
 //
 //		case '\\':
 //			sindex++;
 //			if (string[sindex])
-//				ADVANCE_CHAR(string, slen, sindex);
+//				sindex++;
 //			break;
 //
 //		case '\'':
@@ -490,7 +489,6 @@ const WRPAREN = ')'
 //{
 //	size_t slen;
 //	int sindex, c, sublen;
-//	DECLARE_MBSTATE;
 //
 //	if (substr == 0 || *substr == '\0')
 //		return (0);
@@ -506,7 +504,7 @@ const WRPAREN = ')'
 //			sindex++;
 //
 //			if (string[sindex])
-//				ADVANCE_CHAR(string, slen, sindex);
+//				sindex++;
 //			break;
 //
 //		case '\'':
@@ -518,7 +516,7 @@ const WRPAREN = ')'
 //			break;
 //
 //		default:
-//			ADVANCE_CHAR(string, slen, sindex);
+//			sindex++;
 //			break;
 //		}
 //	}
@@ -585,7 +583,6 @@ const WRPAREN = ')'
 //	int found;
 //	size_t slen;
 //	char *temp;
-//	DECLARE_MBSTATE;
 //
 //	slen = (MB_CUR_MAX > 1) ? strlen(string + *sindex) + *sindex : 0;
 //	i = *sindex;
@@ -611,7 +608,7 @@ const WRPAREN = ')'
 //			break;
 //		}
 //
-//		ADVANCE_CHAR(string, slen, i);
+//		i++;
 //	}
 //
 //	/* If we had to have a matching delimiter and didn't find one, return an error and let the caller deal with it. */
@@ -641,7 +638,6 @@ const WRPAREN = ')'
 //	char *temp, *ret;			/* The new string we return. */
 //	int pass_next, backquote, si;	/* State variables for the machine. */
 //	int dquote;
-//	DECLARE_MBSTATE;
 //
 //	slen = strlen(string + *sindex) + *sindex;
 //	send = string + slen;
@@ -769,14 +765,13 @@ const WRPAREN = ')'
 //	int c, i;
 //	char *ret;
 //	int pass_next, backquote, si;
-//	DECLARE_MBSTATE;
 //
 //	pass_next = backquote = 0;
 //	i = sind;
 //	while (c = string[i]) {
 //		if (pass_next) {
 //			pass_next = 0;
-//			ADVANCE_CHAR(string, slen, i);
+//			i++;
 //			continue;
 //		} else if (c == '\\') {
 //			pass_next++;
@@ -785,7 +780,7 @@ const WRPAREN = ')'
 //		} else if (backquote) {
 //			if (c == '`')
 //				backquote = 0;
-//			ADVANCE_CHAR(string, slen, i);
+//			i++;
 //			continue;
 //		} else if (c == '`') {
 //			backquote++;
@@ -801,7 +796,7 @@ const WRPAREN = ')'
 //			i = si + 1;
 //			continue;
 //		} else if (c != '"') {
-//			ADVANCE_CHAR(string, slen, i);
+//			i++;
 //			continue;
 //		} else
 //			break;
@@ -822,13 +817,12 @@ const WRPAREN = ')'
 //	register int i;
 //	size_t slen;
 //	char *t;
-//	DECLARE_MBSTATE;
 //
 //	/* Don't need slen for ADVANCE_CHAR unless multibyte chars possible. */
 //	slen = (MB_CUR_MAX > 1) ? strlen(string + *sindex) + *sindex : 0;
 //	i = *sindex;
 //	while (string[i] && string[i] != '\'')
-//		ADVANCE_CHAR(string, slen, i);
+//		i++;
 //
 //	t = substring(string, *sindex, i);
 //
@@ -845,11 +839,10 @@ const WRPAREN = ')'
 //	 int sind;
 //{
 //	register int c;
-//	DECLARE_MBSTATE;
 //
 //	c = sind;
 //	while (string[c] && string[c] != '\'')
-//		ADVANCE_CHAR(string, slen, c);
+//		c++;
 //
 //	if (string[c])
 //		c++;
@@ -872,7 +865,6 @@ const WRPAREN = ')'
 //#endif
 //	int c;
 //	char *temp;
-//	DECLARE_MBSTATE;
 //
 //	if (charlist[0] == '\'' && charlist[1] == '\0') {
 //		temp = string_extract_single_quoted(string, sindex);
@@ -929,7 +921,7 @@ const WRPAREN = ')'
 //		if (MEMBER(c, charlist))
 //			break;
 //
-//		ADVANCE_CHAR(string, slen, i);
+//		i++;
 //	}
 //
 //#if defined (HANDLE_MULTIBYTE)
@@ -1013,7 +1005,6 @@ const WRPAREN = ')'
 //	char *t, *result;
 //	int pass_character, nesting_level, in_comment;
 //	int len_closer, len_opener, len_alt_opener;
-//	DECLARE_MBSTATE;
 //
 //	slen = strlen(string + *sindex) + *sindex;
 //	len_opener = STRLEN(opener);
@@ -1034,13 +1025,13 @@ const WRPAREN = ')'
 //		if (in_comment) {
 //			if (c == '\n')
 //				in_comment = 0;
-//			ADVANCE_CHAR(string, slen, i);
+//			i++;
 //			continue;
 //		}
 //
 //		if (pass_character) {	/* previous char was backslash */
 //			pass_character = 0;
-//			ADVANCE_CHAR(string, slen, i);
+//			i++;
 //			continue;
 //		}
 //
@@ -1048,7 +1039,7 @@ const WRPAREN = ')'
 //		   parse.y */
 //		if ((flags & SX_COMMAND) && c == '#' && (i == 0 || string[i - 1] == '\n' || shellblank(string[i - 1]))) {
 //			in_comment = 1;
-//			ADVANCE_CHAR(string, slen, i);
+//			i++;
 //			continue;
 //		}
 //
@@ -1108,7 +1099,7 @@ const WRPAREN = ')'
 //		}
 //
 //		/* move past this character, which was not special. */
-//		ADVANCE_CHAR(string, slen, i);
+//		i++;
 //	}
 //
 //	if (c == 0 && nesting_level) {
@@ -1148,7 +1139,6 @@ const WRPAREN = ')'
 //	size_t slen;
 //	int pass_character, nesting_level, si;
 //	char *result, *t;
-//	DECLARE_MBSTATE;
 //
 //	pass_character = 0;
 //	nesting_level = 1;
@@ -1158,7 +1148,7 @@ const WRPAREN = ')'
 //	while (c = string[i]) {
 //		if (pass_character) {
 //			pass_character = 0;
-//			ADVANCE_CHAR(string, slen, i);
+//			i++;
 //			continue;
 //		}
 //
@@ -1209,7 +1199,7 @@ const WRPAREN = ')'
 //		}
 //
 //		/* move past this character, which was not special. */
-//		ADVANCE_CHAR(string, slen, i);
+//		i++;
 //	}
 //
 //	if (c == 0 && nesting_level) {
@@ -1235,7 +1225,6 @@ const WRPAREN = ')'
 //{
 //	register size_t slen;
 //	register int i, j, prev_i;
-//	DECLARE_MBSTATE;
 //
 //	slen = strlen(string);
 //	i = j = 0;
@@ -1245,7 +1234,7 @@ const WRPAREN = ')'
 //		if (string[i] == '\\' && (string[i + 1] == '`' || string[i + 1] == '\\' || string[i + 1] == '$'))
 //			i++;
 //		prev_i = i;
-//		ADVANCE_CHAR(string, slen, i);
+//		i++;
 //		if (j < prev_i)
 //			do
 //				string[j++] = string[prev_i++];
@@ -1286,32 +1275,31 @@ const WRPAREN = ')'
    attempt to skip over matched pairs of quotes or backquotes, or skip word expansions; it is intended to be used after expansion 
    has been performed and during final assignment parsing (see arrayfunc.c:assign_compound_array_list()). */
 func skip_matched_pair(str, open int, cloze int, flags int) int {
-	int i, pass_next, backq, si, c, count;
+	int si, c;
 	char *temp, *ss;
-	DECLARE_MBSTATE;
 
 	slen := len(str)
-	no_longjmp_on_fatal_error = 1;
 
-	i = 1;				/* skip over leading bracket */
-	count = 1;
-	pass_next = backq = 0;
+	i := 1;				/* skip over leading bracket */
+	count := 1;
+	pass_next := false
+    backq := 0
 	ss = (char *)str;
 	while (c = str[i]) {
 		if (pass_next) {
-			pass_next = 0;
+			pass_next = false
 			if (c == 0)
-				CQ_RETURN(i);
-			ADVANCE_CHAR(str, slen, i);
+				return (i);
+			i++;
 			continue;
 		} else if (c == '\\') {
-			pass_next = 1;
+			pass_next = true
 			i++;
 			continue;
 		} else if (backq) {
 			if (c == '`')
 				backq = 0;
-			ADVANCE_CHAR(str, slen, i);
+			i++;
 			continue;
 		} else if ((flags & 1) == 0 && c == '`') {
 			backq = 1;
@@ -1334,7 +1322,7 @@ func skip_matched_pair(str, open int, cloze int, flags int) int {
 		} else if ((flags & 1) == 0 && c == '$' && (str[i + 1] == LPAREN || str[i + 1] == LBRACE)) {
 			si = i + 2;
 			if (str[si] == '\0')
-				CQ_RETURN(si);
+				return (si);
 
 			if (str[i + 1] == LPAREN)
 				temp = extract_delimited_string(ss, &si, "$(", "(", ")", SX_NOALLOC | SX_COMMAND);	/* ) */
@@ -1346,10 +1334,10 @@ func skip_matched_pair(str, open int, cloze int, flags int) int {
 			i++;
 			continue;
 		} else
-			ADVANCE_CHAR(str, slen, i);
+			i++;
 	}
 
-	CQ_RETURN(i);
+	return (i);
 }
 
 func skipsubscript(str []int, flags int) int {
@@ -1369,7 +1357,6 @@ func skipsubscript(str []int, flags int) int {
 //	int i, pass_next, backq, si, c, invert, skipquote, skipcmd;
 //	size_t slen;
 //	char *temp;
-//	DECLARE_MBSTATE;
 //
 //	slen = strlen(string + start) + start;
 //	if (flags & SD_NOJMP)
@@ -1386,8 +1373,8 @@ func skipsubscript(str []int, flags int) int {
 //		if (pass_next) {
 //			pass_next = 0;
 //			if (c == 0)
-//				CQ_RETURN(i);
-//			ADVANCE_CHAR(string, slen, i);
+//				return (i);
+//			i++;
 //			continue;
 //		} else if (c == '\\') {
 //			pass_next = 1;
@@ -1396,7 +1383,7 @@ func skipsubscript(str []int, flags int) int {
 //		} else if (backq) {
 //			if (c == '`')
 //				backq = 0;
-//			ADVANCE_CHAR(string, slen, i);
+//			i++;
 //			continue;
 //		} else if (c == '`') {
 //			backq = 1;
@@ -1411,7 +1398,7 @@ func skipsubscript(str []int, flags int) int {
 //		} else if (c == '$' && ((skipcmd && string[i + 1] == LPAREN) || string[i + 1] == LBRACE)) {
 //			si = i + 2;
 //			if (string[si] == '\0')
-//				CQ_RETURN(si);
+//				return (si);
 //
 //			if (string[i + 1] == LPAREN)
 //				temp = extract_delimited_string(string, &si, "$(", "(", ")", SX_NOALLOC | SX_COMMAND);	/* ) */
@@ -1427,7 +1414,7 @@ func skipsubscript(str []int, flags int) int {
 //		else if (skipcmd && (c == '<' || c == '>') && string[i + 1] == LPAREN) {
 //			si = i + 2;
 //			if (string[si] == '\0')
-//				CQ_RETURN(si);
+//				return (si);
 //			temp = extract_process_subst(string, (c == '<') ? "<(" : ">(", &si);
 //			i = si;
 //			if (string[i] == '\0')
@@ -1439,10 +1426,10 @@ func skipsubscript(str []int, flags int) int {
 //		else if ((skipquote || invert) && (member(c, delims) == 0))
 //			break;
 //		else
-//			ADVANCE_CHAR(string, slen, i);
+//			i++;
 //	}
 //
-//	CQ_RETURN(i);
+//	return (i);
 //}
 //
 //#if defined (READLINE)
@@ -1457,7 +1444,6 @@ func skipsubscript(str []int, flags int) int {
 //{
 //	int i, pass_next, c;
 //	size_t slen;
-//	DECLARE_MBSTATE;
 //
 //	slen = strlen(string);
 //	no_longjmp_on_fatal_error = 1;
@@ -1468,8 +1454,8 @@ func skipsubscript(str []int, flags int) int {
 //		if (pass_next) {
 //			pass_next = 0;
 //			if (i >= eindex)	/* XXX was if (i >= eindex - 1) */
-//				CQ_RETURN(1);
-//			ADVANCE_CHAR(string, slen, i);
+//				return (1);
+//			i++;
 //			continue;
 //		} else if (c == '\\') {
 //			pass_next = 1;
@@ -1479,13 +1465,13 @@ func skipsubscript(str []int, flags int) int {
 //			i = (c == '\'') ? skip_single_quoted(string, slen, ++i)
 //				: skip_double_quoted(string, slen, ++i);
 //			if (i > eindex)
-//				CQ_RETURN(1);
+//				return (1);
 //			/* no increment, the skip_xxx functions go one past end */
 //		} else
-//			ADVANCE_CHAR(string, slen, i);
+//			i++;
 //	}
 //
-//	CQ_RETURN(0);
+//	return (0);
 //}
 //
 //int unclosed_pair(string, eindex, openstr)
@@ -1495,7 +1481,6 @@ func skipsubscript(str []int, flags int) int {
 //{
 //	int i, pass_next, openc, olen;
 //	size_t slen;
-//	DECLARE_MBSTATE;
 //
 //	slen = strlen(string);
 //	olen = strlen(openstr);
@@ -1505,7 +1490,7 @@ func skipsubscript(str []int, flags int) int {
 //			pass_next = 0;
 //			if (i >= eindex)	/* XXX was if (i >= eindex - 1) */
 //				return 0;
-//			ADVANCE_CHAR(string, slen, i);
+//			i++;
 //			continue;
 //		} else if (string[i] == '\\') {
 //			pass_next = 1;
@@ -1520,7 +1505,7 @@ func skipsubscript(str []int, flags int) int {
 //			if (i > eindex)
 //				return 0;
 //		} else
-//			ADVANCE_CHAR(string, slen, i);
+//			i++;
 //	}
 //	return (openc);
 //}
@@ -1558,7 +1543,6 @@ func skipsubscript(str []int, flags int) int {
 //#if defined (HANDLE_MULTIBYTE)
 //		size_t mblength = 1;
 //#endif
-//		DECLARE_MBSTATE;
 //
 //		slength = strlen(delims);
 //		d2 = (char *)xmalloc(slength + 1);
@@ -2013,8 +1997,7 @@ func skipsubscript(str []int, flags int) int {
 //
 //		/* Move past the current separator character. */
 //		if (string[sindex]) {
-//			DECLARE_MBSTATE;
-//			ADVANCE_CHAR(string, slen, sindex);
+//			sindex++;
 //		}
 //
 //		/* Now skip sequences of space, tab, or newline characters if they are in the list of separators. */
@@ -2093,8 +2076,7 @@ func skipsubscript(str []int, flags int) int {
 //
 //	/* Move past the current separator character. */
 //	if (s[sindex]) {
-//		DECLARE_MBSTATE;
-//		ADVANCE_CHAR(s, slen, sindex);
+//		sindex++;
 //	}
 //
 //	/* Now skip sequences of space, tab, or newline characters if they are in the list of separators. */
@@ -2481,7 +2463,6 @@ func skipsubscript(str []int, flags int) int {
 //	size_t slen;
 //	int i, saw_quote;
 //	char *ret;
-//	DECLARE_MBSTATE;
 //
 //	/* Don't need string length for ADVANCE_CHAR unless multibyte chars possible. */
 //	slen = (MB_CUR_MAX > 1) ? strlen(string) : 0;
@@ -2491,7 +2472,7 @@ func skipsubscript(str []int, flags int) int {
 //			break;
 //		else if (string[i] == '\'' || string[i] == '\\' || string[i] == '"')
 //			saw_quote = 1;
-//		ADVANCE_CHAR(string, slen, i);
+//		i++;
 //	}
 //
 //	if (string[i]) {
@@ -2828,7 +2809,6 @@ func skipsubscript(str []int, flags int) int {
 //	size_t slen;
 //	char *result, *send;
 //	int quote_spaces, skip_ctlesc, skip_ctlnul;
-//	DECLARE_MBSTATE;
 //
 //	slen = strlen(string);
 //	send = string + slen;
@@ -2880,7 +2860,6 @@ func skipsubscript(str []int, flags int) int {
 //	size_t slen;
 //	char *result, *send;
 //	int quote_spaces;
-//	DECLARE_MBSTATE;
 //
 //	if (string == 0)
 //		return string;
@@ -2941,8 +2920,6 @@ func skipsubscript(str []int, flags int) int {
 //		result[0] = CTLNUL;
 //		result[1] = '\0';
 //	} else {
-//		DECLARE_MBSTATE;
-//
 //		slen = strlen(string);
 //		send = string + slen;
 //
@@ -2964,7 +2941,6 @@ func skipsubscript(str []int, flags int) int {
 //	register char *s, *t;
 //	size_t slen;
 //	char *result, *send;
-//	DECLARE_MBSTATE;
 //
 //	slen = strlen(string);
 //
@@ -3053,7 +3029,6 @@ func skipsubscript(str []int, flags int) int {
 //{
 //	register size_t slen;
 //	register int i, j, prev_i;
-//	DECLARE_MBSTATE;
 //
 //	if (strchr(string, CTLNUL) == 0)	/* XXX */
 //		return string;			/* XXX */
@@ -3073,7 +3048,7 @@ func skipsubscript(str []int, flags int) int {
 //			i++;
 //
 //		prev_i = i;
-//		ADVANCE_CHAR(string, slen, i);
+//		i++;
 //		if (j < prev_i) {
 //			do
 //				string[j++] = string[prev_i++];
@@ -3113,14 +3088,13 @@ func skipsubscript(str []int, flags int) int {
 //	int i, offset, last;
 //	unsigned char *ret;
 //	char *p;
-//	DECLARE_MBSTATE;
 //
 //	i = offset = 0;
 //	last = 0;
 //	ret = (unsigned char *)xmalloc(len);
 //	memset(ret, 0, len);
 //	while (string[last]) {
-//		ADVANCE_CHAR(string, len, offset);
+//		offset++;
 //		ret[last] = offset - last;
 //		last = offset;
 //	}
@@ -4936,7 +4910,6 @@ func skipsubscript(str []int, flags int) int {
 //{
 //	size_t sublen;
 //	int skipcol, pcount, i;
-//	DECLARE_MBSTATE;
 //
 //	sublen = strlen(substr);
 //	i = skipcol = pcount = 0;
@@ -4953,7 +4926,7 @@ func skipsubscript(str []int, flags int) int {
 //			continue;
 //		}
 //		if (pcount) {
-//			ADVANCE_CHAR(substr, sublen, i);
+//			i++;
 //			continue;
 //		}
 //
@@ -4970,7 +4943,7 @@ func skipsubscript(str []int, flags int) int {
 //			i++;
 //			continue;
 //		}
-//		ADVANCE_CHAR(substr, sublen, i);
+//		i++;
 //	}
 //
 //	return (substr + i);
@@ -5161,7 +5134,6 @@ func skipsubscript(str []int, flags int) int {
 //{
 //	char *tt;
 //	int start, stop, i, slen;
-//	DECLARE_MBSTATE;
 //
 //	start = 0;
 //	/* Don't need string length in ADVANCE_CHAR unless multibyte chars possible. */
@@ -5169,11 +5141,11 @@ func skipsubscript(str []int, flags int) int {
 //
 //	i = s;
 //	while (string[start] && i--)
-//		ADVANCE_CHAR(string, slen, start);
+//		start++;
 //	stop = start;
 //	i = e - s;
 //	while (string[stop] && i--)
-//		ADVANCE_CHAR(string, slen, stop);
+//		stop++;
 //	tt = substring(string, start, stop);
 //	return tt;
 //}
@@ -5635,7 +5607,6 @@ func skipsubscript(str []int, flags int) int {
 //	 int len;
 //{
 //	int i, count;
-//	DECLARE_MBSTATE;
 //
 //	i = count = 0;
 //	while (i < len) {
@@ -5649,13 +5620,13 @@ func skipsubscript(str []int, flags int) int {
 //
 //		switch (s[i]) {
 //		default:
-//			ADVANCE_CHAR(s, len, i);
+//			i++;
 //			break;
 //
 //		case '\\':
 //			i++;
 //			if (s[i])
-//				ADVANCE_CHAR(s, len, i);
+//				i++;
 //			break;
 //
 //		case '\'':
@@ -6521,8 +6492,6 @@ func skipsubscript(str []int, flags int) int {
 //
 //	char twochars[2];
 //
-//	DECLARE_MBSTATE;
-//
 //	istring = (char *)xmalloc(istring_size = DEFAULT_INITIAL_ARRAY_SIZE);
 //	istring[istring_index = 0] = '\0';
 //	quoted_dollar_at = had_quoted_null = has_dollar_at = 0;
@@ -7088,7 +7057,6 @@ func skipsubscript(str []int, flags int) int {
 //	char *r, *result_string, *temp, *send;
 //	int sindex, tindex, dquote;
 //	unsigned char c;
-//	DECLARE_MBSTATE;
 //
 //	/* The result can be no longer than the original string. */
 //	slen = strlen(string);
