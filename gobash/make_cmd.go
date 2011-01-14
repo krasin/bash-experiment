@@ -293,7 +293,7 @@ func (gps *ParserState) make_bare_simple_command () *Command {
 
 /* Return a command which is the connection of the word or redirection
    in ELEMENT, and the command * or NULL in Command. */
-func (gps *ParserState) make_simple_command (element *ELEMENT, command *Command) *Command {
+func (gps *ParserState) make_simple_command (element ELEMENT, command *Command) *Command {
   /* If we are starting from scratch, then make the initial command
      structure.  Also note that we have to fill in all the slots, since
      malloc doesn't return zeroed space. */

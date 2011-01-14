@@ -321,7 +321,7 @@ type YYSTYPE struct {
   word_list *word_list
   command *Command
   redirect *Redirect
-  element *ELEMENT
+  element ELEMENT
   pattern *PatternList
 }
 
@@ -2136,7 +2136,7 @@ case yyreduce:
   case 162:
 // #line 1215 "/Users/chet/src/bash/src/parse.y"
     {
-			  x := new(ELEMENT)
+			  var x ELEMENT
 
 			  /* Boy, this is unclean.  `time' by itself can
 			     time a null command.  We cheat and push a
