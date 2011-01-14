@@ -5522,7 +5522,12 @@ func (gps *ParserState) handle_eof_input_unit() {
 //
 //  return reverseWordList(wl);
 //}
-//
+
+func parse_compound_assignment() *StringBuilder {
+  // TODO(krasin): implement this
+  panic("parse_compound_assignment: not implemented")
+}
+
 //static char *
 //parse_compound_assignment (retlenp)
 //     int *retlenp;
