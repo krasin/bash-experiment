@@ -3875,7 +3875,7 @@ func parse_matched_pair(qc int, open int, cloze int, flags int) (ret *StringBuil
 //  return ret;
 //}
 
-func parse_comsub(qc int, open int, cloze int, flags int) (string, os.Error) {
+func parse_comsub(qc int, open int, cloze int, flags int) (*StringBuilder, os.Error) {
   // TODO(krasin): impement this
   panic("parse_comsub: not implemented")
 }
