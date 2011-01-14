@@ -38,6 +38,10 @@ func StringToBuilder(str string) (sb *StringBuilder) {
   return
 }
 
+func (sb *StringBuilder) Runes() []int {
+  return sb.runes[:sb.cnt]
+}
+
 func (sb *StringBuilder) Len() int {
   return sb.cnt
 }
