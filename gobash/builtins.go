@@ -1,3 +1,4 @@
+package gobash
 /* builtins.h -- What a builtin looks like, and where to find them. */
 
 /* Copyright (C) 1987-2009 Free Software Foundation, Inc.
@@ -13,44 +14,22 @@
    You should have received a copy of the GNU General Public License along with Bash.  If not, see
    <http://www.gnu.org/licenses/>. */
 
-#include "config.h"
-
-#if defined (HAVE_UNISTD_H)
-#  ifdef _MINIX
-#    include <sys/types.h>
-#  endif
-#  include <unistd.h>
-#endif
-
-#include "command.h"
-#include "general.h"
-
-#if defined (ALIAS)
-#include "alias.h"
-#endif
-
 /* Flags describing various things about a builtin. */
-#define BUILTIN_ENABLED 0x01	/* This builtin is enabled. */
-#define BUILTIN_DELETED 0x02	/* This has been deleted with enable -d. */
-#define STATIC_BUILTIN  0x04	/* This builtin is not dynamically loaded. */
-#define SPECIAL_BUILTIN 0x08	/* This is a Posix `special' builtin. */
-#define ASSIGNMENT_BUILTIN 0x10	/* This builtin takes assignment statements. */
-#define POSIX_BUILTIN	0x20	/* This builtins is special in the Posix command search order. */
+const BUILTIN_ENABLED = 0x01 /* This builtin is enabled. */
+const BUILTIN_DELETED = 0x02 /* This has been deleted with enable -d. */
+const STATIC_BUILTIN = 0x04 /* This builtin is not dynamically loaded. */
+const SPECIAL_BUILTIN = 0x08 /* This is a Posix `special' builtin. */
+const ASSIGNMENT_BUILTIN = 0x10 /* This builtin takes assignment statements. */
+const POSIX_BUILTIN = 0x20 /* This builtins is special in the Posix command search order. */
 
-#define BASE_INDENT	4
+const BASE_INDENT = 4
 
 /* The thing that we build the array of builtins out of. */
-struct builtin {
-	char *name;					/* The name that the user types. */
-	sh_builtin_func_t *function;	/* The address of the invoked function. */
-	int flags;					/* One of the #defines above. */
-	char *const *long_doc;		/* NULL terminated array of strings. */
-	const char *short_doc;		/* Short version of documenation. */
-	char *handle;				/* for future use */
+type builtin struct {
+	name *char /* The name that the user types. */
+	function *sh_builtin_func_t /* The address of the invoked function. */
+	flags int /* One of the consts  above. */
+	long_doc []string; /* Array of strings. */
+	short_doc string /* Short version of documentaion. */
 };
 
-/* Found in builtins.c, created by builtins/mkbuiltins. */
-extern int num_shell_builtins;	/* Number of shell builtins. */
-extern struct builtin static_shell_builtins[];
-extern struct builtin *shell_builtins;
-extern struct builtin *current_builtin;
