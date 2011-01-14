@@ -5129,7 +5129,7 @@ func (gps *ParserState) read_token_word(ch int) int {
   if (wts.quoted) {
     wts.the_word.flags |= W_QUOTED;		/*(*/
   }
-  if (compound_assignment && wts.token.AtLast() == ')') {
+  if (wts.compound_assignment && wts.token.AtLast() == ')') {
     wts.the_word.flags |= W_COMPASSIGN;
   }
   /* A word is an assignment if it appears at the beginning of a
