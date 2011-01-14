@@ -321,10 +321,11 @@ func (cmd *Command) String() string {
   var out interface{}
   switch cmd.typ {
 	case cm_simple: out = v.Simple
+	case cm_connection: out = v.Connection
 	default: out = v
   }
 
-  return fmt.Sprintf("%d: %v # Type: %s", cmd.line, out, getCommandName(cmd.typ))
+  return fmt.Sprintf("{%d: %s{ %v }}", cmd.line, getCommandName(cmd.typ), out)
 }
 
 func (cmd *Command) AddRedirect(r *Redirect) {
@@ -346,6 +347,14 @@ type Connection struct {
   first *Command /* Pointer to the first command. */
   second *Command /* Pointer to the second command. */
   connector int /* What separates this command from others. */
+}
+
+func (conn *Connection) String() string {
+  if conn == nil {
+    return "nil"
+  }
+  return fmt.Sprintf("connector:%d\nfirst: %v\nsecond: %v",
+                    conn.connector, conn.first, conn.second)
 }
 
 /* Structures used to represent the CASE command. */
