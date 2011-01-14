@@ -3299,7 +3299,7 @@ func (gps *ParserState) time_command_acceptable() bool {
 //	preceded by one of `;', `\n', `||', `&&', or `&'.
 //*/
 //
-func (gps *ParserState) special_case_tokens(tokstr string) bool {
+func (gps *ParserState) special_case_tokens(tokstr string) int {
   // TODO(krasin): implement this
   panic("ParserState.special_case_tokens: not implemented")
 }
@@ -5075,7 +5075,7 @@ func (gps *ParserState) read_token_word(ch int) int {
   token_word := wts.token.String()
 
   /* Check for special case tokens. */
-  result := special_case_tokens (token_word)
+  result := gps.special_case_tokens (token_word)
   if result >= 0 {
     return result;
   }
