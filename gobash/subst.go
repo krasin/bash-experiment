@@ -785,59 +785,43 @@ const SX_ARITHSUB = 0x80 /* extracting $(( ... )) (currently unused) */
 //
 //	return (temp);
 //}
-//
-///* This should really be another option to string_extract_double_quoted. */
-//static int skip_double_quoted(string, slen, sind)
-//	 char *string;
-//	 size_t slen;
-//	 int sind;
-//{
-//	int c, i;
-//	char *ret;
-//	int pass_next, backquote, si;
-//
-//	pass_next = backquote = 0;
-//	i = sind;
-//	while (c = string[i]) {
-//		if (pass_next) {
-//			pass_next = 0;
-//			i++;
-//			continue;
-//		} else if (c == '\\') {
-//			pass_next++;
-//			i++;
-//			continue;
-//		} else if (backquote) {
-//			if (c == '`')
-//				backquote = 0;
-//			i++;
-//			continue;
-//		} else if (c == '`') {
-//			backquote++;
-//			i++;
-//			continue;
-//		} else if (c == '$' && ((string[i + 1] == LPAREN) || (string[i + 1] == LBRACE))) {
-//			si = i + 2;
-//			if (string[i + 1] == LPAREN)
-//				ret = extract_command_subst(string, &si, SX_NOALLOC);
-//			else
-//				ret = extract_dollar_brace_string(string, &si, 1, SX_NOALLOC);
-//
-//			i = si + 1;
-//			continue;
-//		} else if (c != '"') {
-//			i++;
-//			continue;
-//		} else
-//			break;
-//	}
-//
-//	if (c)
-//		i++;
-//
-//	return (i);
-//}
-//
+
+/* This should really be another option to string_extract_double_quoted. */
+func skip_double_quoted(str []int) int {
+	pass_next := false
+    backquote := false
+    for i := 0; i < len(str); i++ {
+        c := str[i]
+        switch {
+		case pass_next:
+			pass_next = false
+		case c == '\\':
+			pass_next = true
+		case backquote:
+			if c == '`' {
+				backquote = false
+            }
+		case c == '`':
+			backquote = true
+		case c == '$':
+            if i < len(str) - 2 && ((str[i + 1] == LPAREN) || (str[i + 1] == LBRACE)) {
+    			si := i + 2;
+	    		if str[i + 1] == LPAREN {
+		    		_ = extract_command_subst(str, &si, SX_NOALLOC);
+			    } else {
+				    _ = extract_dollar_brace_string(str, &si, 1, SX_NOALLOC);
+                }
+    			i = si
+            } else {
+              return len(str)
+            }
+		case c == '"':
+            return i + 1
+        }
+	}
+	return len(str)
+}
+
 ///* Extract the contents of STRING as if it is enclosed in single quotes. SINDEX, when passed in, is the offset of the character
 //   immediately following the opening single quote; on exit, SINDEX is left pointing after the closing single quote. */
 //static inline char *string_extract_single_quoted(string, sindex)
@@ -1308,8 +1292,10 @@ func skip_matched_pair(str []int, open int, cloze int, flags int) int {
 			pass_next = false
 		case c == '\\':
 			pass_next = true
-		case backq && c == '`':
-			backq = false
+		case backq:
+            if c == '`' {
+			  backq = false
+            }
 		case (flags & 1) == 0 && c == '`':
 			backq = true
 		case (flags & 1) == 0 && c == open:
@@ -1342,7 +1328,7 @@ func skip_matched_pair(str []int, open int, cloze int, flags int) int {
 			} else {
 				_ = extract_dollar_brace_string(str, &si, 0, SX_NOALLOC);
             }
-			i = si;
+			i = si
 		}
 	}
 
