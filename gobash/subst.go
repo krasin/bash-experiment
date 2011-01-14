@@ -1285,19 +1285,15 @@ const WRPAREN = ')'
 /* This function assumes s[i] == open; returns with s[ret] == close; used to parse array subscripts.  FLAGS & 1 means to not
    attempt to skip over matched pairs of quotes or backquotes, or skip word expansions; it is intended to be used after expansion 
    has been performed and during final assignment parsing (see arrayfunc.c:assign_compound_array_list()). */
-static int skip_matched_pair(str, start, open, cloze, flags)
-	 const char *str;
-	 int start, open, cloze, flags;
-{
+func skip_matched_pair(str, open int, cloze int, flags int) int {
 	int i, pass_next, backq, si, c, count;
-	size_t slen;
 	char *temp, *ss;
 	DECLARE_MBSTATE;
 
-	slen = strlen(str + start) + start;
+	slen := len(str)
 	no_longjmp_on_fatal_error = 1;
 
-	i = start + 1;				/* skip over leading bracket */
+	i = 1;				/* skip over leading bracket */
 	count = 1;
 	pass_next = backq = 0;
 	ss = (char *)str;
