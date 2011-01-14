@@ -3874,7 +3874,12 @@ func parse_matched_pair(qc int, open int, cloze int, flags int) (ret *StringBuil
 ///*itrace("parse_matched_pair[%d]: returning %s", gps.line_number, ret);*/
 //  return ret;
 //}
-//
+
+func parse_comsub(qc int, open int, cloze int, flags int) (string, os.Error) {
+  // TODO(krasin): impement this
+  panic("parse_comsub: not implemented")
+}
+
 ///* Parse a $(...) command substitution.  This is messier than I'd like, and
 //   reproduces a lot more of the token-reading code than I'd like. */
 //static char *
