@@ -200,7 +200,6 @@ const SX_ARITHSUB = 0x80 /* extracting $(( ... )) (currently unused) */
 //static char *string_extract __P((char *, int *, char *, int));
 //static char *string_extract_double_quoted __P((char *, int *, int));
 //static inline char *string_extract_single_quoted __P((char *, int *));
-//static char *extract_delimited_string __P((char *, int *, char *, char *, char *, int));
 //static char *extract_dollar_brace_string __P((char *, int *, int, int));
 //
 //static char *pos_params __P((char *, int, int, int));
@@ -807,11 +806,11 @@ func skip_double_quoted(str []int) int {
             if i < len(str) - 2 && ((str[i + 1] == LPAREN) || (str[i + 1] == LBRACE)) {
     			si := i + 2;
 	    		if str[i + 1] == LPAREN {
-		    		_ = extract_command_subst(str, &si, SX_NOALLOC);
+		    		si = extract_command_subst(str[i+2:], SX_NOALLOC);
 			    } else {
-				    _ = extract_dollar_brace_string(str, &si, 1, SX_NOALLOC);
+				    si = extract_dollar_brace_string(str[i+2:], true, SX_NOALLOC);
                 }
-    			i = si
+    			i += si + 2 // TODO(krasin): check that it's correct
             } else {
               return len(str)
             }
@@ -940,7 +939,12 @@ func skip_single_quoted(str []int) int {
 //
 //	return (temp);
 //}
-//
+
+func extract_command_subst(str []int, xflags int) int {
+  // TODO(krasin): implement this
+  panic("extract_command_subst: not implemented")
+}
+
 ///* Extract the $( construct in STRING, and return a new string. Start extracting at (SINDEX) as if we had just seen "$(". Make
 //   (SINDEX) get the position of the matching ")". ) XFLAGS is additional flags to pass to other extraction functions. */
 //char *extract_command_subst(string, sindex, xflags)
@@ -996,7 +1000,12 @@ func skip_single_quoted(str []int) int {
 //	return 0;
 //}
 //#endif
-//
+
+func extract_delimited_string(str []int, opener string, alt_opener string, closer string, flags int) int {
+  // TODO(krasin): implement this
+  panic("extract_delimited_string: not implemented")
+}
+
 ///* Extract and create a new string from the contents of STRING, a character string delimited with OPENER and CLOSER.  SINDEX is
 //   the address of an int describing the current offset in STRING; it should point to just after the first OPENER found.  On exit,
 //   SINDEX gets the position of the last character of the matching CLOSER. If OPENER is more than a single character, ALT_OPENER,
@@ -1132,7 +1141,12 @@ func skip_single_quoted(str []int) int {
 //
 //	return (result);
 //}
-//
+
+func extract_dollar_brace_string(str []int, quoted bool, flags int) int {
+  // TODO(krasin): implement this
+  panic("extract_dollar_brace_string: not implemented")
+}
+
 ///* Extract a parameter expansion expression within ${ and } from STRING. Obey the Posix.2 rules for finding the ending `}': count 
 //   braces while skipping over enclosed quoted strings and command substitutions. SINDEX is the address of an int describing the
 //   current offset in STRING; it should point to just after the first `{' found.  On exit, SINDEX gets the position of the
@@ -1324,11 +1338,11 @@ func skip_matched_pair(str []int, open int, cloze int, flags int) int {
             }
 
 			if str[i + 1] == LPAREN {
-				_ = extract_delimited_string(str, &si, "$(", "(", ")", SX_NOALLOC | SX_COMMAND);	/* ) */
+				si = extract_delimited_string(str[i+2:], "$(", "(", ")", SX_NOALLOC | SX_COMMAND);	/* ) */
 			} else {
-				_ = extract_dollar_brace_string(str, &si, 0, SX_NOALLOC);
+				si = extract_dollar_brace_string(str[i+2:], false, SX_NOALLOC);
             }
-			i = si
+			i += si + 2 // TODO(krasin): check that it's valid
 		}
 	}
 
