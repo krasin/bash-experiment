@@ -14,6 +14,10 @@ package gobash
    You should have received a copy of the GNU General Public License along with Bash.  If not, see
    <http://www.gnu.org/licenses/>. */
 
+import (
+  "regexp"
+)
+
 ///* A standard error message to use when getcwd() returns NULL. */
 //const char *const bash_getcwd_errstr = N_("getcwd: cannot access parent directories");
 //
@@ -136,24 +140,15 @@ package gobash
 //
 //	return (0);
 //}
-//
-///* Return 1 if this token is a legal shell `identifier'; that is, it consists solely of letters, digits, and underscores, and
-//   does not begin with a digit. */
-//int legal_identifier(name)
-//	 char *name;
-//{
-//	register char *s;
-//	unsigned char c;
-//
-//	if (!name || !(c = *name) || (legal_variable_starter(c) == 0))
-//		return (0);
-//
-//	for (s = name + 1; (c = *s) != 0; s++) {
-//		if (legal_variable_char(c) == 0)
-//			return (0);
-//	}
-//	return (1);
-//}
+
+/* Return true if this token is a legal shell `identifier'; that is, it consists solely of letters, digits, and underscores, and
+   does not begin with a digit. */
+var legal_identifier_regexp = regexp.MustCompile("^[a-zA-Z_][A-Za-z_0-9]*$")
+
+func legal_identifier(name string) bool {
+  return legal_identifier_regexp.MatchString(name)
+}
+
 //
 ///* Make sure that WORD is a valid shell identifier, i.e. does not contain a dollar sign, nor is quoted in any way.  Nor does it
 //   consist of all digits.  If CHECK_WORD is non-zero, the word is checked to ensure that it consists of only letters, digits, and 
