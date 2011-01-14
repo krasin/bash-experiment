@@ -38,7 +38,7 @@ func (sh *ShellState) openShellScript(filename string) (err os.Error) {
 func (sh *ShellState) readerLoop() int {
 	for !sh.gps.EOF_Reached {
 		sh.gps.Yyparse()
-		fmt.Printf("global_command: %v\n", sh.gps.global_command)
+		fmt.Fprintf(os.Stderr, "global_command: %v\n", sh.gps.global_command)
 	}
 	return 0
 }
