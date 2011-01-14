@@ -49,6 +49,38 @@ const RPAREN = ')'
 const WLPAREN = '('
 const WRPAREN = ')'
 
+/* Constants which specify how to handle backslashes and quoting in
+   expand_word_internal ().  Q_DOUBLE_QUOTES means to use the function
+   slashify_in_quotes () to decide whether the backslash should be
+   retained.  Q_HERE_DOCUMENT means slashify_in_here_document () to
+   decide whether to retain the backslash.  Q_KEEP_BACKSLASH means
+   to unconditionally retain the backslash.  Q_PATQUOTE means that we're
+   expanding a pattern ${var%#[#%]pattern} in an expansion surrounded
+   by double quotes. */
+const Q_DOUBLE_QUOTES = 0x01
+const Q_HERE_DOCUMENT = 0x02
+const Q_KEEP_BACKSLASH = 0x04
+const Q_PATQUOTE = 0x08
+const Q_QUOTED = 0x10
+const Q_ADDEDQUOTES = 0x20
+const Q_QUOTEDNULL = 0x40
+
+/* Flag values controlling how assignment statements are treated. */
+const ASS_APPEND = 0x01
+const ASS_MKLOCAL = 0x02
+const ASS_MKASSOC = 0x04
+
+/* Flags for the string extraction functions. */
+const SX_NOALLOC = 0x01 /* just skip; don't return substring */
+const SX_VARNAME = 0x02 /* variable name; for string_extract () */
+const SX_REQMATCH = 0x04 /* closing/matching delimiter required */
+const SX_COMMAND = 0x08 /* extracting a shell script/command */
+const SX_NOCTLESC = 0x10 /* don't honor CTLESC quoting */
+const SX_NOESCCTLNUL = 0x20 /* don't let CTLESC quote CTLNUL */
+const SX_NOLONGJMP = 0x40 /* don't longjmp on fatal error */
+const SX_ARITHSUB = 0x80 /* extracting $(( ... )) (currently unused) */
+
+
 ///* Evaluates to 1 if C is one of the shell's special parameters whose length can be taken, but is also one of the special
 //   expansion characters. */
 //#define VALID_SPECIAL_LENGTH_PARAM(c) \
@@ -168,8 +200,6 @@ const WRPAREN = ')'
 //static char *string_extract __P((char *, int *, char *, int));
 //static char *string_extract_double_quoted __P((char *, int *, int));
 //static inline char *string_extract_single_quoted __P((char *, int *));
-//static inline int skip_single_quoted __P((const char *, size_t, int));
-//static int skip_double_quoted __P((char *, size_t, int));
 //static char *extract_delimited_string __P((char *, int *, char *, char *, char *, int));
 //static char *extract_dollar_brace_string __P((char *, int *, int, int));
 //
@@ -832,23 +862,16 @@ const WRPAREN = ')'
 //
 //	return (t);
 //}
-//
-//static inline int skip_single_quoted(string, slen, sind)
-//	 const char *string;
-//	 size_t slen;
-//	 int sind;
-//{
-//	register int c;
-//
-//	c = sind;
-//	while (string[c] && string[c] != '\'')
-//		c++;
-//
-//	if (string[c])
-//		c++;
-//	return c;
-//}
-//
+
+func skip_single_quoted(str []int) int {
+    for i, c := range str {
+      if c == '\'' {
+        return i+1
+      }
+    }
+    return len(str)
+}
+
 ///* Just like string_extract, but doesn't hack backslashes or any of that other stuff.  Obeys CTLESC quoting.  Used to do
 //   splitting on $IFS. */
 //static char *string_extract_verbatim(string, slen, sindex, charlist, flags)
@@ -1274,70 +1297,56 @@ const WRPAREN = ')'
 /* This function assumes s[i] == open; returns with s[ret] == close; used to parse array subscripts.  FLAGS & 1 means to not
    attempt to skip over matched pairs of quotes or backquotes, or skip word expansions; it is intended to be used after expansion 
    has been performed and during final assignment parsing (see arrayfunc.c:assign_compound_array_list()). */
-func skip_matched_pair(str, open int, cloze int, flags int) int {
-	int si, c;
-	char *temp, *ss;
-
-	slen := len(str)
-
-	i := 1;				/* skip over leading bracket */
+func skip_matched_pair(str []int, open int, cloze int, flags int) int {
 	count := 1;
 	pass_next := false
-    backq := 0
-	ss = (char *)str;
-	while (c = str[i]) {
-		if (pass_next) {
+    backq := false
+	for i := 1; i < len(str); i++ { /* skip over leading bracket */
+        c := str[i]
+        switch {
+		case pass_next:
 			pass_next = false
-			if (c == 0)
-				return (i);
-			i++;
-			continue;
-		} else if (c == '\\') {
+		case c == '\\':
 			pass_next = true
-			i++;
-			continue;
-		} else if (backq) {
-			if (c == '`')
-				backq = 0;
-			i++;
-			continue;
-		} else if ((flags & 1) == 0 && c == '`') {
-			backq = 1;
-			i++;
-			continue;
-		} else if ((flags & 1) == 0 && c == open) {
+		case backq && c == '`':
+			backq = false
+		case (flags & 1) == 0 && c == '`':
+			backq = true
+		case (flags & 1) == 0 && c == open:
 			count++;
-			i++;
-			continue;
-		} else if (c == cloze) {
+		case c == cloze:
 			count--;
-			if (count == 0)
-				break;
-			i++;
-			continue;
-		} else if ((flags & 1) == 0 && (c == '\'' || c == '"')) {
-			i = (c == '\'') ? skip_single_quoted(ss, slen, ++i)
-				: skip_double_quoted(ss, slen, ++i);
+			if (count == 0) {
+				return i
+            }
+		case (flags & 1) == 0 && c == '\'' || c == '"':
+            i++
+            if i >= len(str) - 2 {
+              return len(str)
+            }
+            if c == '\'' {
+              i = skip_single_quoted(str[i:]) + i
+            } else {
+              i = skip_double_quoted(str[i:]) + i
+            }
+            i-- // To neutralize loop increment
 			/* no increment, the skip functions increment past the closing quote. */
-		} else if ((flags & 1) == 0 && c == '$' && (str[i + 1] == LPAREN || str[i + 1] == LBRACE)) {
-			si = i + 2;
-			if (str[si] == '\0')
-				return (si);
+		case (flags & 1) == 0 && c == '$' && (str[i + 1] == LPAREN || str[i + 1] == LBRACE):
+			si := i + 2;
+			if si >= len(str) {
+				return len(str)
+            }
 
-			if (str[i + 1] == LPAREN)
-				temp = extract_delimited_string(ss, &si, "$(", "(", ")", SX_NOALLOC | SX_COMMAND);	/* ) */
-			else
-				temp = extract_dollar_brace_string(ss, &si, 0, SX_NOALLOC);
+			if str[i + 1] == LPAREN {
+				_ = extract_delimited_string(str, &si, "$(", "(", ")", SX_NOALLOC | SX_COMMAND);	/* ) */
+			} else {
+				_ = extract_dollar_brace_string(str, &si, 0, SX_NOALLOC);
+            }
 			i = si;
-			if (str[i] == '\0')	/* don't increment i past EOS in loop */
-				break;
-			i++;
-			continue;
-		} else
-			i++;
+		}
 	}
 
-	return (i);
+	return len(str)
 }
 
 func skipsubscript(str []int, flags int) int {
