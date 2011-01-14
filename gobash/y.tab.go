@@ -5137,7 +5137,7 @@ func (gps *ParserState) read_token_word(ch int) int {
     if (b && (b.flags & ASSIGNMENT_BUILTIN)) {
       gps.parser_state |= PST_ASSIGNOK;
     } else {
-      if token_word == "eval" || token == "let" {
+      if token_word == "eval" || token_word == "let" {
         gps.parser_state |= PST_ASSIGNOK;
       }
     }
