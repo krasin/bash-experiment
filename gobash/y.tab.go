@@ -3264,17 +3264,17 @@ func alias_expand_token(tokstr string) int {
 
 func (gps *ParserState) time_command_acceptable() bool {
   switch gps.last_read_token {
-    case 0:
-    case ';':
-    case '\n':
-    case AND_AND:
-    case OR_OR:
-    case '&':
-    case DO:
-    case THEN:
-    case ELSE:
-    case '{':		/* } */
-    case '(':		/* ) */
+    case 0: fallthrough
+    case ';': fallthrough
+    case '\n': fallthrough
+    case AND_AND: fallthrough
+    case OR_OR: fallthrough
+    case '&': fallthrough
+    case DO: fallthrough
+    case THEN: fallthrough
+    case ELSE: fallthrough
+    case '{': fallthrough /* } */
+    case '(':  /* ) */
       return true
   }
   return false
@@ -5179,8 +5179,8 @@ func (gps *ParserState) read_token_word(ch int) int {
     case FUNCTION:
       gps.parser_state |= PST_ALLOWOPNBRC;
       gps.function_dstart = gps.line_number;
-    case CASE:
-    case SELECT:
+    case CASE: fallthrough
+    case SELECT: fallthrough
     case FOR:
       if (gps.word_top < MAX_CASE_NEST) {
         gps.word_top++;
@@ -5195,34 +5195,34 @@ func (gps *ParserState) read_token_word(ch int) int {
    a reserved word to be seen, else 0. */
 func reserved_word_acceptable(toksym int) bool {
   switch (toksym) {
-    case '\n':
-    case ';':
-    case '(':
-    case ')':
-    case '|':
-    case '&':
-    case '{':
-    case '}':		/* XXX */
-    case AND_AND:
-    case BANG:
-    case BAR_AND:
-    case DO:
-    case DONE:
-    case ELIF:
-    case ELSE:
-    case ESAC:
-    case FI:
-    case IF:
-    case OR_OR:
-    case SEMI_SEMI:
-    case SEMI_AND:
-    case SEMI_SEMI_AND:
-    case THEN:
-    case TIME:
-    case TIMEOPT:
-    case COPROC:
-    case UNTIL:
-    case WHILE:
+    case '\n': fallthrough
+    case ';': fallthrough
+    case '(': fallthrough
+    case ')': fallthrough
+    case '|': fallthrough
+    case '&': fallthrough
+    case '{': fallthrough
+    case '}': fallthrough /* XXX */
+    case AND_AND: fallthrough
+    case BANG: fallthrough
+    case BAR_AND: fallthrough
+    case DO: fallthrough
+    case DONE: fallthrough
+    case ELIF: fallthrough
+    case ELSE: fallthrough
+    case ESAC: fallthrough
+    case FI: fallthrough
+    case IF: fallthrough
+    case OR_OR: fallthrough
+    case SEMI_SEMI: fallthrough
+    case SEMI_AND: fallthrough
+    case SEMI_SEMI_AND: fallthrough
+    case THEN: fallthrough
+    case TIME: fallthrough
+    case TIMEOPT: fallthrough
+    case COPROC: fallthrough
+    case UNTIL: fallthrough
+    case WHILE: fallthrough
     case 0:
       return true
     }
@@ -5282,7 +5282,7 @@ func error_token_from_token(tok int) string {
 //  /* This stuff is dicy and needs closer inspection */
 //  switch (gps.current_token)
 //    {
-//    case WORD:
+//    case WORD: fallthrough
 //    case ASSIGNMENT_WORD:
 //      if (gps.yylval.word)
 //	t = savestring (gps.yylval.word.word);

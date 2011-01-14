@@ -3311,9 +3311,9 @@ func skipsubscript(str []int, flags int) int {
 //		return (*pat == LPAREN ? 1 : (*string != '\0'));
 //	case '*':
 //		return (1);
-//	case '+':
-//	case '!':
-//	case '@':
+//	case '+': fallthrough
+//	case '!': fallthrough
+//	case '@': fallthrough
 //		return (*pat == LPAREN ? 1 : (*string == c));
 //	case '[':
 //		return (*string != '\0');
@@ -3434,8 +3434,8 @@ func skipsubscript(str []int, flags int) int {
 //		return (*wpat == LPAREN ? 1 : (*wstring != L'\0'));
 //	case L'*':
 //		return (1);
-//	case L'+':
-//	case L'!':
+//	case L'+': fallthrough
+//	case L'!': fallthrough
 //	case L'@':
 //		return (*wpat == LPAREN ? 1 : (*wstring == wc));
 //	case L'[':
@@ -3745,7 +3745,7 @@ func skipsubscript(str []int, flags int) int {
 //
 //	temp1 = (char *)NULL;		/* shut up gcc */
 //	switch (vtype) {
-//	case VT_VARIABLE:
+//	case VT_VARIABLE: fallthrough
 //	case VT_ARRAYMEMBER:
 //		temp1 = remove_pattern(val, pattern, patspec);
 //		if (vtype == VT_VARIABLE)
@@ -4991,7 +4991,7 @@ func skipsubscript(str []int, flags int) int {
 //
 //	len = -1;					/* paranoia */
 //	switch (vtype) {
-//	case VT_VARIABLE:
+//	case VT_VARIABLE: fallthrough
 //	case VT_ARRAYMEMBER:
 //		len = MB_STRLEN(value);
 //		break;
@@ -5193,7 +5193,7 @@ func skipsubscript(str []int, flags int) int {
 //		return ((r == 0) ? &expand_param_error : (char *)NULL);
 //
 //	switch (vtype) {
-//	case VT_VARIABLE:
+//	case VT_VARIABLE: fallthrough
 //	case VT_ARRAYMEMBER:
 //#if defined (HANDLE_MULTIBYTE)
 //		if (MB_CUR_MAX > 1)
@@ -5443,7 +5443,7 @@ func skipsubscript(str []int, flags int) int {
 //	   cases if QUOTED == 0, since the posparams and arrays indexed by * or @ do special things when QUOTED != 0. */
 //
 //	switch (vtype) {
-//	case VT_VARIABLE:
+//	case VT_VARIABLE: fallthrough
 //	case VT_ARRAYMEMBER:
 //		temp = pat_subst(val, p, rep, mflags);
 //		if (vtype == VT_VARIABLE)
@@ -5570,7 +5570,7 @@ func skipsubscript(str []int, flags int) int {
 //
 //	/* OK, now we do the case modification. */
 //	switch (vtype) {
-//	case VT_VARIABLE:
+//	case VT_VARIABLE: fallthrough
 //	case VT_ARRAYMEMBER:
 //		temp = sh_modcase(val, pat, modop);
 //		if (vtype == VT_VARIABLE)
@@ -5969,7 +5969,7 @@ func skipsubscript(str []int, flags int) int {
 //		}
 //		break;
 //
-//	case '#':					/* ${param#[#]pattern} */
+//	case '#': fallthrough		/* ${param#[#]pattern} */
 //	case '%':					/* ${param%[%]pattern} */
 //		if (value == 0 || *value == '\0' || temp == 0 || *temp == '\0') {
 //			FREE(value);
@@ -5985,9 +5985,9 @@ func skipsubscript(str []int, flags int) int {
 //			ret->flags |= W_QUOTED | W_HASQUOTEDNULL;
 //		return ret;
 //
-//	case '-':
-//	case '=':
-//	case '?':
+//	case '-': fallthrough
+//	case '=': fallthrough
+//	case '?': fallthrough
 //	case '+':
 //		if (var_is_set && var_is_null == 0) {
 //			/* If the operator is `+', we don't want the value of the named variable for anything, just the value of the right
@@ -6077,16 +6077,16 @@ func skipsubscript(str []int, flags int) int {
 //	/* Do simple cases first. Switch on what follows '$'. */
 //	switch (c) {
 //		/* $0 .. $9? */
-//	case '0':
-//	case '1':
-//	case '2':
-//	case '3':
-//	case '4':
-//	case '5':
-//	case '6':
-//	case '7':
-//	case '8':
-//	case '9':
+//	case '0': fallthrough
+//	case '1': fallthrough
+//	case '2': fallthrough
+//	case '3': fallthrough
+//	case '4': fallthrough
+//	case '5': fallthrough
+//	case '6': fallthrough
+//	case '7': fallthrough
+//	case '8': fallthrough
+//	case '9': fallthrough
 //		temp1 = dollar_vars[TODIGIT(c)];
 //		if (unbound_vars_is_error && temp1 == (char *)NULL) {
 //			uerror[0] = '$';
@@ -6555,7 +6555,7 @@ func skipsubscript(str []int, flags int) int {
 //
 //#if defined (PROCESS_SUBSTITUTION)
 //			/* Process substitution. */
-//		case '<':
+//		case '<': fallthrough
 //		case '>':
 //			{
 //				if (string[++sindex] != LPAREN || (quoted & (Q_HERE_DOCUMENT | Q_DOUBLE_QUOTES))
@@ -7084,6 +7084,7 @@ func skipsubscript(str []int, flags int) int {
 //			if (((quoted & (Q_HERE_DOCUMENT | Q_DOUBLE_QUOTES)) || dquote) && (sh_syntaxtab[c] & CBSDQUOTE) == 0)
 //				*r++ = '\\';
 //			/* FALLTHROUGH */
+//          fallthrough
 //
 //		default:
 //			SCOPY_CHAR_M(r, string, send, sindex);
