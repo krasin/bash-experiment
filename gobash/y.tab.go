@@ -286,7 +286,7 @@ line_number int
 cond_lineno int
 cond_token int
 
-dstack *dstack
+dstack *intStack
 
 /* This implements one-character lookahead/lookbehind across physical input
    lines, to avoid something being lost because it's pushed back with
@@ -303,7 +303,7 @@ func newParserState(bashInput BashInput) *ParserState {
 	state.bashInput = bashInput
 	state.extended_quote = 1
 	state.word_top = -1
-	state.dstack = new(dstack)
+	state.dstack = newIntStack()
 	return state
 }
 
@@ -2884,44 +2884,20 @@ var word_token_alist = map[string] int {
 //	ARITH_FOR_EXPRS		look at yylval.word_list
 //	COND_CMD		look at yylval.command
 //*/
-//
-///* These are used by gps.read_token_word, but appear up here so that shell_getc
-//   can use them to decide when to add otherwise blank lines to the history. */
-//
-///* The primary delimiter stack. */
-//struct dstack dstack = {  nil, 0, 0 };
-//
-///* Macro for accessing the top delimiter on the stack.  Returns the
-//   delimiter or zero if none. */
-//#define current_delimiter(ds) \
-//  (ds.delimiter_depth ? ds.delimiters[ds.delimiter_depth - 1] : 0)
-//
-//#define push_delimiter(ds, character) \
-//  do \
-//    { \
-//      if (ds.delimiter_depth + 2 > ds.delimiter_space) \
-//	ds.delimiters = (char *)xrealloc \
-//	  (ds.delimiters, (ds.delimiter_space += 10) * sizeof (char)); \
-//      ds.delimiters[ds.delimiter_depth] = character; \
-//      ds.delimiter_depth++; \
-//    } \
-//  while (0)
-//
-//#define pop_delimiter(ds)	ds.delimiter_depth--
 
-func current_delimiter(ds *dstack) int {
-  // TODO(krasin): implement this
-  panic("current_delimiter: not implemented")
+func (gps *ParserState) current_delimiter() int {
+  if gps.dstack.IsEmpty() {
+    return 0
+  }
+  return gps.dstack.Peek()
 }
 
-func push_delimiter(ds *dstack, character int) {
-  // TODO(krasin): implement this
-  panic("push_delimiter: not implemented")
+func (gps *ParserState) push_delimiter(character int) {
+  gps.dstack.Push(character)
 }
 
-func pop_delimiter(ds *dstack) {
-  // TODO(krasin): implement this
-  panic("push_delimiter: not implemented")
+func (gps *ParserState) pop_delimiter() {
+  gps.dstack.Pop()
 }
 
 /* Return the next shell input character.  This always reads characters
@@ -3384,7 +3360,7 @@ func (gps *ParserState) special_case_tokens(tokstr string) int {
 /* Called from shell.c when Control-C is typed at top level.  Or
    by the error rule at top level. */
 func (gps *ParserState) reset_parser() {
-  gps.dstack.delimiter_depth = 0;	/* No delimiters found so far. */
+  gps.dstack = newIntStack()
   gps.open_brace_count = 0;
 
   /* Reset to global value of extended glob */
@@ -4781,14 +4757,14 @@ func (wts *wordTokenizerState) handleBackslashes() readTokenWordState {
 func (wts *wordTokenizerState) handleShellQuote() readTokenWordState {
       /* Parse a matched pair of quote characters. */
   if (shellquote (wts.character)) {
-	  push_delimiter (wts.gps.dstack, wts.character);
+	  wts.gps.push_delimiter (wts.character);
           flags := 0
           if wts.character == '`' {
             flags = P_COMMAND
           }
       var err os.Error
 	  wts.ttok, err = parse_matched_pair (wts.character, wts.character, wts.character, flags)
-	  pop_delimiter (wts.gps.dstack);
+	  wts.gps.pop_delimiter()
 	  if err != nil {
 	    return RTS_BAIL_IMMEDIATELY
       }
@@ -4811,10 +4787,10 @@ func (wts *wordTokenizerState) handleRegexp() readTokenWordState {
         return RTS_GOT_CHARACTER
       }
 
-	  push_delimiter (wts.gps.dstack, wts.character);
+	  wts.gps.push_delimiter (wts.character);
       var err os.Error
 	  wts.ttok, err = parse_matched_pair (wts.cd, '(', ')', 0);
-	  pop_delimiter (wts.gps.dstack);
+	  wts.gps.pop_delimiter()
 	  if err != nil {
         return RTS_BAIL_IMMEDIATELY
       }
@@ -4832,10 +4808,10 @@ func (wts *wordTokenizerState) handleExtendedGlob() readTokenWordState {
       if wts.gps.extended_glob && PATTERN_CHAR (wts.character) {
 	  wts.peek_char = wts.gps.shell_getc(true)
 	  if (wts.peek_char == '(') {		/* ) */
-	      push_delimiter (wts.gps.dstack, wts.peek_char);
+	      wts.gps.push_delimiter (wts.peek_char);
           var err os.Error
 	      wts.ttok, err = parse_matched_pair (wts.cd, '(', ')', 0);
-	      pop_delimiter (wts.gps.dstack);
+	      wts.gps.pop_delimiter()
 	      if err != nil {
             return RTS_BAIL_IMMEDIATELY
           }
@@ -4888,9 +4864,9 @@ func (wts *wordTokenizerState) handleShellExp() readTokenWordState {
            appearing in the $(...) string get added to the
            history literally rather than causing a possibly-
            incorrect `;' to be added. ) */
-        push_delimiter (wts.gps.dstack, wts.peek_char);
+        wts.gps.push_delimiter (wts.peek_char);
         wts.ttok, err = parse_comsub (wts.cd, '(', ')', P_COMMAND);
-        pop_delimiter (wts.gps.dstack);
+        wts.gps.pop_delimiter()
       default:
         wts.ttok, err = parse_matched_pair (wts.cd, '[', ']', 0);
       }
@@ -4907,13 +4883,13 @@ func (wts *wordTokenizerState) handleShellExp() readTokenWordState {
     /* This handles $'...' and $"..." new-style quoted strings. */
     case (wts.character == '$' && (wts.peek_char == '\'' || wts.peek_char == '"')):
       first_line := wts.gps.line_number;
-      push_delimiter (wts.gps.dstack, wts.peek_char);
+      wts.gps.push_delimiter (wts.peek_char);
       flags := 0
       if wts.peek_char == '\'' {
         flags = P_ALLOWESC
       }
       wts.ttok, err = parse_matched_pair (wts.peek_char, wts.peek_char, wts.peek_char, flags)
-      pop_delimiter (wts.gps.dstack);
+      wts.gps.pop_delimiter()
       if err != nil {
         return RTS_BAIL_IMMEDIATELY
       }
@@ -4997,7 +4973,7 @@ func (wts *wordTokenizerState) handleChar() (rts_state readTokenWordState) {
     return RTS_GOT_ESCAPED_CHARACTER
   }
 
-  wts.cd = current_delimiter(wts.gps.dstack);
+  wts.cd = wts.gps.current_delimiter()
 
   if rts_state = wts.handleBackslashes(); rts_state != RTS_PASS {
     return rts_state
@@ -5057,7 +5033,7 @@ func (gps *ParserState) read_token_word(ch int) int {
       /* We want to remove quoted newlines (that is, a \<newline> pair)
          unless we are within single quotes or wts.pass_next_character is
          set (the shell equivalent of literal-next). */
-      wts.cd = current_delimiter (wts.gps.dstack);
+      wts.cd = wts.gps.current_delimiter()
       wts.character = gps.shell_getc (wts.cd != '\'' && !wts.pass_next_character);
     case RTS_GOT_TOKEN:
       break rts_loop
