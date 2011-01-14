@@ -233,6 +233,39 @@ parse_command ()
   return (r);
 }
 
+void KrasinPrintSimple(SIMPLE_COM *val) {
+  if (!val) {
+    fprintf(stderr, "nil");
+    return;
+  }
+  fprintf(stderr, "%d: something", val->line);
+}
+
+// NOTE(Krasin): begin
+void KrasinPrintCommand(COMMAND *cmd) {
+  if (!cmd) {
+    fprintf(stderr, "nil");
+    return;
+  }
+  switch (cmd->type) {
+    case cm_simple: 
+      fprintf(stderr, "SIMPLE {");
+      KrasinPrintSimple(cmd->value.Simple);
+      break;
+    default:
+      fprintf(stderr, "%d {", cmd->type);
+  }
+  fprintf(stderr, "}}");
+}
+
+void KrasinPrintGlobalCommand() {
+  fprintf(stderr, "global_command: ");
+  KrasinPrintCommand(global_command);
+  fprintf(stderr, "\n");
+}
+
+// NOTE(Krasin): end
+
 /* Read and parse a command, returning the status of the parse.  The command
    is left in the globval variable GLOBAL_COMMAND for use by reader_loop.
    This is where the shell timeout code is executed. */
@@ -270,6 +303,10 @@ read_command ()
 
   current_command_line_count = 0;
   result = parse_command ();
+ 
+  // NOTE(krasin): debug output start
+  KrasinPrintGlobalCommand();
+  // NOTE(krasin): end of debug outout
 
   if (interactive && tmout_var && (tmout_len > 0))
     {
