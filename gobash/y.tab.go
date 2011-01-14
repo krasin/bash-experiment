@@ -3684,13 +3684,12 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
       else if ((tflags & LEX_CKCOMMENT) && (tflags & LEX_INCOMMENT) == 0 && ch == '#' && (retind == 0 || ret[retind-1] == '\n' || shellblank (ret[retind - 1])))
     tflags |= LEX_INCOMMENT;
 
-      if (tflags & LEX_PASSNEXT)        /* last char was backslash */
-    {
+      if (tflags & LEX_PASSNEXT) {        /* last char was backslash */
       tflags &= ^LEX_PASSNEXT;
-      if (qc != '\'' && ch == '\n')    /* double-quoted \<newline> disappears. */
-        {
-          if (retind > 0)
-        retind--;    /* swallow previously-added backslash */
+      if (qc != '\'' && ch == '\n') {    /* double-quoted \<newline> disappears. */
+          if (retind > 0) {
+            retind--;    /* swallow previously-added backslash */
+          }
           continue;
         }
 
@@ -3741,8 +3740,9 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
       continue;
     }
 
-      if (ch == '\\')            /* backslashes */
+      if (ch == '\\') {            /* backslashes */
     tflags |= LEX_PASSNEXT;
+      }
 
       /* Could also check open == '`' if we want to parse grouping constructs
      inside old-style command substitution. */
@@ -3752,10 +3752,11 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
         {
           /* '', ``, or "" inside $(...) or other grouping construct. */
           push_delimiter (dstack, ch);
-          if ((tflags & LEX_WASDOL) && ch == '\'')    /* $'...' inside group */
+          if ((tflags & LEX_WASDOL) && ch == '\'') {    /* $'...' inside group */
         nestret = gps.parse_matched_pair (ch, ch, ch, &nestlen, P_ALLOWESC|rflags);
-          else
+          } else {
         nestret = gps.parse_matched_pair (ch, ch, ch, &nestlen, rflags);
+          }
           pop_delimiter (dstack);
           CHECK_NESTRET_ERROR ();
 
@@ -3764,16 +3765,13 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
           /* Translate $'...' here. */
           ttrans = ansiexpand (nestret, 0, nestlen - 1, &ttranslen);
 
-          if ((rflags & P_DQUOTE) == 0)
-            {
+          if ((rflags & P_DQUOTE) == 0) {
               nestret = sh_single_quote (ttrans);
               nestlen = strlen (nestret);
-            }
-          else
-            {
+          } else {
               nestret = ttrans;
               nestlen = ttranslen;
-            }
+          }
           retind -= 2;        /* back up before the $' */
         }
           else if ((tflags & LEX_WASDOL) && ch == '"' && (extended_quote || (rflags & P_DQUOTE) == 0))
@@ -3806,8 +3804,9 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
     /* check for $(), $[], or ${} inside quoted string. */
     {
 parse_dollar_word:
-      if (open == ch)    /* undo previous increment */
+      if (open == ch) {    /* undo previous increment */
         count--;
+      }
       if (ch == '(')        /* ) */
         nestret = parse_comsub (0, '(', ')', &nestlen, (rflags|P_COMMAND) & ^P_DQUOTE);
       else if (ch == '{')        /* } */
@@ -3819,17 +3818,15 @@ parse_dollar_word:
       APPEND_NESTRET ();
 
     }
-      if (ch == '$')
-    tflags |= LEX_WASDOL;
-      else
-    tflags &= ^LEX_WASDOL;
+      if (ch == '$') {
+        tflags |= LEX_WASDOL;
+      } else {
+        tflags &= ^LEX_WASDOL;
+      }
     }
 
-  ret[retind] = '\0';
-  if (lenp)
-    *lenp = retind;
 /*itrace("parse_matched_pair[%d]: returning %s", gps.line_number, ret);*/
-  return ret;
+  return
 }
 
 func parse_comsub(qc int, open int, cloze int, flags int) (*StringBuilder, os.Error) {
