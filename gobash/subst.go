@@ -1285,8 +1285,8 @@ const WRPAREN = ')'
 /* This function assumes s[i] == open; returns with s[ret] == close; used to parse array subscripts.  FLAGS & 1 means to not
    attempt to skip over matched pairs of quotes or backquotes, or skip word expansions; it is intended to be used after expansion 
    has been performed and during final assignment parsing (see arrayfunc.c:assign_compound_array_list()). */
-static int skip_matched_pair(string, start, open, close, flags)
-	 const char *string;
+static int skip_matched_pair(str, start, open, close, flags)
+	 const char *str;
 	 int start, open, close, flags;
 {
 	int i, pass_next, backq, si, c, count;
@@ -1294,19 +1294,19 @@ static int skip_matched_pair(string, start, open, close, flags)
 	char *temp, *ss;
 	DECLARE_MBSTATE;
 
-	slen = strlen(string + start) + start;
+	slen = strlen(str + start) + start;
 	no_longjmp_on_fatal_error = 1;
 
 	i = start + 1;				/* skip over leading bracket */
 	count = 1;
 	pass_next = backq = 0;
-	ss = (char *)string;
-	while (c = string[i]) {
+	ss = (char *)str;
+	while (c = str[i]) {
 		if (pass_next) {
 			pass_next = 0;
 			if (c == 0)
 				CQ_RETURN(i);
-			ADVANCE_CHAR(string, slen, i);
+			ADVANCE_CHAR(str, slen, i);
 			continue;
 		} else if (c == '\\') {
 			pass_next = 1;
@@ -1315,7 +1315,7 @@ static int skip_matched_pair(string, start, open, close, flags)
 		} else if (backq) {
 			if (c == '`')
 				backq = 0;
-			ADVANCE_CHAR(string, slen, i);
+			ADVANCE_CHAR(str, slen, i);
 			continue;
 		} else if ((flags & 1) == 0 && c == '`') {
 			backq = 1;
@@ -1335,22 +1335,22 @@ static int skip_matched_pair(string, start, open, close, flags)
 			i = (c == '\'') ? skip_single_quoted(ss, slen, ++i)
 				: skip_double_quoted(ss, slen, ++i);
 			/* no increment, the skip functions increment past the closing quote. */
-		} else if ((flags & 1) == 0 && c == '$' && (string[i + 1] == LPAREN || string[i + 1] == LBRACE)) {
+		} else if ((flags & 1) == 0 && c == '$' && (str[i + 1] == LPAREN || str[i + 1] == LBRACE)) {
 			si = i + 2;
-			if (string[si] == '\0')
+			if (str[si] == '\0')
 				CQ_RETURN(si);
 
-			if (string[i + 1] == LPAREN)
+			if (str[i + 1] == LPAREN)
 				temp = extract_delimited_string(ss, &si, "$(", "(", ")", SX_NOALLOC | SX_COMMAND);	/* ) */
 			else
 				temp = extract_dollar_brace_string(ss, &si, 0, SX_NOALLOC);
 			i = si;
-			if (string[i] == '\0')	/* don't increment i past EOS in loop */
+			if (str[i] == '\0')	/* don't increment i past EOS in loop */
 				break;
 			i++;
 			continue;
 		} else
-			ADVANCE_CHAR(string, slen, i);
+			ADVANCE_CHAR(str, slen, i);
 	}
 
 	CQ_RETURN(i);
