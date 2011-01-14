@@ -3657,96 +3657,90 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
   start_lineno := gps.line_number;
 
   for count > 0 {
-      ch = gps.shell_getc (qc != '\'' && (tflags & LEX_PASSNEXT) == 0);
+    ch = gps.shell_getc (qc != '\'' && (tflags & LEX_PASSNEXT) == 0);
 
-      if (ch == EOF) {
-      gps.parser_error (start_lineno, "unexpected EOF while looking for matching `%c'", cloze);
-      gps.EOF_Reached = true;    /* XXX */
-      return (&matched_pair_error);
-    }
+   if (ch == EOF) {
+     gps.parser_error (start_lineno, "unexpected EOF while looking for matching `%c'", cloze);
+     gps.EOF_Reached = true;    /* XXX */
+     return (&matched_pair_error);
+   }
 
-      /* Don't bother counting parens or doing anything else if in a comment
-     or part of a case statement */
-      if tflags & LEX_INCOMMENT != 0 {
-        /* Add this character. */
+   switch {
+   /* Don't bother counting parens or doing anything else if in a comment
+      or part of a case statement */
+   case tflags & LEX_INCOMMENT != 0:
         ret.Add(ch)
 
-        if (ch == '\n') {
+        if ch == '\n' {
           tflags &= ^LEX_INCOMMENT;
         }
 
         continue;
-      }
 
       /* Not exactly right yet, should handle shell metacharacters, too.  If
      any changes are made to this test, make analogous changes to subst.c:
      extract_delimited_string(). */
-      else if ((tflags & LEX_CKCOMMENT) && (tflags & LEX_INCOMMENT) == 0 && ch == '#' && (retind == 0 || ret[retind-1] == '\n' || shellblank (ret[retind - 1])))
-    tflags |= LEX_INCOMMENT;
-
-      if (tflags & LEX_PASSNEXT) {        /* last char was backslash */
-      tflags &= ^LEX_PASSNEXT;
-      if (qc != '\'' && ch == '\n') {    /* double-quoted \<newline> disappears. */
-          if (retind > 0) {
-            retind--;    /* swallow previously-added backslash */
-          }
-          continue;
-        }
-
-      if (ch == CTLESC || ch == CTLNUL) {
-        ret.Add(CTLESC)
+    case (tflags & LEX_CKCOMMENT != 0) && (tflags & LEX_INCOMMENT) == 0 && ch == '#' && (retind == 0 || ret[retind-1] == '\n' || shellblank (ret[retind - 1])):
+      tflags |= LEX_INCOMMENT;
+  }
+  switch {
+  case tflags & LEX_PASSNEXT != 0:        /* last char was backslash */
+    tflags &= ^LEX_PASSNEXT;
+    if (qc != '\'' && ch == '\n') {    /* double-quoted \<newline> disappears. */
+      if (retind > 0) {
+        retind--;    /* swallow previously-added backslash */
       }
-      ret.Add(ch)
       continue;
     }
-      /* If we're reparsing the input (e.g., from parse_string_to_word_list),
+
+    if (ch == CTLESC || ch == CTLNUL) {
+      ret.Add(CTLESC)
+    }
+    ret.Add(ch)
+    continue;
+
+  /* If we're reparsing the input (e.g., from parse_string_to_word_list),
      we've already prepended CTLESC to single-quoted results of $'...'.
      We may want to do this for other CTLESC-quoted characters in
      reparse, too. */
-      else if ((gps.parser_state & PST_REPARSE) && open == '\'' && (ch == CTLESC || ch == CTLNUL))
-    {
-      ret.Add(ch)
-      continue;
-    }
-      else if (ch == CTLESC || ch == CTLNUL)    /* special shell escapes */
-    {
-      ret.Add(CTLESC)
-      ret.Add(ch)
-      continue;
-    }
-      else if (ch == cloze)        /* ending delimiter */
+  case (gps.parser_state & PST_REPARSE != 0) && open == '\'' && (ch == CTLESC || ch == CTLNUL):
+    ret.Add(ch)
+    continue;
+  case ch == CTLESC || ch == CTLNUL:    /* special shell escapes */
+    ret.Add(CTLESC)
+    ret.Add(ch)
+    continue;
+  case ch == cloze:        /* ending delimiter */
     count--;
       /* handle nested ${...} specially. */
-      else if (open != cloze && (tflags & LEX_WASDOL) && open == '{' && ch == open) /* } */
+  case open != cloze && (tflags & LEX_WASDOL) && open == '{' && ch == open: /* } */
     count++;
-      else if (((flags & P_FIRSTCLOSE) == 0) && ch == open)    /* nested begin */
+  case ((flags & P_FIRSTCLOSE) == 0) && ch == open:    /* nested begin */
     count++;
+  }
 
+  /* Add this character. */
+  ret.Add(ch)
 
+  /* If we just read the ending character, don't bother continuing. */
+  if (count == 0) {
+     break;
+  }
 
-
-      /* Add this character. */
-      ret.Add(ch)
-
-      /* If we just read the ending character, don't bother continuing. */
-      if (count == 0) {
-         break;
-      }
-
-      if (open == '\'') {            /* '' inside grouping construct */
-      if ((flags & P_ALLOWESC) && ch == '\\') {
-        tflags |= LEX_PASSNEXT;
-      }
-      continue;
+  if (open == '\'') {            /* '' inside grouping construct */
+    if ((flags & P_ALLOWESC) && ch == '\\') {
+      tflags |= LEX_PASSNEXT;
     }
+    continue;
+  }
 
-      if (ch == '\\') {            /* backslashes */
+  if (ch == '\\') {            /* backslashes */
     tflags |= LEX_PASSNEXT;
-      }
+  }
 
       /* Could also check open == '`' if we want to parse grouping constructs
      inside old-style command substitution. */
-      if (open != cloze)        /* a grouping construct */
+  if (open != cloze)        /* a grouping construct */
     {
       if (shellquote (ch))
         {
