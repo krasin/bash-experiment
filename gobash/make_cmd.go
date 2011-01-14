@@ -451,19 +451,19 @@ func makeRedirection(source Redirectee, instruction r_instruction, dest_and_file
 
   switch (instruction) {
 
-    case r_output_direction:		/* >foo */
-    case r_output_force:		/* >| foo */
+    case r_output_direction: fallthrough /* >foo */
+    case r_output_force: fallthrough	/* >| foo */
     case r_err_and_out:			/* &>filename */
       temp.flags = os.O_TRUNC | os.O_WRONLY | os.O_CREAT;
       break;
 
-    case r_appending_to:		/* >>foo */
+    case r_appending_to: fallthrough	/* >>foo */
     case r_append_err_and_out:		/* &>> filename */
       temp.flags = os.O_APPEND | os.O_WRONLY | os.O_CREAT;
       break;
 
-    case r_input_direction:		/* <foo */
-    case r_inputa_direction:		/* foo & makes this. */
+    case r_input_direction: fallthrough	/* <foo */
+    case r_inputa_direction: fallthrough /* foo & makes this. */
       temp.flags = os.O_RDONLY;
       break;
 
@@ -471,23 +471,23 @@ func makeRedirection(source Redirectee, instruction r_instruction, dest_and_file
       temp.flags = os.O_RDWR | os.O_CREAT;
       break;
 
-    case r_deblank_reading_until: 	/* <<-foo */
-    case r_reading_until:		/* << foo */
-    case r_reading_string:		/* <<< foo */
-    case r_close_this:			/* <&- */
-    case r_duplicating_input:		/* 1<&2 */
+    case r_deblank_reading_until: fallthrough /* <<-foo */
+    case r_reading_until: fallthrough /* << foo */
+    case r_reading_string: fallthrough	/* <<< foo */
+    case r_close_this: fallthrough	/* <&- */
+    case r_duplicating_input: fallthrough /* 1<&2 */
     case r_duplicating_output:		/* 1>&2 */
       break;
 
     /* the parser doesn't pass these. */
-    case r_move_input:			/* 1<&2- */
-    case r_move_output:			/* 1>&2- */
-    case r_move_input_word:		/* 1<&$foo- */
+    case r_move_input: fallthrough	/* 1<&2- */
+    case r_move_output:	fallthrough	/* 1>&2- */
+    case r_move_input_word: fallthrough	/* 1<&$foo- */
     case r_move_output_word:		/* 1>&$foo- */
       break;
 
     /* The way the lexer works we have to do this here. */
-    case r_duplicating_input_word:	/* 1<&$foo */
+    case r_duplicating_input_word: fallthrough	/* 1<&$foo */
     case r_duplicating_output_word:	/* 1>&$foo */
 	panic("r_duplicating_output_word: Not implemented")
 //       w = dest_and_filename.filename;
