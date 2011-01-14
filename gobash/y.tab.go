@@ -5004,6 +5004,7 @@ func (gps *ParserState) read_token_word(ch int) int {
   wts := new(wordTokenizerState)
   wts.gps = gps
   wts.character = ch
+  wts.token = NewStringBuilder()
 
   wts.all_digit_token = unicode.IsDigit(wts.character)
 
