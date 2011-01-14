@@ -463,7 +463,7 @@ func makeRedirection(source Redirectee, instruction r_instruction, dest_and_file
       break;
 
     case r_input_direction: fallthrough	/* <foo */
-    case r_inputa_direction: fallthrough /* foo & makes this. */
+    case r_inputa_direction: /* foo & makes this. */
       temp.flags = os.O_RDONLY;
       break;
 
