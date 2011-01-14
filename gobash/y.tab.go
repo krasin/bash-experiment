@@ -5124,7 +5124,7 @@ func (gps *ParserState) read_token_word(ch int) int {
   /* A word is an assignment if it appears at the beginning of a
      simple command, or after another assignment word.  This is
      context-dependent, so it cannot be handled in the grammar. */
-  if (assignment (token_word, (gps.parser_state & PST_COMPASSIGN) != 0)) {
+  if (assignment (wts.token.Runes(), (gps.parser_state & PST_COMPASSIGN) != 0) > 0) {
     wts.the_word.flags |= W_ASSIGNMENT;
       /* Don't perform word splitting on assignment statements. */
     if (gps.assignment_acceptable (gps.last_read_token) || (gps.parser_state & PST_COMPASSIGN) != 0) {
