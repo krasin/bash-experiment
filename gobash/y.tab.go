@@ -923,7 +923,12 @@ case yyreduce:
      users should not rely upon it.  Assigning to YYVAL
      unconditionally makes the parser a bit smaller, and it avoids a
      GCC warning that YYVAL may be used uninitialized.  */
-  yyval = yyvs.PeekN(1-yylen)
+  if yylen > 0 {
+    yyval = yyvs.PeekN(1-yylen)
+  } else {
+    // It's a little bit more fair
+    yyval = *new(YYSTYPE)
+  }
 
 
   switch (yyn)  {
