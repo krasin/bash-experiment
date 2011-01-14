@@ -296,6 +296,11 @@ eol_ungetc_lookahead int
 // TODO(krasin): this should go to the options.
 echo_input_at_read bool
 
+/* When non-zero, we have read the required tokens
+   which allow ESAC to be the next one read. */
+esacs_needed_count int
+
+
 } // ParserState
 
 func newParserState(bashInput BashInput) *ParserState {
@@ -3114,10 +3119,6 @@ func (gps *ParserState) yylex() int {
   return (gps.current_token);
 }
 
-///* When non-zero, we have read the required tokens
-//   which allow ESAC to be the next one read. */
-//static int esacs_needed_count;
-
 func (gps *ParserState) gather_here_documents() {
   // TODO(krasin): implement this
   panic("gather_here_documents: not implemented")
@@ -3256,106 +3257,98 @@ func (gps *ParserState) time_command_acceptable() bool {
   return false
 }
 
-///* Handle special cases of token recognition:
-//	IN is recognized if the last token was WORD and the token
-//	before that was FOR or CASE or SELECT.
-//
-//	DO is recognized if the last token was WORD and the token
-//	before that was FOR or SELECT.
-//
-//	ESAC is recognized if the last token caused `esacs_needed_count'
-//	to be set
-//
-//	`{' is recognized if the last token as WORD and the token
-//	before that was FUNCTION, or if we just parsed an arithmetic
-//	`for' command.
-//
-//	`}' is recognized if there is an unclosed `{' present.
-//
-//	`-p' is returned as TIMEOPT if the last read token was TIME.
-//
-//	']]' is returned as COND_END if the parser is currently parsing
-//	a conditional expression ((gps.parser_state & PST_CONDEXPR) != 0)
-//
-//	`time' is returned as TIME if and only if it is immediately
-//	preceded by one of `;', `\n', `||', `&&', or `&'.
-//*/
-//
-func (gps *ParserState) special_case_tokens(tokstr string) int {
-  // TODO(krasin): implement this
-  panic("ParserState.special_case_tokens: not implemented")
-}
+/* Handle special cases of token recognition:
+	IN is recognized if the last token was WORD and the token
+	before that was FOR or CASE or SELECT.
 
-//static int
-//special_case_tokens (tokstr)
-//     char *tokstr;
-//{
-//  if ((gps.last_read_token == WORD) &&
-//      ((gps.token_before_that == FOR) || (gps.token_before_that == CASE) || (gps.token_before_that == SELECT)) &&
-//      (tokstr[0] == 'i' && tokstr[1] == 'n' && tokstr[2] == 0)) {
-//      if (gps.token_before_that == CASE) {
-//	  gps.parser_state |= PST_CASEPAT;
-//	  esacs_needed_count++;
-//	}
-//      return (IN);
-//    }
-//
-//  if (gps.last_read_token == WORD &&
-//      (gps.token_before_that == FOR || gps.token_before_that == SELECT) &&
-//      (tokstr[0] == 'd' && tokstr[1] == 'o' && tokstr[2] == '\0')) {
-//    return (DO);
-//  }
-//
-//  /* Ditto for ESAC in the CASE case.
-//     Specifically, this handles "case word in esac", which is a legal
-//     construct, certainly because someone will pass an empty arg to the
-//     case construct, and we don't want it to barf.  Of course, we should
-//     insist that the case construct has at least one pattern in it, but
-//     the designers disagree. */
-//  if (esacs_needed_count) {
-//      esacs_needed_count--;
-//      if (STREQ (tokstr, "esac")) {
-//	  gps.parser_state &= ^PST_CASEPAT;
-//	  return (ESAC);
-//	}
-//    }
-//
-//  /* The start of a shell function definition. */
-//  if (gps.parser_state & PST_ALLOWOPNBRC) {
-//      gps.parser_state &= ^PST_ALLOWOPNBRC;
-//      if (tokstr[0] == '{' && tokstr[1] == '\0') {		/* } */
-//	  gps.open_brace_count++;
-//	  gps.function_bstart = gps.line_number;
-//	  return ('{');					/* } */
-//	}
-//    }
-//
-//  /* We allow a `do' after a for ((...)) without an intervening
-//     list_terminator */
-//  if (gps.last_read_token == ARITH_FOR_EXPRS && tokstr[0] == 'd' && tokstr[1] == 'o' && !tokstr[2]) {
-//    return (DO);
-//  }
-//  if (gps.last_read_token == ARITH_FOR_EXPRS && tokstr[0] == '{' && tokstr[1] == '\0') {	/* } */
-//      gps.open_brace_count++;
-//      return ('{');			/* } */
-//    }
-//
-//  if (gps.open_brace_count && reserved_word_acceptable (gps.last_read_token) && tokstr[0] == '}' && !tokstr[1]) {
-//      gps.open_brace_count--;		/* { */
-//      return ('}');
-//    }
-//
-//  /* Handle -p after `time'. */
-//  if (gps.last_read_token == TIME && tokstr[0] == '-' && tokstr[1] == 'p' && !tokstr[2]) {
-//    return (TIMEOPT);
-//  }
-//
-//  if ((gps.parser_state & PST_CONDEXPR) && tokstr[0] == ']' && tokstr[1] == ']' && tokstr[2] == '\0') {
-//    return (COND_END);
-//  }
-//
-//  return (-1);
-//}
+	DO is recognized if the last token was WORD and the token
+	before that was FOR or SELECT.
+
+	ESAC is recognized if the last token caused `esacs_needed_count'
+	to be set
+
+	`{' is recognized if the last token as WORD and the token
+	before that was FUNCTION, or if we just parsed an arithmetic
+	`for' command.
+
+	`}' is recognized if there is an unclosed `{' present.
+
+	`-p' is returned as TIMEOPT if the last read token was TIME.
+
+	']]' is returned as COND_END if the parser is currently parsing
+	a conditional expression ((gps.parser_state & PST_CONDEXPR) != 0)
+
+	`time' is returned as TIME if and only if it is immediately
+	preceded by one of `;', `\n', `||', `&&', or `&'.
+*/
+
+func (gps *ParserState) special_case_tokens(tokstr string) int {
+  if (gps.last_read_token == WORD) &&
+      ((gps.token_before_that == FOR) || (gps.token_before_that == CASE) || (gps.token_before_that == SELECT)) &&
+      (tokstr == "in") {
+      if (gps.token_before_that == CASE) {
+	    gps.parser_state |= PST_CASEPAT;
+	    gps.esacs_needed_count++;
+	  }
+      return (IN);
+  }
+
+  if gps.last_read_token == WORD &&
+      (gps.token_before_that == FOR || gps.token_before_that == SELECT) &&
+      (tokstr == "do") {
+    return (DO);
+  }
+
+  /* Ditto for ESAC in the CASE case.
+     Specifically, this handles "case word in esac", which is a legal
+     construct, certainly because someone will pass an empty arg to the
+     case construct, and we don't want it to barf.  Of course, we should
+     insist that the case construct has at least one pattern in it, but
+     the designers disagree. */
+  if (gps.esacs_needed_count > 0) {
+      gps.esacs_needed_count--;
+      if tokstr == "esac" {
+	    gps.parser_state &= ^PST_CASEPAT;
+	    return (ESAC);
+	  }
+  }
+
+  /* The start of a shell function definition. */
+  if (gps.parser_state & PST_ALLOWOPNBRC) != 0 {
+      gps.parser_state &= ^PST_ALLOWOPNBRC;
+      if tokstr == "{" {		/* } */
+	    gps.open_brace_count++;
+	    gps.function_bstart = gps.line_number;
+	    return ('{');					/* } */
+	  }
+  }
+
+  /* We allow a `do' after a for ((...)) without an intervening
+     list_terminator */
+  if gps.last_read_token == ARITH_FOR_EXPRS && tokstr == "do" {
+    return (DO);
+  }
+  if gps.last_read_token == ARITH_FOR_EXPRS && tokstr == "{" { /* } */
+      gps.open_brace_count++;
+      return ('{');			/* } */
+  }
+
+  if gps.open_brace_count > 0 && reserved_word_acceptable (gps.last_read_token) && tokstr == "}" {
+      gps.open_brace_count--;		/* { */
+      return ('}');
+  }
+
+  /* Handle -p after `time'. */
+  if gps.last_read_token == TIME && tokstr == "-p" {
+    return (TIMEOPT);
+  }
+
+  if (gps.parser_state & PST_CONDEXPR) != 0 && tokstr == "]]" {
+    return (COND_END);
+  }
+
+  return (-1);
+}
 //
 /* Called from shell.c when Control-C is typed at top level.  Or
    by the error rule at top level. */
