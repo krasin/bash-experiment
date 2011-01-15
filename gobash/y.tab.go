@@ -4438,58 +4438,59 @@ func (gps *ParserState) cond_term() *CondCom {
   case tok == '(':
     term = gps.cond_expr ();
     if gps.cond_token != ')' {
-      if term != 0
+      if term != 0 {
         dispose_cond_node (term);        /* ( */
-      if (etext = error_token_from_token (gps.cond_token))
-        {
+      }
+      if etext = error_token_from_token (gps.cond_token) {
           gps.parser_error (lineno, ("unexpected token `%s', expected `)'"), etext);
-        }
-      else
+      } else {
         gps.parser_error (lineno, ("expected `)'"));
+      }
       COND_RETURN_ERROR ();
     }
     term = make_cond_node (COND_EXPR, nil, term, nil);
-    (void)cond_skip_newlines ();
-  case tok == BANG || (tok == WORD && (gps.yylval.word.word[0] == '!' && gps.yylval.word.word[1] == '\0')):
-      if (tok == WORD)
-    dispose_word (gps.yylval.word);    /* not needed */
-      term = cond_term ();
-      if term != 0
-    term.flags |= CMD_INVERT_RETURN;
-  case tok == WORD && gps.yylval.word.word[0] == '-' && gps.yylval.word.word[2] == 0 && test_unop (gps.yylval.word.word):
-      op = gps.yylval.word;
-      tok = read_token (READ);
-      if (tok == WORD)
-    {
+    cond_skip_newlines ();
+  case tok == BANG || (tok == WORD && gps.yylval.word.word == "!"):
+    if tok == WORD {
+      dispose_word (gps.yylval.word);    /* not needed */
+    }
+    term = cond_term ();
+    if term != 0 {
+      term.flags |= CMD_INVERT_RETURN;
+    }
+  case tok == WORD && gps.yylval.word.word[0] == '-' && len(gps.yylval.word.word) == 2 && test_unop (gps.yylval.word.word):
+    op = gps.yylval.word;
+    tok = read_token (READ);
+    if tok == WORD {
       tleft = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
       term = make_cond_node (COND_UNARY, op, tleft, nil);
-    }
-      else
-    {
+    } else {
       dispose_word (op);
-      if (etext = error_token_from_token (tok))
-        {
+      etext := error_token_from_token(token)
+      if etext != "" {
           gps.parser_error (gps.line_number, ("unexpected argument `%s' to conditional unary operator"), etext);
-        }
-      else
+      } else {
         gps.parser_error (gps.line_number, ("unexpected argument to conditional unary operator"));
+      }
       COND_RETURN_ERROR ();
     }
 
-      (void)cond_skip_newlines ();
+    cond_skip_newlines ();
   case tok == WORD:        /* left argument to binary operator */
-      /* lhs */
-      tleft = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
+    /* lhs */
+    tleft = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
 
-      /* binop */
-      tok = read_token (READ);
-      if (tok == WORD && test_binop (gps.yylval.word.word))
-    {
+    /* binop */
+    tok = read_token (READ);
+    if tok == WORD && test_binop (gps.yylval.word.word) {
       op = gps.yylval.word;
-      if (op.word[0] == '=' && (op.word[1] == '\0' || (op.word[1] == '=' && op.word[2] == '\0')))
+      switch op.word {
+      case "=": fallthrough
+      case "==":
         gps.parser_state |= PST_EXTPAT;
-      else if (op.word[0] == '!' && op.word[1] == '=' && op.word[2] == '\0')
-        gps.parser_state |= PST_EXTPAT;
+      case "!=":
+          gps.parser_state |= PST_EXTPAT;
+      }
     }
       else if (tok == WORD && STREQ (gps.yylval.word.word, "=~"))
     {
