@@ -4449,7 +4449,7 @@ func (gps *ParserState) cond_term() *CondCom {
       return nil
     }
     term = make_cond_node (COND_EXPR, nil, term, nil);
-    cond_skip_newlines ();
+    gps.cond_skip_newlines ();
   case tok == BANG || (tok == WORD && gps.yylval.word.word == "!"):
     term = cond_term ();
     if term != nil {
@@ -4472,7 +4472,7 @@ func (gps *ParserState) cond_term() *CondCom {
       gps.cond_token = COND_ERROR
       return nil
     }
-    cond_skip_newlines ();
+    gps.cond_skip_newlines ();
   case tok == WORD:        /* left argument to binary operator */
     /* lhs */
     tleft = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
@@ -4540,7 +4540,7 @@ func (gps *ParserState) cond_term() *CondCom {
       return nil
     }
 
-    cond_skip_newlines ();
+    gps.cond_skip_newlines ();
   default:
     if tok < 256 {
       gps.parser_error (gps.line_number, ("unexpected token `%c' in conditional command"), tok);
