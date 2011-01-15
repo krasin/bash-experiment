@@ -4482,7 +4482,8 @@ func (gps *ParserState) cond_term() *CondCom {
 
     /* binop */
     tok = read_token (READ);
-    if tok == WORD && test_binop (gps.yylval.word.word) {
+    switch {
+    case tok == WORD && test_binop (gps.yylval.word.word):
       op = gps.yylval.word;
       switch op.word {
       case "=": fallthrough
@@ -4491,18 +4492,14 @@ func (gps *ParserState) cond_term() *CondCom {
       case "!=":
           gps.parser_state |= PST_EXTPAT;
       }
-    }
-      else if (tok == WORD && STREQ (gps.yylval.word.word, "=~"))
-    {
+    case tok == WORD && STREQ (gps.yylval.word.word, "=~"):
       op = gps.yylval.word;
       gps.parser_state |= PST_REGEXP;
-    }
-      else if (tok == '<' || tok == '>')
-    op = make_word_from_token (tok);  /* ( */
+    case tok == '<' || tok == '>':
+      op = make_word_from_token (tok);  /* ( */
       /* There should be a check before blindly accepting the `)' that we have
-     seen the opening `('. */
-      else if (tok == COND_END || tok == AND_AND || tok == OR_OR || tok == ')')
-    {
+         seen the opening `('. */
+    case tok == COND_END || tok == AND_AND || tok == OR_OR || tok == ')':
       /* Special case.  [[ x ]] is equivalent to [[ -n x ]], just like
          the test command.  Similarly for [[ x && expr ]] or
          [[ x || expr ]] or [[ (x) ]]. */
@@ -4510,22 +4507,21 @@ func (gps *ParserState) cond_term() *CondCom {
       term = make_cond_node (COND_UNARY, op, tleft, nil);
       gps.cond_token = tok;
       return term;
-    }
-      else
-    {
-      if (etext = error_token_from_token (tok))
-        {
+    default:
+      etext := error_token_from_token(tok)
+      if etext != "" {
           gps.parser_error (gps.line_number, ("unexpected token `%s', conditional binary operator expected"), etext);
-        }
-      else
+      } else {
         gps.parser_error (gps.line_number, ("conditional binary operator expected"));
+      }
       dispose_cond_node (tleft);
       COND_RETURN_ERROR ();
     }
 
-      /* rhs */
-      if (gps.parser_state & PST_EXTPAT)
-    gps.extended_glob = 1;
+    /* rhs */
+    if (gps.parser_state & PST_EXTPAT) {
+      gps.extended_glob = 1;
+    }
       tok = read_token (READ);
       if (gps.parser_state & PST_EXTPAT)
     gps.extended_glob = gps.global_extglob;
