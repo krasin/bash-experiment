@@ -261,6 +261,10 @@ type Redirectee struct {
   filename *word_desc /* filename to redirect to. */
 }
 
+func (redir Redirectee) String() string {
+  return fmt.Sprintf("dest:%d", redir.dest)
+}
+
 /* Structure describing a redirection.  If REDIRECTOR is negative, the parser
    (or translator in redir.c) encountered an out-of-range file descriptor. */
 type Redirect struct {
@@ -271,6 +275,14 @@ type Redirect struct {
   instruction r_instruction /* What to do with the information. */
   redirectee Redirectee /* File descriptor or filename */
   here_doc_eof string /* The word that appeared in <<foo. */
+}
+
+func (redir *Redirect) String() string {
+  if redir == nil {
+    return "nil"
+  }
+  return fmt.Sprintf("redirector:{%v}\nrflags:%d\nflags:%d\ninstruction:%v\nredirectee:{%v}",
+                     redir.redirector, redir.rflags, redir.flags, redir.instruction, redir.redirectee)
 }
 
 /* An element used in parsing.  A single word or a single redirection.
@@ -505,12 +517,18 @@ func (cmd *SimpleCom) String() string {
 		return "nil"
 	}
 	b := new(bytes.Buffer)
-        fmt.Fprintf(b, "%d: ", cmd.line)
+        fmt.Fprintf(b, "%d: words:", cmd.line)
 	cur := cmd.words
 	for cur != nil {
 		fmt.Fprintf(b, "%v ", cur.word)
 		cur = cur.next
 	}
+        fmt.Fprintf(b, "redirects:")
+        redir := cmd.redirects
+        for redir != nil {
+                fmt.Fprintf(b, "{%v}\n", redir)
+		redir = redir.next
+        }
 	return string(b.Bytes())
 }
 
