@@ -554,7 +554,6 @@ func (gps *ParserState) make_function_def(name *word_desc, command *Command, lin
 func (gps *ParserState) make_subshell_command(command *Command) *Command {
   temp := new(SubshellCom)
   temp.command = command;
-  temp.flags = CMD_WANT_SUBSHELL;
   return gps.make_command(cm_subshell, temp)
 }
 
@@ -562,7 +561,6 @@ func (gps *ParserState) make_coproc_command(name string, command *Command) *Comm
   temp := new(CoprocCom)
   temp.name = name
   temp.command = command;
-  temp.flags = CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
   return gps.make_command(cm_coproc, temp)
 }
 
