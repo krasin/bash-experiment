@@ -237,6 +237,33 @@ parse_command ()
 
 void KrasinPrintCommand(COMMAND *cmd);
 
+void KrasinPrintCondCom(COND_COM *val) {
+  if (!val) {
+    fprintf(stderr, "nil");
+    return;
+  }
+  fprintf(stderr, "%d: flags:%d\ntyp:%d\nop:", val->line, val->flags, val->type);
+  KrasinPrintWordDesc(val->op);
+  fprintf(stderr, "\nleft:{");
+  KrasinPrintCondCom(val->left);
+  fprintf(stderr, "}\nright:{");
+  KrasinPrintCondCom(val->right);
+  fprintf(stderr, "}");
+}
+
+void KrasinPrintIfCom(IF_COM *val) {
+  if (!val) {
+    fprintf(stderr, "nil");
+    return;
+  }
+  fprintf(stderr, "flags:%d\ntest:", val->flags);
+  KrasinPrintCommand(val->test);
+  fprintf(stderr, "\ntrue_case:");
+  KrasinPrintCommand(val->true_case);
+  fprintf(stderr, "\nfalse_case:");
+  KrasinPrintCommand(val->false_case);
+}
+
 void KrasinPrintConnection(CONNECTION *val) {
   if (!val) {
     fprintf(stderr, "nil");
@@ -296,6 +323,14 @@ void KrasinPrintCommand(COMMAND *cmd) {
     case cm_subshell:
       fprintf(stderr, "SUBSHELL{");
       KrasinPrintSubshell(cmd->value.Subshell);
+      break;
+    case cm_if:
+      fprintf(stderr, "IF{");
+      KrasinPrintIfCom(cmd->value.If);
+      break;
+    case cm_cond:
+      fprintf(stderr, "COND{");
+      KrasinPrintCondCom(cmd->value.Cond);
       break;
     default:
       fprintf(stderr, "%d {", cmd->type);
