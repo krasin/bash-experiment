@@ -6,6 +6,46 @@ import (
 	"fmt"
 )
 
+const NO_PIPE = -1
+const REDIRECT_BOTH = -2
+
+const NO_VARIABLE = -1
+
+/* Values that can be returned by execute_command (). */
+const EXECUTION_FAILURE = 1
+const EXECUTION_SUCCESS = 0
+
+/* Usage messages by builtins result in a return status of 2. */
+const EX_BADUSAGE = 2
+
+/* Special exit statuses used by the shell, internally and externally. */
+const EX_RETRYFAIL = 124
+const EX_WEXPCOMSUB = 125
+const EX_BINARY_FILE = 126
+const EX_NOEXEC = 126
+const EX_NOINPUT = 126
+const EX_NOTFOUND = 127
+
+const EX_SHERRBASE = 256 /* all special error values are > this. */
+
+const EX_BADSYNTAX = 257 /* shell syntax error */
+const EX_USAGE = 258 /* syntax error in usage */
+const EX_REDIRFAIL = 259 /* redirection failed */
+const EX_BADASSIGN = 260 /* variable assignment error */
+const EX_EXPFAIL = 261 /* word expansion failed */
+
+/* Flag values that control parameter pattern substitution. */
+const MATCH_ANY = 0x000
+const MATCH_BEG = 0x001
+const MATCH_END = 0x002
+
+const MATCH_TYPEMASK = 0x003
+
+const MATCH_GLOBREP = 0x010
+const MATCH_QUOTED = 0x020
+const MATCH_STARSUB = 0x040
+
+
 type ShellState struct {
 	gps   *ParserState
 	input BashInput
