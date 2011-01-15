@@ -4451,7 +4451,7 @@ func (gps *ParserState) cond_term() *CondCom {
     term = make_cond_node (COND_EXPR, nil, term, nil);
     gps.cond_skip_newlines ();
   case tok == BANG || (tok == WORD && gps.yylval.word.word == "!"):
-    term = cond_term ();
+    term = gps.cond_term ();
     if term != nil {
       term.flags |= CMD_INVERT_RETURN;
     }
@@ -4481,7 +4481,7 @@ func (gps *ParserState) cond_term() *CondCom {
     tok = gps.read_token (READ);
     switch {
     case tok == WORD && test_binop (gps.yylval.word.word):
-      op = gps.yylval.word;
+      op := gps.yylval.word;
       switch op.word {
       case "=": fallthrough
       case "==":
@@ -4489,18 +4489,18 @@ func (gps *ParserState) cond_term() *CondCom {
       case "!=":
           gps.parser_state |= PST_EXTPAT;
       }
-    case tok == WORD && STREQ (gps.yylval.word.word, "=~"):
-      op = gps.yylval.word;
+    case tok == WORD && gps.yylval.word.word == "=~":
+      op := gps.yylval.word;
       gps.parser_state |= PST_REGEXP;
     case tok == '<' || tok == '>':
-      op = make_word_from_token (tok);  /* ( */
+      op := make_word_from_token (tok);  /* ( */
       /* There should be a check before blindly accepting the `)' that we have
          seen the opening `('. */
     case tok == COND_END || tok == AND_AND || tok == OR_OR || tok == ')':
       /* Special case.  [[ x ]] is equivalent to [[ -n x ]], just like
          the test command.  Similarly for [[ x && expr ]] or
          [[ x || expr ]] or [[ (x) ]]. */
-      op = make_word ("-n");
+      op := make_word ("-n");
       term = make_cond_node (COND_UNARY, op, tleft, nil);
       gps.cond_token = tok;
       return term;
@@ -4517,7 +4517,7 @@ func (gps *ParserState) cond_term() *CondCom {
 
     /* rhs */
     if gps.parser_state & PST_EXTPAT != 0 {
-      gps.extended_glob = 1;
+      gps.extended_glob = true
     }
     tok = gps.read_token (READ);
     if gps.parser_state & PST_EXTPAT != 0 {
