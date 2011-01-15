@@ -189,6 +189,19 @@ type word_list struct {
   word *word_desc
 }
 
+func (list *word_list) Join(sep string) *StringBuilder {
+  sb := NewStringBuilder()
+  cur := list
+  for cur != nil {
+    sb.AppendString(cur.word.word)
+    if cur.next != nil {
+      sb.AppendString(sep)
+    }
+    cur = cur.next
+  }
+  return sb
+}
+
 func reverseWordList(list *word_list) *word_list {
 	var prev *word_list
 
@@ -200,6 +213,7 @@ func reverseWordList(list *word_list) *word_list {
 	}
 	return prev;
 }
+
 
 func reverseRedirectList(list *Redirect) *Redirect {
 	var prev *Redirect
