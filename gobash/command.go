@@ -477,6 +477,13 @@ type CondCom struct {
   right *CondCom
 }
 
+func (cmd *CondCom) String() string {
+  if cmd == nil {
+    return "nil"
+  }
+  return fmt.Sprintf("%d: flags:%d\ntyp:%d\nop:%v\nleft:{%v}\nright:{%v}", cmd.line, cmd.flags, cmd.typ, cmd.op, cmd.left, cmd.right)
+}
+
 /* The "simple" command.  Just a collection of words and redirects. */
 type SimpleCom struct {
   flags int /* See description of CMD flags. */
