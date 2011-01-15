@@ -6,3 +6,4 @@ echo 'lala\tto'
 echo 'multiline
 constant'
 echo 2+3
+echo $[2+3]
