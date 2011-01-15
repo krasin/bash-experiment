@@ -235,6 +235,19 @@ parse_command ()
 
 // NOTE(Krasin): begin
 
+void KrasinPrintCommand(COMMAND *cmd);
+
+void KrasinPrintConnection(CONNECTION *val) {
+  if (!val) {
+    fprintf(stderr, "nil");
+    return;
+  }
+  fprintf(stderr, "connector:%d\nfirst: ", val->connector);
+  KrasinPrintCommand(val->first);
+  fprintf(stderr, "\nsecond: ");
+  KrasinPrintCommand(val->second);
+}
+
 void KrasinPrintWordDesc(WORD_DESC *word) {
   if (!word) {
     fprintf(stderr, "{nil}");
@@ -266,6 +279,10 @@ void KrasinPrintCommand(COMMAND *cmd) {
     case cm_simple: 
       fprintf(stderr, "SIMPLE{");
       KrasinPrintSimple(cmd->value.Simple);
+      break;
+    case cm_connection:
+      fprintf(stderr, "CONNECTION{");
+      KrasinPrintConnection(cmd->value.Connection);
       break;
     default:
       fprintf(stderr, "%d {", cmd->type);
