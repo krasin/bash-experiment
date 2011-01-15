@@ -511,52 +511,48 @@ const EF = 2
 //	/* We can't actually get here, but this shuts up gcc. */
 //	return (FALSE);
 //}
-//
-///* Return TRUE if OP is one of the test command's binary operators. */
-//int test_binop(op)
-//	 char *op;
-//{
-//	if (op[0] == '=' && op[1] == '\0')
-//		return (1);				/* '=' */
-//	else if ((op[0] == '<' || op[0] == '>') && op[1] == '\0')	/* string <, > */
-//		return (1);
-//	else if ((op[0] == '=' || op[0] == '!') && op[1] == '=' && op[2] == '\0')
-//		return (1);				/* `==' and `!=' */
-//#if defined (PATTERN_MATCHING)
-//	else if (op[2] == '\0' && op[1] == '~' && (op[0] == '=' || op[0] == '!'))
-//		return (1);
-//#endif
-//	else if (op[0] != '-' || op[2] == '\0' || op[3] != '\0')
-//		return (0);
-//	else {
-//		if (op[2] == 't')
-//			switch (op[1]) {
-//			case 'n':			/* -nt */
-//			case 'o':			/* -ot */
-//			case 'l':			/* -lt */
-//			case 'g':			/* -gt */
-//				return (1);
-//			default:
-//				return (0);
-//		} else if (op[1] == 'e')
-//			switch (op[2]) {
-//			case 'q':			/* -eq */
-//			case 'f':			/* -ef */
-//				return (1);
-//			default:
-//				return (0);
-//		} else if (op[2] == 'e')
-//			switch (op[1]) {
-//			case 'n':			/* -ne */
-//			case 'g':			/* -ge */
-//			case 'l':			/* -le */
-//				return (1);
-//			default:
-//				return (0);
-//		} else
-//			return (0);
-//	}
-//}
+
+/* Return TRUE if OP is one of the test command's binary operators. */
+func test_binop(op string) bool {
+	if (op[0] == '=' && op[1] == '\0')
+		return (1);				/* '=' */
+	else if ((op[0] == '<' || op[0] == '>') && op[1] == '\0')	/* string <, > */
+		return (1);
+	else if ((op[0] == '=' || op[0] == '!') && op[1] == '=' && op[2] == '\0')
+		return (1);				/* `==' and `!=' */
+	else if (op[2] == '\0' && op[1] == '~' && (op[0] == '=' || op[0] == '!'))
+		return (1);
+	else if (op[0] != '-' || op[2] == '\0' || op[3] != '\0')
+		return (0);
+	else {
+		if (op[2] == 't')
+			switch (op[1]) {
+			case 'n':			/* -nt */
+			case 'o':			/* -ot */
+			case 'l':			/* -lt */
+			case 'g':			/* -gt */
+				return (1);
+			default:
+				return (0);
+		} else if (op[1] == 'e')
+			switch (op[2]) {
+			case 'q':			/* -eq */
+			case 'f':			/* -ef */
+				return (1);
+			default:
+				return (0);
+		} else if (op[2] == 'e')
+			switch (op[1]) {
+			case 'n':			/* -ne */
+			case 'g':			/* -ge */
+			case 'l':			/* -le */
+				return (1);
+			default:
+				return (0);
+		} else
+			return (0);
+	}
+}
 
 /* Return non-zero if OP is one of the test command's unary operators. */
 func test_unop(op string) bool {
