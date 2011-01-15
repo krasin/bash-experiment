@@ -521,6 +521,13 @@ type SubshellCom struct {
   command *Command
 }
 
+func (cmd *SubshellCom) String() string {
+  if cmd == nil {
+    return "nil"
+  }
+  return fmt.Sprintf("flags:%d,\ncommand: %v", cmd.flags, cmd.command)
+}
+
 const COPROC_RUNNING = 0x01
 const COPROC_DEAD = 0x02
 
