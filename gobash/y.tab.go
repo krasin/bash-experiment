@@ -4592,32 +4592,18 @@ func (gps *ParserState) parse_cond_command() *Command {
   return gps.make_cond_command(cexp)
 }
 
-func token_is_assignment(t *StringBuilder) bool {
-  // TODO(krasin): implement this
-  panic("token_is_assignment: not implemented")
-}
-
 func token_is_ident(t *StringBuilder) bool {
   // TODO(krasin): implement this
   panic("token_is_ident: not implemented")
 }
-///* When this is called, it's guaranteed that we don't care about anything
-//   in t beyond i.  We do save and restore the chars, though. */
-//static int
-//token_is_assignment (t, i)
-//     char *t;
-//     int i;
-//{
-//  unsigned char c, c1;
-//  int r;
-//
-//  c = t[i]; c1 = t[i+1];
-//  t[i] = '='; t[i+1] = '\0';
-//  r = assignment (t, (gps.parser_state & PST_COMPASSIGN) != 0);
-//  t[i] = c; t[i+1] = c1;
-//  return r;
-//}
-//
+
+func (gps *ParserState) token_is_assignment(t *StringBuilder) bool {
+  t.Add('=')
+  r := assignment(t.Runes(), (gps.parser_state & PST_COMPASSIGN) != 0)
+  t.Backspace(1)
+  return r > 0
+}
+
 ///* XXX - possible changes here for `+=' */
 //static int
 //token_is_ident (t, i)
@@ -4898,7 +4884,7 @@ func (wts *wordTokenizerState) handleShellExp() readTokenWordState {
     return RTS_NEXT_CHARACTER
 
       /* Identify possible compound array variable assignment. */
-  case (wts.character == '=' && wts.token.Len() > 0 && (wts.gps.assignment_acceptable (wts.gps.last_read_token) || (wts.gps.parser_state & PST_ASSIGNOK != 0)) && token_is_assignment (wts.token)):
+  case (wts.character == '=' && wts.token.Len() > 0 && (wts.gps.assignment_acceptable (wts.gps.last_read_token) || (wts.gps.parser_state & PST_ASSIGNOK != 0)) && wts.gps.token_is_assignment (wts.token)):
     wts.peek_char = wts.gps.shell_getc (true)
     if (wts.peek_char == '(') {        /* ) */
       wts.ttok = parse_compound_assignment()
