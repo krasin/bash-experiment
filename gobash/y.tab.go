@@ -4427,6 +4427,7 @@ func (gps *ParserState) cond_skip_newlines() int {
 
 func (gps *ParserState) cond_term() *CondCom {
   var term, tleft, tright *CondCom
+  var op *word_desc
   /* Read a token.  It can be a left paren, a `!', a unary operator, or a
      word that should be the first argument of a binary operator.  Start by
      skipping newlines, since this is a compound command. */
@@ -4448,7 +4449,7 @@ func (gps *ParserState) cond_term() *CondCom {
       gps.cond_token = COND_ERROR
       return nil
     }
-    term = make_cond_node (COND_EXPR, nil, term, nil);
+    term = gps.make_cond_node (COND_EXPR, nil, term, nil);
     gps.cond_skip_newlines ();
   case tok == BANG || (tok == WORD && gps.yylval.word.word == "!"):
     term = gps.cond_term ();
@@ -4456,11 +4457,11 @@ func (gps *ParserState) cond_term() *CondCom {
       term.flags |= CMD_INVERT_RETURN;
     }
   case tok == WORD && gps.yylval.word.word[0] == '-' && len(gps.yylval.word.word) == 2 && test_unop (gps.yylval.word.word):
-    op := gps.yylval.word;
+    op = gps.yylval.word;
     tok = gps.read_token (READ);
     if tok == WORD {
-      tleft = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
-      term = make_cond_node (COND_UNARY, op, tleft, nil);
+      tleft = gps.make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
+      term = gps.make_cond_node (COND_UNARY, op, tleft, nil);
     } else {
 
       etext := error_token_from_token(token)
@@ -4475,13 +4476,13 @@ func (gps *ParserState) cond_term() *CondCom {
     gps.cond_skip_newlines ();
   case tok == WORD:        /* left argument to binary operator */
     /* lhs */
-    tleft = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
+    tleft = gps.make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
 
     /* binop */
     tok = gps.read_token (READ);
     switch {
     case tok == WORD && test_binop (gps.yylval.word.word):
-      op := gps.yylval.word;
+      op = gps.yylval.word;
       switch op.word {
       case "=": fallthrough
       case "==":
@@ -4490,18 +4491,18 @@ func (gps *ParserState) cond_term() *CondCom {
           gps.parser_state |= PST_EXTPAT;
       }
     case tok == WORD && gps.yylval.word.word == "=~":
-      op := gps.yylval.word;
+      op = gps.yylval.word;
       gps.parser_state |= PST_REGEXP;
     case tok == '<' || tok == '>':
-      op := make_word_from_token (tok);  /* ( */
+      op = make_word_from_token (tok);  /* ( */
       /* There should be a check before blindly accepting the `)' that we have
          seen the opening `('. */
     case tok == COND_END || tok == AND_AND || tok == OR_OR || tok == ')':
       /* Special case.  [[ x ]] is equivalent to [[ -n x ]], just like
          the test command.  Similarly for [[ x && expr ]] or
          [[ x || expr ]] or [[ (x) ]]. */
-      op := make_word ("-n");
-      term = make_cond_node (COND_UNARY, op, tleft, nil);
+      op = make_word ("-n");
+      term = gps.make_cond_node (COND_UNARY, op, tleft, nil);
       gps.cond_token = tok;
       return term;
     default:
@@ -4526,8 +4527,8 @@ func (gps *ParserState) cond_term() *CondCom {
     gps.parser_state &= ^(PST_REGEXP|PST_EXTPAT);
 
     if tok == WORD {
-      tright = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
-      term = make_cond_node (COND_BINARY, op, tleft, tright);
+      tright = gps.make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
+      term = gps.make_cond_node (COND_BINARY, op, tleft, tright);
     } else {
       etext := error_token_from_token(tok)
       if etext != "" {
