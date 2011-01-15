@@ -4592,11 +4592,6 @@ func (gps *ParserState) parse_cond_command() *Command {
   return gps.make_cond_command(cexp)
 }
 
-func token_is_ident(t *StringBuilder) bool {
-  // TODO(krasin): implement this
-  panic("token_is_ident: not implemented")
-}
-
 func (gps *ParserState) token_is_assignment(t *StringBuilder) bool {
   t.Add('=')
   r := assignment(t.Runes(), (gps.parser_state & PST_COMPASSIGN) != 0)
@@ -4604,22 +4599,10 @@ func (gps *ParserState) token_is_assignment(t *StringBuilder) bool {
   return r > 0
 }
 
-///* XXX - possible changes here for `+=' */
-//static int
-//token_is_ident (t, i)
-//     char *t;
-//     int i;
-//{
-//  unsigned char c;
-//  int r;
-//
-//  c = t[i];
-//  t[i] = '\0';
-//  r = legal_identifier (t);
-//  t[i] = c;
-//  return r;
-//}
-//
+/* XXX - possible changes here for `+=' */
+func token_is_ident(t *StringBuilder) bool {
+  return legal_identifier(t.String())
+}
 
 type wordTokenizerState struct {
   gps *ParserState
