@@ -44,7 +44,9 @@ func (sh *ShellState) readerLoop() int {
 }
 
 func (sh *ShellState) shutdown() {
-	sh.input.Close()
+	if sh.input != nil {
+		sh.input.Close()
+        }
 }
 
 func (sh *ShellState) fatal(msg string) int {
