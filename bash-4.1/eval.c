@@ -248,6 +248,15 @@ void KrasinPrintConnection(CONNECTION *val) {
   KrasinPrintCommand(val->second);
 }
 
+void KrasinPrintSubshell(SUBSHELL_COM *val) {
+  if (!val) {
+    fprintf(stderr, "nil");
+    return;
+  }
+  fprintf(stderr, "flags:%d\ncommand: ", val->flags);
+  KrasinPrintCommand(val->command);
+}
+
 void KrasinPrintWordDesc(WORD_DESC *word) {
   if (!word) {
     fprintf(stderr, "{nil}");
@@ -283,6 +292,10 @@ void KrasinPrintCommand(COMMAND *cmd) {
     case cm_connection:
       fprintf(stderr, "CONNECTION{");
       KrasinPrintConnection(cmd->value.Connection);
+      break;
+    case cm_subshell:
+      fprintf(stderr, "SUBSHELL{");
+      KrasinPrintSubshell(cmd->value.Subshell);
       break;
     default:
       fprintf(stderr, "%d {", cmd->type);
