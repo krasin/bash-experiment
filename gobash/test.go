@@ -514,17 +514,18 @@ const EF = 2
 
 /* Return TRUE if OP is one of the test command's binary operators. */
 func test_binop(op string) bool {
-	if (op[0] == '=' && op[1] == '\0')
+  switch {
+  case op[0] == '=' && op[1] == '\0':
 		return (1);				/* '=' */
-	else if ((op[0] == '<' || op[0] == '>') && op[1] == '\0')	/* string <, > */
+  case (op[0] == '<' || op[0] == '>') && op[1] == '\0': /* string <, > */
 		return (1);
-	else if ((op[0] == '=' || op[0] == '!') && op[1] == '=' && op[2] == '\0')
+  case (op[0] == '=' || op[0] == '!') && op[1] == '=' && op[2] == '\0':
 		return (1);				/* `==' and `!=' */
-	else if (op[2] == '\0' && op[1] == '~' && (op[0] == '=' || op[0] == '!'))
+  case op[2] == '\0' && op[1] == '~' && (op[0] == '=' || op[0] == '!'):
 		return (1);
-	else if (op[0] != '-' || op[2] == '\0' || op[3] != '\0')
+  case op[0] != '-' || op[2] == '\0' || op[3] != '\0':
 		return (0);
-	else {
+  default:
 		if (op[2] == 't')
 			switch (op[1]) {
 			case 'n':			/* -nt */
@@ -551,7 +552,7 @@ func test_binop(op string) bool {
 				return (0);
 		} else
 			return (0);
-	}
+  }
 }
 
 /* Return non-zero if OP is one of the test command's unary operators. */
