@@ -261,7 +261,7 @@ void KrasinPrintWordDesc(WORD_DESC *word) {
   if (!word) {
     fprintf(stderr, "{nil}");
   }
-  fprintf(stderr, "{%s}", word->word);
+  fprintf(stderr, "{flags:%d, {%s}}", word->flags, word->word);
 }
 
 void KrasinPrintSimple(SIMPLE_COM *val) {
