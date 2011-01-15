@@ -180,7 +180,7 @@ func (wd *word_desc) String() string {
 	if wd == nil {
 		return "nil"
 	}
-	return "{" + wd.word + "}"
+	return fmt.Sprintf("{flags:%d, {%s}}", wd.flags, wd.word)
 }
 
 /* A linked list of words. */
