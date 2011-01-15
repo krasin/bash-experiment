@@ -4464,7 +4464,7 @@ func (gps *ParserState) cond_term() *CondCom {
       term = gps.make_cond_node (COND_UNARY, op, tleft, nil);
     } else {
 
-      etext := error_token_from_token(token)
+      etext := error_token_from_token(tok)
       if etext != "" {
           gps.parser_error (gps.line_number, ("unexpected argument `%s' to conditional unary operator"), etext);
       } else {
