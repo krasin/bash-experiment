@@ -4411,18 +4411,19 @@ func (gps *ParserState) cond_and () *CondCom {
   return l;
 }
 
-//static int
-//cond_skip_newlines ()
-//{
-//  while ((gps.cond_token = read_token (READ)) == '\n')
-//    {
-//    }
-//  return (gps.cond_token);
-//}
-//
 //#define COND_RETURN_ERROR() \
 //  do { gps.cond_token = COND_ERROR; return (nil); } while (0)
 //
+
+func (gps *ParserState) cond_skip_newlines() {
+  for {
+    gps.cond_token = gps.read_token(READ)
+    if gps.cond_token != '\n' {
+      break
+    }
+  }
+  return gps.cond_token
+}
 
 func (gps *ParserState) cond_term() *CondCom {
   word_desc *op;
