@@ -4424,166 +4424,159 @@ func (gps *ParserState) cond_and () *CondCom {
 //  do { gps.cond_token = COND_ERROR; return (nil); } while (0)
 //
 
-// TODO(krasin): implement this
 func (gps *ParserState) cond_term() *CondCom {
-	panic("cond_term: not implemented")
+  word_desc *op;
+  CondCom *term, *tleft, *tright;
+  int tok, lineno;
+  char *etext;
+
+  /* Read a token.  It can be a left paren, a `!', a unary operator, or a
+     word that should be the first argument of a binary operator.  Start by
+     skipping newlines, since this is a compound command. */
+  tok = cond_skip_newlines ();
+  lineno = gps.line_number;
+  if (tok == COND_END)
+    {
+      COND_RETURN_ERROR ();
+    }
+  else if (tok == '(')
+    {
+      term = cond_expr ();
+      if (gps.cond_token != ')')
+	{
+	  if (term)
+	    dispose_cond_node (term);		/* ( */
+	  if (etext = error_token_from_token (gps.cond_token))
+	    {
+	      gps.parser_error (lineno, _("unexpected token `%s', expected `)'"), etext);
+	    }
+	  else
+	    gps.parser_error (lineno, _("expected `)'"));
+	  COND_RETURN_ERROR ();
+	}
+      term = make_cond_node (COND_EXPR, nil, term, nil);
+      (void)cond_skip_newlines ();
+    }
+  else if (tok == BANG || (tok == WORD && (gps.yylval.word.word[0] == '!' && gps.yylval.word.word[1] == '\0')))
+    {
+      if (tok == WORD)
+	dispose_word (gps.yylval.word);	/* not needed */
+      term = cond_term ();
+      if (term)
+	term.flags |= CMD_INVERT_RETURN;
+    }
+  else if (tok == WORD && gps.yylval.word.word[0] == '-' && gps.yylval.word.word[2] == 0 && test_unop (gps.yylval.word.word))
+    {
+      op = gps.yylval.word;
+      tok = read_token (READ);
+      if (tok == WORD)
+	{
+	  tleft = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
+	  term = make_cond_node (COND_UNARY, op, tleft, nil);
+	}
+      else
+	{
+	  dispose_word (op);
+	  if (etext = error_token_from_token (tok))
+	    {
+	      gps.parser_error (gps.line_number, _("unexpected argument `%s' to conditional unary operator"), etext);
+	    }
+	  else
+	    gps.parser_error (gps.line_number, _("unexpected argument to conditional unary operator"));
+	  COND_RETURN_ERROR ();
+	}
+
+      (void)cond_skip_newlines ();
+    }
+  else if (tok == WORD)		/* left argument to binary operator */
+    {
+      /* lhs */
+      tleft = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
+
+      /* binop */
+      tok = read_token (READ);
+      if (tok == WORD && test_binop (gps.yylval.word.word))
+	{
+	  op = gps.yylval.word;
+	  if (op.word[0] == '=' && (op.word[1] == '\0' || (op.word[1] == '=' && op.word[2] == '\0')))
+	    gps.parser_state |= PST_EXTPAT;
+	  else if (op.word[0] == '!' && op.word[1] == '=' && op.word[2] == '\0')
+	    gps.parser_state |= PST_EXTPAT;
+	}
+      else if (tok == WORD && STREQ (gps.yylval.word.word, "=~"))
+	{
+	  op = gps.yylval.word;
+	  gps.parser_state |= PST_REGEXP;
+	}
+      else if (tok == '<' || tok == '>')
+	op = make_word_from_token (tok);  /* ( */
+      /* There should be a check before blindly accepting the `)' that we have
+	 seen the opening `('. */
+      else if (tok == COND_END || tok == AND_AND || tok == OR_OR || tok == ')')
+	{
+	  /* Special case.  [[ x ]] is equivalent to [[ -n x ]], just like
+	     the test command.  Similarly for [[ x && expr ]] or
+	     [[ x || expr ]] or [[ (x) ]]. */
+	  op = make_word ("-n");
+	  term = make_cond_node (COND_UNARY, op, tleft, nil);
+	  gps.cond_token = tok;
+	  return (term);
+	}
+      else
+	{
+	  if (etext = error_token_from_token (tok))
+	    {
+	      gps.parser_error (gps.line_number, _("unexpected token `%s', conditional binary operator expected"), etext);
+	    }
+	  else
+	    gps.parser_error (gps.line_number, _("conditional binary operator expected"));
+	  dispose_cond_node (tleft);
+	  COND_RETURN_ERROR ();
+	}
+
+      /* rhs */
+      if (gps.parser_state & PST_EXTPAT)
+	gps.extended_glob = 1;
+      tok = read_token (READ);
+      if (gps.parser_state & PST_EXTPAT)
+	gps.extended_glob = gps.global_extglob;
+      gps.parser_state &= ^(PST_REGEXP|PST_EXTPAT);
+
+      if (tok == WORD)
+	{
+	  tright = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
+	  term = make_cond_node (COND_BINARY, op, tleft, tright);
+	}
+      else
+	{
+	  if (etext = error_token_from_token (tok))
+	    {
+	      gps.parser_error (gps.line_number, _("unexpected argument `%s' to conditional binary operator"), etext);
+	    }
+	  else
+	    gps.parser_error (gps.line_number, _("unexpected argument to conditional binary operator"));
+	  dispose_cond_node (tleft);
+	  dispose_word (op);
+	  COND_RETURN_ERROR ();
+	}
+
+      (void)cond_skip_newlines ();
+    }
+  else
+    {
+      if (tok < 256)
+	gps.parser_error (gps.line_number, _("unexpected token `%c' in conditional command"), tok);
+      else if (etext = error_token_from_token (tok))
+	{
+	  gps.parser_error (gps.line_number, _("unexpected token `%s' in conditional command"), etext);
+	}
+      else
+	gps.parser_error (gps.line_number, _("unexpected token %d in conditional command"), tok);
+      COND_RETURN_ERROR ();
+    }
+  return (term);
 }
 
-//static CondCom *
-//cond_term ()
-//{
-//  word_desc *op;
-//  CondCom *term, *tleft, *tright;
-//  int tok, lineno;
-//  char *etext;
-//
-//  /* Read a token.  It can be a left paren, a `!', a unary operator, or a
-//     word that should be the first argument of a binary operator.  Start by
-//     skipping newlines, since this is a compound command. */
-//  tok = cond_skip_newlines ();
-//  lineno = gps.line_number;
-//  if (tok == COND_END)
-//    {
-//      COND_RETURN_ERROR ();
-//    }
-//  else if (tok == '(')
-//    {
-//      term = cond_expr ();
-//      if (gps.cond_token != ')')
-//	{
-//	  if (term)
-//	    dispose_cond_node (term);		/* ( */
-//	  if (etext = error_token_from_token (gps.cond_token))
-//	    {
-//	      gps.parser_error (lineno, _("unexpected token `%s', expected `)'"), etext);
-//	    }
-//	  else
-//	    gps.parser_error (lineno, _("expected `)'"));
-//	  COND_RETURN_ERROR ();
-//	}
-//      term = make_cond_node (COND_EXPR, nil, term, nil);
-//      (void)cond_skip_newlines ();
-//    }
-//  else if (tok == BANG || (tok == WORD && (gps.yylval.word.word[0] == '!' && gps.yylval.word.word[1] == '\0')))
-//    {
-//      if (tok == WORD)
-//	dispose_word (gps.yylval.word);	/* not needed */
-//      term = cond_term ();
-//      if (term)
-//	term.flags |= CMD_INVERT_RETURN;
-//    }
-//  else if (tok == WORD && gps.yylval.word.word[0] == '-' && gps.yylval.word.word[2] == 0 && test_unop (gps.yylval.word.word))
-//    {
-//      op = gps.yylval.word;
-//      tok = read_token (READ);
-//      if (tok == WORD)
-//	{
-//	  tleft = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
-//	  term = make_cond_node (COND_UNARY, op, tleft, nil);
-//	}
-//      else
-//	{
-//	  dispose_word (op);
-//	  if (etext = error_token_from_token (tok))
-//	    {
-//	      gps.parser_error (gps.line_number, _("unexpected argument `%s' to conditional unary operator"), etext);
-//	    }
-//	  else
-//	    gps.parser_error (gps.line_number, _("unexpected argument to conditional unary operator"));
-//	  COND_RETURN_ERROR ();
-//	}
-//
-//      (void)cond_skip_newlines ();
-//    }
-//  else if (tok == WORD)		/* left argument to binary operator */
-//    {
-//      /* lhs */
-//      tleft = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
-//
-//      /* binop */
-//      tok = read_token (READ);
-//      if (tok == WORD && test_binop (gps.yylval.word.word))
-//	{
-//	  op = gps.yylval.word;
-//	  if (op.word[0] == '=' && (op.word[1] == '\0' || (op.word[1] == '=' && op.word[2] == '\0')))
-//	    gps.parser_state |= PST_EXTPAT;
-//	  else if (op.word[0] == '!' && op.word[1] == '=' && op.word[2] == '\0')
-//	    gps.parser_state |= PST_EXTPAT;
-//	}
-//      else if (tok == WORD && STREQ (gps.yylval.word.word, "=~"))
-//	{
-//	  op = gps.yylval.word;
-//	  gps.parser_state |= PST_REGEXP;
-//	}
-//      else if (tok == '<' || tok == '>')
-//	op = make_word_from_token (tok);  /* ( */
-//      /* There should be a check before blindly accepting the `)' that we have
-//	 seen the opening `('. */
-//      else if (tok == COND_END || tok == AND_AND || tok == OR_OR || tok == ')')
-//	{
-//	  /* Special case.  [[ x ]] is equivalent to [[ -n x ]], just like
-//	     the test command.  Similarly for [[ x && expr ]] or
-//	     [[ x || expr ]] or [[ (x) ]]. */
-//	  op = make_word ("-n");
-//	  term = make_cond_node (COND_UNARY, op, tleft, nil);
-//	  gps.cond_token = tok;
-//	  return (term);
-//	}
-//      else
-//	{
-//	  if (etext = error_token_from_token (tok))
-//	    {
-//	      gps.parser_error (gps.line_number, _("unexpected token `%s', conditional binary operator expected"), etext);
-//	    }
-//	  else
-//	    gps.parser_error (gps.line_number, _("conditional binary operator expected"));
-//	  dispose_cond_node (tleft);
-//	  COND_RETURN_ERROR ();
-//	}
-//
-//      /* rhs */
-//      if (gps.parser_state & PST_EXTPAT)
-//	gps.extended_glob = 1;
-//      tok = read_token (READ);
-//      if (gps.parser_state & PST_EXTPAT)
-//	gps.extended_glob = gps.global_extglob;
-//      gps.parser_state &= ^(PST_REGEXP|PST_EXTPAT);
-//
-//      if (tok == WORD)
-//	{
-//	  tright = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
-//	  term = make_cond_node (COND_BINARY, op, tleft, tright);
-//	}
-//      else
-//	{
-//	  if (etext = error_token_from_token (tok))
-//	    {
-//	      gps.parser_error (gps.line_number, _("unexpected argument `%s' to conditional binary operator"), etext);
-//	    }
-//	  else
-//	    gps.parser_error (gps.line_number, _("unexpected argument to conditional binary operator"));
-//	  dispose_cond_node (tleft);
-//	  dispose_word (op);
-//	  COND_RETURN_ERROR ();
-//	}
-//
-//      (void)cond_skip_newlines ();
-//    }
-//  else
-//    {
-//      if (tok < 256)
-//	gps.parser_error (gps.line_number, _("unexpected token `%c' in conditional command"), tok);
-//      else if (etext = error_token_from_token (tok))
-//	{
-//	  gps.parser_error (gps.line_number, _("unexpected token `%s' in conditional command"), etext);
-//	}
-//      else
-//	gps.parser_error (gps.line_number, _("unexpected token %d in conditional command"), tok);
-//      COND_RETURN_ERROR ();
-//    }
-//  return (term);
-//}
-//
 ///* This is kind of bogus -- we slip a mini recursive-descent parser in
 //   here to handle the conditional statement syntax. */
 func (gps *ParserState) parse_cond_command() *Command {
