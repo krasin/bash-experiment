@@ -2234,8 +2234,7 @@ case yyerrlab:
   /* If not already recovering from an error, report this error.  */
   if (yyerrstatus == 0)    {
       gps.yynerrs++
-      //yyerror (("syntax error"));
-      fmt.Fprintf(os.Stderr, "syntax error\n")
+      gps.yyerror("syntax error")
     }
 
 
@@ -4845,7 +4844,7 @@ func (wts *wordTokenizerState) handleShellExp() readTokenWordState {
   case (wts.character == '=' && wts.token.Len() > 0 && (wts.gps.assignment_acceptable (wts.gps.last_read_token) || (wts.gps.parser_state & PST_ASSIGNOK != 0)) && wts.gps.token_is_assignment (wts.token)):
     wts.peek_char = wts.gps.shell_getc (true)
     if (wts.peek_char == '(') {        /* ) */
-      wts.ttok = wts.gps.parse_compound_assignment()
+      wts.ttok = wts.parse_compound_assignment()
       wts.token.Add('=')
       wts.token.Add('(')
       if (wts.ttok != nil) {
@@ -5122,17 +5121,12 @@ func reserved_word_acceptable(toksym int) bool {
 // *						*
 // ************************************************/
 //
-///* Report a syntax error, and restart the parser.  Call here for fatal
-//   errors. */
-//int
-//yyerror (msg)
-//     const char *msg;
-//{
-//  report_syntax_error (nil);
-//  gps.reset_parser ();
-//  return (0);
-//}
-//
+/* Report a syntax error, and restart the parser.  Call here for fatal
+   errors. */
+func (gps *ParserState) yyerror (msg string) {
+  gps.report_syntax_error ("")
+  gps.reset_parser ();
+}
 
 
 // TODO(krasin): implement this
@@ -5235,7 +5229,11 @@ func error_token_from_token(tok int) string {
 //
 //  gps.parser_error (gps.line_number, "`%s'", msg);
 //}
-//
+
+func (gps *ParserState) report_syntax_error(message string) {
+  panic(fmt.Sprintf("report_syntax_error: not implemented. message = %s", message))
+}
+
 ///* Report a syntax error with line numbers, etc.
 //   Call here for recoverable errors.  If you have a message to print,
 //   then place it in MESSAGE, otherwise pass NULL and this will figure
@@ -5403,75 +5401,74 @@ func (gps *ParserState) handle_eof_input_unit() {
 //  return reverseWordList(wl);
 //}
 
-func (gps *ParserState) parse_compound_assignment() *StringBuilder {
-  word_list *wl, *rl;
-  int tok, orig_line_number, orig_token_size, orig_last_token, assignok;
-  char *saved_token, *ret;
+func (wts *wordTokenizerState) parse_compound_assignment() (ret *StringBuilder) {
+  var wl *word_list
+  var rl *word_list
 
-  saved_token = token;
-  orig_token_size = token_buffer_size;
-  orig_line_number = gps.line_number;
-  orig_last_token = gps.last_read_token;
+  saved_token := wts.token
+  orig_line_number := wts.gps.line_number;
+  orig_last_token := wts.gps.last_read_token;
 
-  gps.last_read_token = WORD;	/* WORD to allow reserved words here */
+  wts.gps.last_read_token = WORD;	/* WORD to allow reserved words here */
 
-  token = nil;
-  token_buffer_size = 0;
+  wts.token = NewStringBuilder()
 
-  assignok = gps.parser_state&PST_ASSIGNOK;		/* XXX */
+  assignok := wts.gps.parser_state&PST_ASSIGNOK != 0 /* XXX */
 
   wl = nil;	/* ( */
-  gps.parser_state |= PST_COMPASSIGN;
+  wts.gps.parser_state |= PST_COMPASSIGN;
 
-  while ((tok = gps.read_token (READ)) != ')')
-    {
-      if (tok == '\n')			/* Allow newlines in compound assignments */
-	{
+  is_error := false
+
+  for {
+   tok := wts.gps.read_token (READ)
+   if tok == ')' {
+     break
+   }
+   if tok == '\n' {/* Allow newlines in compound assignments */
 	  continue;
-	}
-      if (tok != WORD && tok != ASSIGNMENT_WORD)
-	{
-	  gps.current_token = tok;	/* for error reporting */
-	  if (tok == yacc_EOF)	/* ( */
-	    gps.parser_error (orig_line_number, ("unexpected EOF while looking for matching `)'"));
-	  else
-	    yyerror(NULL);	/* does the right thing */
-	  wl = &parse_string_error;
+   }
+   if tok != WORD && tok != ASSIGNMENT_WORD {
+	  wts.gps.current_token = tok;	/* for error reporting */
+	  if tok == yacc_EOF { /* ( */
+	    wts.gps.parser_error (orig_line_number, ("unexpected EOF while looking for matching `)'"));
+	  } else {
+	    wts.gps.yyerror("") /* does the right thing */
+      }
+      is_error = true
 	  break;
 	}
-      wl = makeWordList (gps.yylval.word, wl);
+    wl = makeWordList (wts.gps.yylval.word, wl);
+  }
+
+  wts.token = saved_token;
+
+  wts.gps.parser_state &= ^PST_COMPASSIGN;
+
+  if is_error {
+    wts.gps.last_command_exit_value = EXECUTION_FAILURE;
+    wts.gps.last_read_token = '\n';	/* XXX */
+    if wts.gps.posixly_correct {
+      // TODO(Krasin): understand what's happening
+      panic("Not implemented")
+      //jump_to_top_level (FORCE_EOF);
+    } else {
+      // TODO(Krasin): understand what's happening
+      panic("Not implemented")
+      //jump_to_top_level (DISCARD);
     }
+  }
 
-  token = saved_token;
-  token_buffer_size = orig_token_size;
+  wts.gps.last_read_token = orig_last_token; /* XXX - was WORD? */
 
-  gps.parser_state &= ^PST_COMPASSIGN;
-
-  if (wl == &parse_string_error)
-    {
-      last_command_exit_value = EXECUTION_FAILURE;
-      gps.last_read_token = '\n';	/* XXX */
-      if (gps.posixly_correct)
-	jump_to_top_level (FORCE_EOF);
-      else
-	jump_to_top_level (DISCARD);
-    }
-
-  gps.last_read_token = orig_last_token;		/* XXX - was WORD? */
-
-  if (wl != nil)
-    {
+  if wl != nil {
       rl = reverseWordList(wl)
-      ret = string_list (rl);
-    }
-  else
-    ret = nil;
+      ret = rl.Join(" ")
+  }
 
-  if (retlenp)
-    *retlenp = (ret && *ret) ? strlen (ret) : 0;
-
-  if (assignok)
-    gps.parser_state |= PST_ASSIGNOK;
+  if assignok {
+    wts.gps.parser_state |= PST_ASSIGNOK;
+  }
 
   return ret;
 }
