@@ -8,6 +8,7 @@ TARG=gobash
 GOFILES=\
 	lib/sh/strtrans.go\
 	builtins/common.go\
+	test.go\
 	alias.go\
 	syntax.go\
 	subst.go\
