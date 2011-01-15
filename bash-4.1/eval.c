@@ -236,6 +236,7 @@ parse_command ()
 // NOTE(Krasin): begin
 
 void KrasinPrintCommand(COMMAND *cmd);
+void KrasinPrintWordDesc(WORD_DESC *val);
 
 void KrasinPrintCondCom(COND_COM *val) {
   if (!val) {
@@ -285,10 +286,32 @@ void KrasinPrintSubshell(SUBSHELL_COM *val) {
 }
 
 void KrasinPrintWordDesc(WORD_DESC *word) {
-  if (!word) {
+  if (!word || word == (WORD_DESC*)1) {
     fprintf(stderr, "{nil}");
+    return;
   }
   fprintf(stderr, "{flags:%d, {%s}}", word->flags, word->word);
+}
+
+void KrasinPrintRedirectee(REDIRECTEE val) {
+  int v = val.dest;
+  if (val.dest > 100) {
+    v = 0;
+  }
+  fprintf(stderr, "dest:%d", v);
+}
+
+void KrasinPrintRedirect(REDIRECT *val) {
+  if (!val) {
+    fprintf(stderr, "nil");
+    return;
+  }
+  fprintf(stderr, "redirector:{");
+  KrasinPrintRedirectee(val->redirector);
+  fprintf(stderr, "}\nrflags:%d\nflags:%d\ninstruction:%d\nredirectee:{",
+    val->rflags, val->flags, val->instruction);
+  KrasinPrintRedirectee(val->redirectee);
+  fprintf(stderr, "}");
 }
 
 void KrasinPrintSimple(SIMPLE_COM *val) {
@@ -296,12 +319,20 @@ void KrasinPrintSimple(SIMPLE_COM *val) {
     fprintf(stderr, "nil");
     return;
   }
-  fprintf(stderr, "%d: ", val->line);
+  fprintf(stderr, "%d: words:", val->line);
   WORD_LIST *cur = val->words;
   while (cur) {
     KrasinPrintWordDesc(cur->word);
     fprintf(stderr, " ");
     cur = cur->next;
+  }
+  fprintf(stderr, "redirects:");
+  REDIRECT *redir = val->redirects;
+  while (redir) {
+    fprintf(stderr, "{");
+    KrasinPrintRedirect(redir);
+    fprintf(stderr, "}\n");
+    redir = redir->next;
   }
 }
 
