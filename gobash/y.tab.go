@@ -4439,9 +4439,6 @@ func (gps *ParserState) cond_term() *CondCom {
   case tok == '(':
     term = gps.cond_expr ();
     if gps.cond_token != ')' {
-      if term != nil {
-        dispose_cond_node (term);        /* ( */
-      }
       etext := error_token_from_token(gps.cond_token)
       if etext != "" {
         gps.parser_error (lineno, ("unexpected token `%s', expected `)'"), etext);
@@ -4454,9 +4451,6 @@ func (gps *ParserState) cond_term() *CondCom {
     term = make_cond_node (COND_EXPR, nil, term, nil);
     cond_skip_newlines ();
   case tok == BANG || (tok == WORD && gps.yylval.word.word == "!"):
-    if tok == WORD {
-      dispose_word (gps.yylval.word);    /* not needed */
-    }
     term = cond_term ();
     if term != nil {
       term.flags |= CMD_INVERT_RETURN;
@@ -4468,7 +4462,7 @@ func (gps *ParserState) cond_term() *CondCom {
       tleft = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
       term = make_cond_node (COND_UNARY, op, tleft, nil);
     } else {
-      dispose_word (op);
+
       etext := error_token_from_token(token)
       if etext != "" {
           gps.parser_error (gps.line_number, ("unexpected argument `%s' to conditional unary operator"), etext);
@@ -4517,7 +4511,6 @@ func (gps *ParserState) cond_term() *CondCom {
       } else {
         gps.parser_error (gps.line_number, ("conditional binary operator expected"));
       }
-      dispose_cond_node (tleft);
       gps.cond_token = COND_ERROR
       return nil
     }
@@ -4542,8 +4535,7 @@ func (gps *ParserState) cond_term() *CondCom {
       } else {
         gps.parser_error (gps.line_number, ("unexpected argument to conditional binary operator"));
       }
-      dispose_cond_node (tleft);
-      dispose_word (op);
+
       gps.cond_token = COND_ERROR
       return nil
     }
@@ -5380,8 +5372,6 @@ func (gps *ParserState) handle_eof_input_unit() {
 //	  gps.current_token = tok;
 //	  yyerror (NULL);	/* does the right thing */
 //	  gps.current_token = orig_current_token;
-//	  if (wl)
-//	    dispose_words (wl);
 //	  wl = &parse_string_error;
 //	  break;
 //	}
@@ -5453,8 +5443,6 @@ func parse_compound_assignment() *StringBuilder {
 //	    gps.parser_error (orig_line_number, ("unexpected EOF while looking for matching `)'"));
 //	  else
 //	    yyerror(NULL);	/* does the right thing */
-//	  if (wl)
-//	    dispose_words (wl);
 //	  wl = &parse_string_error;
 //	  break;
 //	}
@@ -5482,7 +5470,6 @@ func parse_compound_assignment() *StringBuilder {
 //    {
 //      rl = reverseWordList(wl)
 //      ret = string_list (rl);
-//      dispose_words (rl);
 //    }
 //  else
 //    ret = nil;
