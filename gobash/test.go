@@ -512,47 +512,54 @@ const EF = 2
 //	return (FALSE);
 //}
 
+// TODO(krasin): switch to usual map.
 /* Return TRUE if OP is one of the test command's binary operators. */
 func test_binop(op string) bool {
   switch {
-  case op[0] == '=' && op[1] == '\0':
-		return (1);				/* '=' */
-  case (op[0] == '<' || op[0] == '>') && op[1] == '\0': /* string <, > */
-		return (1);
-  case (op[0] == '=' || op[0] == '!') && op[1] == '=' && op[2] == '\0':
-		return (1);				/* `==' and `!=' */
-  case op[2] == '\0' && op[1] == '~' && (op[0] == '=' || op[0] == '!'):
-		return (1);
-  case op[0] != '-' || op[2] == '\0' || op[3] != '\0':
-		return (0);
+  case op == "=":
+		return true				/* '=' */
+  case op == "<" || op == ">": /* string <, > */
+		return true
+  case op == "==" || op == "!=":
+		return true				/* `==' and `!=' */
+  case op == "=~" || op == "!~":
+		return true
+  case op[0] != '-' || len(op) != 2:
+		return false
   default:
-		if (op[2] == 't')
+    switch {
+	case op[2] == 't':
 			switch (op[1]) {
-			case 'n':			/* -nt */
-			case 'o':			/* -ot */
-			case 'l':			/* -lt */
-			case 'g':			/* -gt */
-				return (1);
+			case 'n': fallthrough /* -nt */
+			case 'o': fallthrough /* -ot */
+			case 'l': fallthrough /* -lt */
+			case 'g':  /* -gt */
+				return true
 			default:
-				return (0);
-		} else if (op[1] == 'e')
+				return false
+            }
+	case op[1] == 'e':
 			switch (op[2]) {
-			case 'q':			/* -eq */
+			case 'q': fallthrough/* -eq */
 			case 'f':			/* -ef */
-				return (1);
+				return true
 			default:
-				return (0);
-		} else if (op[2] == 'e')
+				return false
+            }
+	case op[2] == 'e':
 			switch (op[1]) {
-			case 'n':			/* -ne */
-			case 'g':			/* -ge */
+			case 'n': fallthrough		/* -ne */
+			case 'g': fallthrough		/* -ge */
 			case 'l':			/* -le */
-				return (1);
+				return true
 			default:
-				return (0);
-		} else
-			return (0);
+				return false
+            }
+	default:
+	  return false
+    }
   }
+  return false
 }
 
 /* Return non-zero if OP is one of the test command's unary operators. */
