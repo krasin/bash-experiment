@@ -101,6 +101,9 @@ func (sb *StringBuilder) AppendRunes(runes []int) {
   sb.cnt += len(runes)
 }
 
+func (sb *StringBuilder) AppendString(str string) {
+  sb.AppendRunes(stringToRunes(str))
+}
 
 func (sb *StringBuilder) String() string {
 	return runesToString(sb.runes[:sb.cnt])
