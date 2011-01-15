@@ -4845,7 +4845,7 @@ func (wts *wordTokenizerState) handleShellExp() readTokenWordState {
   case (wts.character == '=' && wts.token.Len() > 0 && (wts.gps.assignment_acceptable (wts.gps.last_read_token) || (wts.gps.parser_state & PST_ASSIGNOK != 0)) && wts.gps.token_is_assignment (wts.token)):
     wts.peek_char = wts.gps.shell_getc (true)
     if (wts.peek_char == '(') {        /* ) */
-      wts.ttok = parse_compound_assignment()
+      wts.ttok = wts.gps.parse_compound_assignment()
       wts.token.Add('=')
       wts.token.Add('(')
       if (wts.ttok != nil) {
@@ -5403,7 +5403,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //  return reverseWordList(wl);
 //}
 
-func parse_compound_assignment() *StringBuilder {
+func (gps *ParserState) parse_compound_assignment() *StringBuilder {
   // TODO(krasin): implement this
   panic("parse_compound_assignment: not implemented")
 }
