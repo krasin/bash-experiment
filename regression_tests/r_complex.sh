@@ -37,5 +37,6 @@ echo "Array test: $test_arr"
 #  Add to the above similar tests for double parentheses,
 #+ brace expansion, $() command substitution, etc.
 
-exit $?
+# TODO(Krasin): uncomment the following line once the execution has been implemented.
+#exit $?
 
