@@ -5404,86 +5404,78 @@ func (gps *ParserState) handle_eof_input_unit() {
 //}
 
 func (gps *ParserState) parse_compound_assignment() *StringBuilder {
-  // TODO(krasin): implement this
-  panic("parse_compound_assignment: not implemented")
+  word_list *wl, *rl;
+  int tok, orig_line_number, orig_token_size, orig_last_token, assignok;
+  char *saved_token, *ret;
+
+  saved_token = token;
+  orig_token_size = token_buffer_size;
+  orig_line_number = gps.line_number;
+  orig_last_token = gps.last_read_token;
+
+  gps.last_read_token = WORD;	/* WORD to allow reserved words here */
+
+  token = nil;
+  token_buffer_size = 0;
+
+  assignok = gps.parser_state&PST_ASSIGNOK;		/* XXX */
+
+  wl = nil;	/* ( */
+  gps.parser_state |= PST_COMPASSIGN;
+
+  while ((tok = gps.read_token (READ)) != ')')
+    {
+      if (tok == '\n')			/* Allow newlines in compound assignments */
+	{
+	  continue;
+	}
+      if (tok != WORD && tok != ASSIGNMENT_WORD)
+	{
+	  gps.current_token = tok;	/* for error reporting */
+	  if (tok == yacc_EOF)	/* ( */
+	    gps.parser_error (orig_line_number, ("unexpected EOF while looking for matching `)'"));
+	  else
+	    yyerror(NULL);	/* does the right thing */
+	  wl = &parse_string_error;
+	  break;
+	}
+      wl = makeWordList (gps.yylval.word, wl);
+    }
+
+  token = saved_token;
+  token_buffer_size = orig_token_size;
+
+  gps.parser_state &= ^PST_COMPASSIGN;
+
+  if (wl == &parse_string_error)
+    {
+      last_command_exit_value = EXECUTION_FAILURE;
+      gps.last_read_token = '\n';	/* XXX */
+      if (gps.posixly_correct)
+	jump_to_top_level (FORCE_EOF);
+      else
+	jump_to_top_level (DISCARD);
+    }
+
+  gps.last_read_token = orig_last_token;		/* XXX - was WORD? */
+
+  if (wl != nil)
+    {
+      rl = reverseWordList(wl)
+      ret = string_list (rl);
+    }
+  else
+    ret = nil;
+
+  if (retlenp)
+    *retlenp = (ret && *ret) ? strlen (ret) : 0;
+
+  if (assignok)
+    gps.parser_state |= PST_ASSIGNOK;
+
+  return ret;
 }
 
-//static char *
-//parse_compound_assignment (retlenp)
-//     int *retlenp;
-//{
-//  word_list *wl, *rl;
-//  int tok, orig_line_number, orig_token_size, orig_last_token, assignok;
-//  char *saved_token, *ret;
-//
-//  saved_token = token;
-//  orig_token_size = token_buffer_size;
-//  orig_line_number = gps.line_number;
-//  orig_last_token = gps.last_read_token;
-//
-//  gps.last_read_token = WORD;	/* WORD to allow reserved words here */
-//
-//  token = nil;
-//  token_buffer_size = 0;
-//
-//  assignok = gps.parser_state&PST_ASSIGNOK;		/* XXX */
-//
-//  wl = nil;	/* ( */
-//  gps.parser_state |= PST_COMPASSIGN;
-//
-//  while ((tok = gps.read_token (READ)) != ')')
-//    {
-//      if (tok == '\n')			/* Allow newlines in compound assignments */
-//	{
-//	  continue;
-//	}
-//      if (tok != WORD && tok != ASSIGNMENT_WORD)
-//	{
-//	  gps.current_token = tok;	/* for error reporting */
-//	  if (tok == yacc_EOF)	/* ( */
-//	    gps.parser_error (orig_line_number, ("unexpected EOF while looking for matching `)'"));
-//	  else
-//	    yyerror(NULL);	/* does the right thing */
-//	  wl = &parse_string_error;
-//	  break;
-//	}
-//      wl = makeWordList (gps.yylval.word, wl);
-//    }
-//
-//  token = saved_token;
-//  token_buffer_size = orig_token_size;
-//
-//  gps.parser_state &= ^PST_COMPASSIGN;
-//
-//  if (wl == &parse_string_error)
-//    {
-//      last_command_exit_value = EXECUTION_FAILURE;
-//      gps.last_read_token = '\n';	/* XXX */
-//      if (gps.posixly_correct)
-//	jump_to_top_level (FORCE_EOF);
-//      else
-//	jump_to_top_level (DISCARD);
-//    }
-//
-//  gps.last_read_token = orig_last_token;		/* XXX - was WORD? */
-//
-//  if (wl != nil)
-//    {
-//      rl = reverseWordList(wl)
-//      ret = string_list (rl);
-//    }
-//  else
-//    ret = nil;
-//
-//  if (retlenp)
-//    *retlenp = (ret && *ret) ? strlen (ret) : 0;
-//
-//  if (assignok)
-//    gps.parser_state |= PST_ASSIGNOK;
-//
-//  return ret;
-//}
-//
 ///************************************************
 // *						*
 // *   SAVING AND RESTORING PARTIAL PARSE STATE   *
