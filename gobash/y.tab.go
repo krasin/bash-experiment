@@ -4457,7 +4457,7 @@ func (gps *ParserState) cond_term() *CondCom {
     }
   case tok == WORD && gps.yylval.word.word[0] == '-' && len(gps.yylval.word.word) == 2 && test_unop (gps.yylval.word.word):
     op := gps.yylval.word;
-    tok = read_token (READ);
+    tok = gps.read_token (READ);
     if tok == WORD {
       tleft = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
       term = make_cond_node (COND_UNARY, op, tleft, nil);
@@ -4478,7 +4478,7 @@ func (gps *ParserState) cond_term() *CondCom {
     tleft = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
 
     /* binop */
-    tok = read_token (READ);
+    tok = gps.read_token (READ);
     switch {
     case tok == WORD && test_binop (gps.yylval.word.word):
       op = gps.yylval.word;
@@ -4519,7 +4519,7 @@ func (gps *ParserState) cond_term() *CondCom {
     if gps.parser_state & PST_EXTPAT != 0 {
       gps.extended_glob = 1;
     }
-    tok = read_token (READ);
+    tok = gps.read_token (READ);
     if gps.parser_state & PST_EXTPAT != 0 {
       gps.extended_glob = gps.global_extglob;
     }
@@ -5359,7 +5359,7 @@ func (gps *ParserState) handle_eof_input_unit() {
 //  if (flags & 1)
 //    gps.parser_state |= PST_COMPASSIGN|PST_REPARSE;
 //
-//  while ((tok = read_token (READ)) != yacc_EOF)
+//  while ((tok = gps.read_token (READ)) != yacc_EOF)
 //    {
 //      if (tok == '\n' && *bash_input.location.string == '\0')
 //	break;
@@ -5430,7 +5430,7 @@ func parse_compound_assignment() *StringBuilder {
 //  wl = nil;	/* ( */
 //  gps.parser_state |= PST_COMPASSIGN;
 //
-//  while ((tok = read_token (READ)) != ')')
+//  while ((tok = gps.read_token (READ)) != ')')
 //    {
 //      if (tok == '\n')			/* Allow newlines in compound assignments */
 //	{
