@@ -443,6 +443,13 @@ type IfCom struct {
   false_case *Command /* What to do if the test returned zero. */
 }
 
+func (cmd *IfCom) String() string {
+  if cmd == nil {
+    return "nil"
+  }
+  return fmt.Sprintf("flags:%d\ntest:%v\ntrue_case:%v\nfalse_case:%v", cmd.flags, cmd.test, cmd.true_case, cmd.false_case);
+}
+
 /* WHILE command. */
 type WhileCom struct {
   flags int /* See description of CMD flags. */
