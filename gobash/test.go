@@ -557,45 +557,44 @@ const EF = 2
 //			return (0);
 //	}
 //}
-//
-///* Return non-zero if OP is one of the test command's unary operators. */
-//int test_unop(op)
-//	 char *op;
-//{
-//	if (op[0] != '-' || op[2] != 0)
-//		return (0);
-//
-//	switch (op[1]) {
-//	case 'a':
-//	case 'b':
-//	case 'c':
-//	case 'd':
-//	case 'e':
-//	case 'f':
-//	case 'g':
-//	case 'h':
-//	case 'k':
-//	case 'n':
-//	case 'o':
-//	case 'p':
-//	case 'r':
-//	case 's':
-//	case 't':
-//	case 'u':
-//	case 'w':
-//	case 'x':
-//	case 'z':
-//	case 'G':
-//	case 'L':
-//	case 'O':
-//	case 'S':
-//	case 'N':
-//		return (1);
-//	}
-//
-//	return (0);
-//}
-//
+
+/* Return non-zero if OP is one of the test command's unary operators. */
+func test_unop(op string) bool {
+    if op[0] != '-' || len(op) != 2 {
+      return false
+    }
+
+	switch op[1] {
+	case 'a': fallthrough
+	case 'b': fallthrough
+	case 'c': fallthrough
+	case 'd': fallthrough
+	case 'e': fallthrough
+	case 'f': fallthrough
+	case 'g': fallthrough
+	case 'h': fallthrough
+	case 'k': fallthrough
+	case 'n': fallthrough
+	case 'o': fallthrough
+	case 'p': fallthrough
+	case 'r': fallthrough
+	case 's': fallthrough
+	case 't': fallthrough
+	case 'u': fallthrough
+	case 'w': fallthrough
+	case 'x': fallthrough
+	case 'z': fallthrough
+	case 'G': fallthrough
+	case 'L': fallthrough
+	case 'O': fallthrough
+	case 'S': fallthrough
+	case 'N':
+		return true
+	}
+
+	return false
+}
+
 //static int two_arguments() {
 //	if (argv[pos][0] == '!' && argv[pos][1] == '\0')
 //		return (argv[pos + 1][0] == '\0');
