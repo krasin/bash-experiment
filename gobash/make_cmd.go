@@ -75,19 +75,10 @@ func make_word_flags(w *word_desc, str string) *word_desc {
   return w
 }
 
+func make_word_from_token(token int) *word_desc {
+  return make_word(runesToString([]int { token }))
+}
 
-//word_desc *
-//make_word_from_token (token)
-//     int token;
-//{
-//  char tokenizer[2];
-//
-//  tokenizer[0] = token;
-//  tokenizer[1] = '\0';
-//
-//  return (make_word (tokenizer));
-//}
-//
 //word_list *
 //make_word_list (word, wlink)
 //     word_desc *word;
