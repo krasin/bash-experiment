@@ -3859,7 +3859,7 @@ func parse_comsub(qc int, open int, cloze int, flags int) (*StringBuilder, os.Er
 //      if (ch == EOF)
 //	{
 //eof_error:
-//	  gps.parser_error (start_lineno, _("unexpected EOF while looking for matching `%c'"), close);
+//	  gps.parser_error (start_lineno, ("unexpected EOF while looking for matching `%c'"), close);
 //	  gps.EOF_Reached = true;	/* XXX */
 //	  return (&matched_pair_error);
 //	}
@@ -4415,7 +4415,7 @@ func (gps *ParserState) cond_and () *CondCom {
 //  do { gps.cond_token = COND_ERROR; return (nil); } while (0)
 //
 
-func (gps *ParserState) cond_skip_newlines() {
+func (gps *ParserState) cond_skip_newlines() int {
   for {
     gps.cond_token = gps.read_token(READ)
     if gps.cond_token != '\n' {
@@ -4426,48 +4426,38 @@ func (gps *ParserState) cond_skip_newlines() {
 }
 
 func (gps *ParserState) cond_term() *CondCom {
-  word_desc *op;
-  CondCom *term, *tleft, *tright;
-  int tok, lineno;
-  char *etext;
-
+  var term *CondCom
   /* Read a token.  It can be a left paren, a `!', a unary operator, or a
      word that should be the first argument of a binary operator.  Start by
      skipping newlines, since this is a compound command. */
-  tok = cond_skip_newlines ();
-  lineno = gps.line_number;
-  if (tok == COND_END)
-    {
+  tok := gps.cond_skip_newlines ();
+  lineno := gps.line_number;
+  switch {
+  case tok == COND_END:
       COND_RETURN_ERROR ();
-    }
-  else if (tok == '(')
-    {
-      term = cond_expr ();
+  case tok == '(':
+      term = gps.cond_expr ();
       if (gps.cond_token != ')')
 	{
-	  if (term)
+	  if term != 0
 	    dispose_cond_node (term);		/* ( */
 	  if (etext = error_token_from_token (gps.cond_token))
 	    {
-	      gps.parser_error (lineno, _("unexpected token `%s', expected `)'"), etext);
+	      gps.parser_error (lineno, ("unexpected token `%s', expected `)'"), etext);
 	    }
 	  else
-	    gps.parser_error (lineno, _("expected `)'"));
+	    gps.parser_error (lineno, ("expected `)'"));
 	  COND_RETURN_ERROR ();
 	}
       term = make_cond_node (COND_EXPR, nil, term, nil);
       (void)cond_skip_newlines ();
-    }
-  else if (tok == BANG || (tok == WORD && (gps.yylval.word.word[0] == '!' && gps.yylval.word.word[1] == '\0')))
-    {
+  case tok == BANG || (tok == WORD && (gps.yylval.word.word[0] == '!' && gps.yylval.word.word[1] == '\0')):
       if (tok == WORD)
 	dispose_word (gps.yylval.word);	/* not needed */
       term = cond_term ();
-      if (term)
+      if term != 0
 	term.flags |= CMD_INVERT_RETURN;
-    }
-  else if (tok == WORD && gps.yylval.word.word[0] == '-' && gps.yylval.word.word[2] == 0 && test_unop (gps.yylval.word.word))
-    {
+  case tok == WORD && gps.yylval.word.word[0] == '-' && gps.yylval.word.word[2] == 0 && test_unop (gps.yylval.word.word):
       op = gps.yylval.word;
       tok = read_token (READ);
       if (tok == WORD)
@@ -4480,17 +4470,15 @@ func (gps *ParserState) cond_term() *CondCom {
 	  dispose_word (op);
 	  if (etext = error_token_from_token (tok))
 	    {
-	      gps.parser_error (gps.line_number, _("unexpected argument `%s' to conditional unary operator"), etext);
+	      gps.parser_error (gps.line_number, ("unexpected argument `%s' to conditional unary operator"), etext);
 	    }
 	  else
-	    gps.parser_error (gps.line_number, _("unexpected argument to conditional unary operator"));
+	    gps.parser_error (gps.line_number, ("unexpected argument to conditional unary operator"));
 	  COND_RETURN_ERROR ();
 	}
 
       (void)cond_skip_newlines ();
-    }
-  else if (tok == WORD)		/* left argument to binary operator */
-    {
+  case tok == WORD:		/* left argument to binary operator */
       /* lhs */
       tleft = make_cond_node (COND_TERM, gps.yylval.word, nil, nil);
 
@@ -4521,16 +4509,16 @@ func (gps *ParserState) cond_term() *CondCom {
 	  op = make_word ("-n");
 	  term = make_cond_node (COND_UNARY, op, tleft, nil);
 	  gps.cond_token = tok;
-	  return (term);
+	  return term;
 	}
       else
 	{
 	  if (etext = error_token_from_token (tok))
 	    {
-	      gps.parser_error (gps.line_number, _("unexpected token `%s', conditional binary operator expected"), etext);
+	      gps.parser_error (gps.line_number, ("unexpected token `%s', conditional binary operator expected"), etext);
 	    }
 	  else
-	    gps.parser_error (gps.line_number, _("conditional binary operator expected"));
+	    gps.parser_error (gps.line_number, ("conditional binary operator expected"));
 	  dispose_cond_node (tleft);
 	  COND_RETURN_ERROR ();
 	}
@@ -4552,30 +4540,28 @@ func (gps *ParserState) cond_term() *CondCom {
 	{
 	  if (etext = error_token_from_token (tok))
 	    {
-	      gps.parser_error (gps.line_number, _("unexpected argument `%s' to conditional binary operator"), etext);
+	      gps.parser_error (gps.line_number, ("unexpected argument `%s' to conditional binary operator"), etext);
 	    }
 	  else
-	    gps.parser_error (gps.line_number, _("unexpected argument to conditional binary operator"));
+	    gps.parser_error (gps.line_number, ("unexpected argument to conditional binary operator"));
 	  dispose_cond_node (tleft);
 	  dispose_word (op);
 	  COND_RETURN_ERROR ();
 	}
 
       (void)cond_skip_newlines ();
-    }
-  else
-    {
+  default:
       if (tok < 256)
-	gps.parser_error (gps.line_number, _("unexpected token `%c' in conditional command"), tok);
+	gps.parser_error (gps.line_number, ("unexpected token `%c' in conditional command"), tok);
       else if (etext = error_token_from_token (tok))
 	{
-	  gps.parser_error (gps.line_number, _("unexpected token `%s' in conditional command"), etext);
+	  gps.parser_error (gps.line_number, ("unexpected token `%s' in conditional command"), etext);
 	}
       else
-	gps.parser_error (gps.line_number, _("unexpected token %d in conditional command"), tok);
+	gps.parser_error (gps.line_number, ("unexpected token %d in conditional command"), tok);
       COND_RETURN_ERROR ();
-    }
-  return (term);
+  }
+  return term;
 }
 
 ///* This is kind of bogus -- we slip a mini recursive-descent parser in
@@ -5277,7 +5263,7 @@ func error_token_from_token(tok int) string {
 //     parser's complaining about by looking at gps.current_token. */
 //  if (gps.current_token != 0 && !gps.EOF_Reached && (msg = error_token_from_token (gps.current_token)))
 //    {
-//      gps.parser_error (gps.line_number, _("syntax error near unexpected token `%s'"), msg);
+//      gps.parser_error (gps.line_number, ("syntax error near unexpected token `%s'"), msg);
 //
 //      print_offending_line ();
 //
@@ -5293,14 +5279,14 @@ func error_token_from_token(tok int) string {
 //      msg = error_token_from_text ();
 //      if (msg)
 //	{
-//	  gps.parser_error (gps.line_number, _("syntax error near `%s'"), msg);
+//	  gps.parser_error (gps.line_number, ("syntax error near `%s'"), msg);
 //	}
 //
 //      print_offending_line ();
 //    }
 //  else
 //    {
-//      msg = gps.EOF_Reached ? _("syntax error: unexpected end of file") : _("syntax error");
+//      msg = gps.EOF_Reached ? ("syntax error: unexpected end of file") : ("syntax error");
 //      gps.parser_error (gps.line_number, "%s", msg);
 //    }
 //
@@ -5462,7 +5448,7 @@ func parse_compound_assignment() *StringBuilder {
 //	{
 //	  gps.current_token = tok;	/* for error reporting */
 //	  if (tok == yacc_EOF)	/* ( */
-//	    gps.parser_error (orig_line_number, _("unexpected EOF while looking for matching `)'"));
+//	    gps.parser_error (orig_line_number, ("unexpected EOF while looking for matching `)'"));
 //	  else
 //	    yyerror(NULL);	/* does the right thing */
 //	  if (wl)
