@@ -525,7 +525,7 @@ func (cmd *SubshellCom) String() string {
   if cmd == nil {
     return "nil"
   }
-  return fmt.Sprintf("flags:%d,\ncommand: %v", cmd.flags, cmd.command)
+  return fmt.Sprintf("flags:%d\ncommand: %v", cmd.flags, cmd.command)
 }
 
 const COPROC_RUNNING = 0x01
