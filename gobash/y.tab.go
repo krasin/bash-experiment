@@ -3966,7 +3966,7 @@ eof_error:
       case lex_firstind >= 0 && (tflags & LEX_PASSNEXT) == 0 && shellbreak (ch):
         if heredelim == "" {
           neststr := ret.Suffix(lex_firstind)
-          heredelim = string_quote_removal (neststr, 0);
+          heredelim = string_quote_removal (neststr, false);
 /*itrace("gps.parse_comsub:%d: found here doc delimiter `%s' (%d)", gps.line_number, heredelim, hdlen);*/
         }
         if (ch == '\n') {
