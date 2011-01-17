@@ -3818,10 +3818,10 @@ func (gps *ParserState) parse_comsub(qc int, open int, cloze int, flags int) (*S
 
   int count, ch, peekc, tflags, lex_rwlen, lex_wlen, lex_firstind;
   int nestlen, ttranslen, start_lineno;
-  char *ret, *nestret, *ttrans, *heredelim;
-  int retind, retsize, rflags, hdlen;
+  char *nestret, *ttrans, *heredelim;
+  int rflags, hdlen;
 
-/*itrace("gps.parse_comsub: qc = `%c' open = %c close = %c", qc, open, close);*/
+/*itrace("gps.parse_comsub: qc = `%c' open = %c cloze = %c", qc, open, cloze);*/
   count = 1;
   tflags = LEX_RESWDOK;
 
@@ -3833,8 +3833,7 @@ func (gps *ParserState) parse_comsub(qc int, open int, cloze int, flags int) (*S
   /* RFLAGS is the set of flags we want to pass to recursive calls. */
   rflags = (flags & P_DQUOTE);
 
-  ret = (char *)xmalloc (retsize = 64);
-  retind = 0;
+  ret := NewStringBuilder()
 
   start_lineno = gps.line_number;
   lex_rwlen = lex_wlen = 0;
@@ -3850,7 +3849,7 @@ comsub_readchar:
       if (ch == EOF)
 	{
 eof_error:
-	  gps.parser_error (start_lineno, ("unexpected EOF while looking for matching `%c'"), close);
+	  gps.parser_error (start_lineno, ("unexpected EOF while looking for matching `%c'"), cloze);
 	  gps.EOF_Reached = true;	/* XXX */
 	  return (&matched_pair_error);
 	}
@@ -3888,10 +3887,10 @@ eof_error:
 
       /* XXX -- possibly allow here doc to be delimited by ending right
 	 paren. */
-      if ((tflags & LEX_INHEREDOC) && ch == close && count == 1)
+      if ((tflags & LEX_INHEREDOC) && ch == cloze && count == 1)
 	{
 	  int tind;
-/*itrace("gps.parse_comsub: in here doc, ch == close, retind - firstind = %d hdlen = %d retind = %d", retind-lex_firstind, hdlen, retind);*/
+/*itrace("gps.parse_comsub: in here doc, ch == cloze, retind - firstind = %d hdlen = %d retind = %d", retind-lex_firstind, hdlen, retind);*/
 	  tind = lex_firstind;
 	  while ((tflags & LEX_STRIPDOC) && ret[tind] == '\t')
 	    tind++;
@@ -3908,8 +3907,7 @@ eof_error:
       if (tflags & (LEX_INCOMMENT|LEX_INHEREDOC))
 	{
 	  /* Add this character. */
-	  RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
-	  ret[retind++] = ch;
+	  ret.Add(ch)
 
 	  if ((tflags & LEX_INCOMMENT) && ch == '\n')
 {
@@ -3926,15 +3924,16 @@ eof_error:
 	  tflags &= ^LEX_PASSNEXT;
 	  if (qc != '\'' && ch == '\n')	/* double-quoted \<newline> disappears. */
 	    {
-	      if (retind > 0)
-		retind--;	/* swallow previously-added backslash */
+	      if ret.Len() > 0 {
+		    ret.Backspace(1);	/* swallow previously-added backslash */
+          }
 	      continue;
 	    }
 
-	  RESIZE_MALLOCED_BUFFER (ret, retind, 2, retsize, 64);
-	  if (ch == CTLESC || ch == CTLNUL)
-	    ret[retind++] = CTLESC;
-	  ret[retind++] = ch;
+	  if (ch == CTLESC || ch == CTLNUL) {
+        ret.Add(CTLESC)
+      }
+      ret.Add(ch)
 	  continue;
 	}
 
@@ -3964,8 +3963,7 @@ eof_error:
       if (shellblank (ch) && lex_rwlen == 0)
         {
 	  /* Add this character. */
-	  RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
-	  ret[retind++] = ch;
+      ret.Add(ch)
 	  continue;
         }
 
@@ -4004,13 +4002,11 @@ eof_error:
       if ((tflags & LEX_RESWDOK) == 0 && (tflags & LEX_CKCASE) && (tflags & LEX_INCOMMENT) == 0 && (shellmeta(ch) || ch == '\n'))
 	{
 	  /* Add this character. */
-	  RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
-	  ret[retind++] = ch;
+      ret.Add(ch)
 	  peekc = gps.shell_getc (1);
 	  if (ch == peekc && (ch == '&' || ch == '|' || ch == ';'))	/* two-character tokens */
 	    {
-	      RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
-	      ret[retind++] = peekc;
+	      ret.Add(peekc)
 /*itrace("gps.parse_comsub:%d: set lex_reswordok = 1, ch = `%c'", gps.line_number, ch);*/
 	      tflags |= LEX_RESWDOK;
 	      lex_rwlen = 0;
@@ -4029,7 +4025,7 @@ eof_error:
 	  else
 	    {
 	      /* `unget' the character we just added and fall through */
-	      retind--;
+	      ret.Backspace(1);
 	      gps.shell_ungetc (peekc);
 	    }
 	}
@@ -4040,8 +4036,7 @@ eof_error:
 	  if (islower (ch))
 	    {
 	      /* Add this character. */
-	      RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
-	      ret[retind++] = ch;
+	      ret.Add(ch)
 	      lex_rwlen++;
 	      continue;
 	    }
@@ -4082,22 +4077,19 @@ eof_error:
       if ((tflags & LEX_INCOMMENT) == 0 && (tflags & LEX_CKCASE) && ch == '<')
 	{
 	  /* Add this character. */
-	  RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
-	  ret[retind++] = ch;
+	  ret.Add(ch)
 	  peekc = gps.shell_getc (1);
 	  if (peekc == EOF)
 	    goto eof_error;
 	  if (peekc == ch)
 	    {
-	      RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
-	      ret[retind++] = peekc;
+          ret.Add(peekc)
 	      peekc = gps.shell_getc (1);
 	      if (peekc == EOF)
 		goto eof_error;
 	      if (peekc == '-')
 		{
-		  RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
-		  ret[retind++] = peekc;
+		  ret.Add(peekc)
 		  tflags |= LEX_STRIPDOC;
 		}
 	      else
@@ -4120,15 +4112,14 @@ eof_error:
 
       if (ch == CTLESC || ch == CTLNUL)	/* special shell escapes */
 	{
-	  RESIZE_MALLOCED_BUFFER (ret, retind, 2, retsize, 64);
-	  ret[retind++] = CTLESC;
-	  ret[retind++] = ch;
+	  ret.Add(CTLESC)
+	  ret.Add(ch)
 	  continue;
 	}
-      else if (ch == close && (tflags & LEX_INCASE) == 0)		/* ending delimiter */
+      else if (ch == cloze && (tflags & LEX_INCASE) == 0)		/* ending delimiter */
 {
 	count--;
-/*itrace("gps.parse_comsub:%d: found close: count = %d", gps.line_number, count);*/
+/*itrace("gps.parse_comsub:%d: found cloze: count = %d", gps.line_number, count);*/
 }
       else if (((flags & P_FIRSTCLOSE) == 0) && (tflags & LEX_INCASE) == 0 && ch == open)	/* nested begin */
 {
@@ -4137,8 +4128,7 @@ eof_error:
 }
 
       /* Add this character. */
-      RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
-      ret[retind++] = ch;
+      ret.Add(ch)
 
       /* If we just read the ending character, don't bother continuing. */
       if (count == 0)
@@ -4173,7 +4163,7 @@ eof_error:
 		  nestret = ttrans;
 		  nestlen = ttranslen;
 		}
-	      retind -= 2;		/* back up before the $' */
+	      ret.Backspace(2);		/* back up before the $' */
 	    }
 	  else if ((tflags & LEX_WASDOL) && ch == '"' && (gps.extended_quote || (rflags & P_DQUOTE) == 0))
 	    {
@@ -4182,7 +4172,7 @@ eof_error:
 
 	      nestret = sh_mkdoublequoted (ttrans, ttranslen, 0);
 	      nestlen = ttranslen + 2;
-	      retind -= 2;		/* back up before the $" */
+	      ret.Backspace(2)		/* back up before the $" */
 	    }
 
 	  APPEND_NESTRET ();
@@ -4209,11 +4199,8 @@ eof_error:
 	tflags &= ^LEX_WASDOL;
     }
 
-  ret[retind] = '\0';
-  if (lenp)
-    *lenp = retind;
 /*itrace("gps.parse_comsub:%d: returning `%s'", gps.line_number, ret);*/
-  return ret;
+  return ret, nil
 }
 
 ///* XXX - this needs to handle functionality like subst.c:no_longjmp_on_fatal_error;
