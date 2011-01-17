@@ -3931,104 +3931,98 @@ eof_error:
     if (shellbreak (ch)) {
       tflags &= ^LEX_INWORD;
 /*itrace("gps.parse_comsub:%d: lex_inword -> 0 ch = `%c' (%d)", gps.line_number, ch, __LINE__);*/
-    }
-      else
-    {
-      if (tflags & LEX_INWORD) {
-          lex_wlen++;
+    } else {
+      if tflags & LEX_INWORD != 0 {
+        lex_wlen++;
 /*itrace("gps.parse_comsub:%d: lex_inword == 1 ch = `%c' lex_wlen = %d (%d)", gps.line_number, ch, lex_wlen, __LINE__);*/
-        }    
-      else
-        {
+      } else {
 /*itrace("gps.parse_comsub:%d: lex_inword -> 1 ch = `%c' (%d)", gps.line_number, ch, __LINE__);*/
-          tflags |= LEX_INWORD;
-          lex_wlen = 0;
-        }
+        tflags |= LEX_INWORD;
+        lex_wlen = 0;
+      }
     }
 
-      /* Skip whitespace */
-      if (shellblank (ch) && lex_rwlen == 0) {
+    /* Skip whitespace */
+    if shellblank (ch) && lex_rwlen == 0 {
       /* Add this character. */
       ret.Add(ch)
       continue;
-        }
+    }
 
-      /* Either we are looking for the start of the here-doc delimiter
-     (lex_firstind == -1) or we are reading one (lex_firstind >= 0).
-     If this character is a shell break character and we are reading
-     the delimiter, save it and note that we are now reading a here
-     document.  If we've found the start of the delimiter, note it by
-     setting lex_firstind.  Backslashes can quote shell metacharacters
-     in here-doc delimiters. */
-      if (tflags & LEX_HEREDELIM) {
-      if (lex_firstind == -1 && shellbreak (ch) == 0)
+    /* Either we are looking for the start of the here-doc delimiter
+       (lex_firstind == -1) or we are reading one (lex_firstind >= 0).
+       If this character is a shell break character and we are reading
+       the delimiter, save it and note that we are now reading a here
+       document.  If we've found the start of the delimiter, note it by
+       setting lex_firstind.  Backslashes can quote shell metacharacters
+       in here-doc delimiters. */
+    if tflags & LEX_HEREDELIM != 0 {
+      switch {
+      case lex_firstind == -1 && shellbreak (ch) == 0:
         lex_firstind = retind;
-      else if (lex_firstind >= 0 && (tflags & LEX_PASSNEXT) == 0 && shellbreak (ch)) {
-          if (heredelim == 0) {
+      case lex_firstind >= 0 && (tflags & LEX_PASSNEXT) == 0 && shellbreak (ch):
+        if (heredelim == 0) {
           nestret = substring (ret, lex_firstind, retind);
           heredelim = string_quote_removal (nestret, 0);
           hdlen = STRLEN(heredelim);
 /*itrace("gps.parse_comsub:%d: found here doc delimiter `%s' (%d)", gps.line_number, heredelim, hdlen);*/
         }
-          if (ch == '\n') {
+        if (ch == '\n') {
           tflags |= LEX_INHEREDOC;
           tflags &= ^LEX_HEREDELIM;
           lex_firstind = retind + 1;
+        } else {
+          lex_firstind = -1;
         }
-          else
-        lex_firstind = -1;
-        }
+      }
     }
 
-      /* Meta-characters that can introduce a reserved word.  Not perfect yet. */
-      if ((tflags & LEX_RESWDOK) == 0 && (tflags & LEX_CKCASE) && (tflags & LEX_INCOMMENT) == 0 && (shellmeta(ch) || ch == '\n')) {
+    /* Meta-characters that can introduce a reserved word.  Not perfect yet. */
+    if ((tflags & LEX_RESWDOK) == 0 && (tflags & LEX_CKCASE) && (tflags & LEX_INCOMMENT) == 0 && (shellmeta(ch) || ch == '\n')) {
       /* Add this character. */
       ret.Add(ch)
       peekc = gps.shell_getc (1);
-      if (ch == peekc && (ch == '&' || ch == '|' || ch == ';'))    /* two-character tokens */
-        {
-          ret.Add(peekc)
+      switch {
+      case ch == peekc && (ch == '&' || ch == '|' || ch == ';'):    /* two-character tokens */
+        ret.Add(peekc)
 /*itrace("gps.parse_comsub:%d: set lex_reswordok = 1, ch = `%c'", gps.line_number, ch);*/
-          tflags |= LEX_RESWDOK;
-          lex_rwlen = 0;
-          continue;
-        }
-      else if (ch == '\n' || COMSUB_META(ch)) {
-          gps.shell_ungetc (peekc);
+        tflags |= LEX_RESWDOK;
+        lex_rwlen = 0;
+        continue;
+      case ch == '\n' || COMSUB_META(ch):
+        gps.shell_ungetc (peekc);
 /*itrace("gps.parse_comsub:%d: set lex_reswordok = 1, ch = `%c'", gps.line_number, ch);*/
-          tflags |= LEX_RESWDOK;
-          lex_rwlen = 0;
-          continue;
-        }
-      else if (ch == EOF)
+        tflags |= LEX_RESWDOK;
+        lex_rwlen = 0;
+        continue;
+      case ch == EOF:
         goto eof_error;
-      else
-        {
-          /* `unget' the character we just added and fall through */
-          ret.Backspace(1);
-          gps.shell_ungetc (peekc);
-        }
+      default:
+        /* `unget' the character we just added and fall through */
+        ret.Backspace(1);
+        gps.shell_ungetc (peekc);
+      }
     }
 
-      /* If we can read a reserved word, try to read one. */
-      if (tflags & LEX_RESWDOK) {
+    /* If we can read a reserved word, try to read one. */
+    if tflags & LEX_RESWDOK != 0 {
       if (islower (ch)) {
-          /* Add this character. */
-          ret.Add(ch)
-          lex_rwlen++;
-          continue;
-        }
+        /* Add this character. */
+        ret.Add(ch)
+        lex_rwlen++;
+        continue;
+      }
       else if (lex_rwlen == 4 && shellbreak (ch)) {
-          if (STREQN (ret + retind - 4, "case", 4)) {
-        tflags |= LEX_INCASE;
+        if (STREQN (ret + retind - 4, "case", 4)) {
+          tflags |= LEX_INCASE;
 /*itrace("gps.parse_comsub:%d: found `case', lex_incase -> 1 lex_reswdok -> 0", gps.line_number);*/
-}
-          else if (STREQN (ret + retind - 4, "esac", 4)) {
-        tflags &= ^LEX_INCASE;
+        }
+        else if (STREQN (ret + retind - 4, "esac", 4)) {
+          tflags &= ^LEX_INCASE;
 /*itrace("gps.parse_comsub:%d: found `esac', lex_incase -> 0 lex_reswdok -> 0", gps.line_number);*/
 }    
           tflags &= ^LEX_RESWDOK;
-        }
+      }
       else if ((tflags & LEX_CKCOMMENT) && ch == '#' && (lex_rwlen == 0 || ((tflags & LEX_INWORD) && lex_wlen == 0)))
         ;    /* don't modify LEX_RESWDOK if we're starting a comment */
       else if ((tflags & LEX_INCASE) && ch != '\n')
