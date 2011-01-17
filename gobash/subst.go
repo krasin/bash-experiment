@@ -7056,6 +7056,11 @@ func skipsubscript(str []int, flags int) int {
 ///* */
 ///* **************************************************************** */
 //
+func string_quote_removal(str string, quoted bool) string {
+  // TODO(Krasin): implement this
+  panic("string_quote_removal: not implemented")
+}
+
 ///* Perform quote removal on STRING.  If QUOTED > 0, assume we are obeying the backslash quoting rules for within double quotes or 
 //   a here document. */
 //char *string_quote_removal(string, quoted)
