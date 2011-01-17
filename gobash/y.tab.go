@@ -3816,43 +3816,41 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
 func (gps *ParserState) parse_comsub(qc int, open int, cloze int, flags int) (*StringBuilder, os.Error) {
 // qc is `"' if this construct is within double quotes
 
-  int count, ch, peekc, tflags, lex_rwlen, lex_wlen, lex_firstind;
-  int nestlen, ttranslen, start_lineno;
-  char *heredelim;
-  int rflags, hdlen;
+  var heredelim string
   var ttrans, nestret *StringBuilder
   var err os.Error
 
 /*itrace("gps.parse_comsub: qc = `%c' open = %c cloze = %c", qc, open, cloze);*/
-  count = 1;
-  tflags = LEX_RESWDOK;
+  count := 1;
+  tflags := LEX_RESWDOK;
 
-  if ((flags & P_COMMAND) && qc != '\'' && qc != '"' && (flags & P_DQUOTE) == 0)
+  if (flags & P_COMMAND != 0) && qc != '\'' && qc != '"' && (flags & P_DQUOTE) == 0 {
     tflags |= LEX_CKCASE;
-  if (tflags & LEX_CKCASE)
+  }
+  if tflags & LEX_CKCASE != 0 {
     tflags |= LEX_CKCOMMENT;
+  }
 
   /* RFLAGS is the set of flags we want to pass to recursive calls. */
-  rflags = (flags & P_DQUOTE);
+  rflags := (flags & P_DQUOTE);
 
   ret := NewStringBuilder()
 
-  start_lineno = gps.line_number;
-  lex_rwlen = lex_wlen = 0;
+  start_lineno := gps.line_number;
+  lex_rwlen := 0
+  lex_wlen := 0
 
-  heredelim = 0;
-  lex_firstind = -1;
+  lex_firstind := -1;
 
-  while (count)
-    {
+  for count != 0 {
 comsub_readchar:
-      ch = gps.shell_getc (qc != '\'' && (tflags & LEX_PASSNEXT) == 0);
+    ch := gps.shell_getc (qc != '\'' && (tflags & LEX_PASSNEXT) == 0);
 
-      if (ch == EOF) {
+    if ch == EOF {
 eof_error:
 	  gps.parser_error (start_lineno, ("unexpected EOF while looking for matching `%c'"), cloze);
 	  gps.EOF_Reached = true;	/* XXX */
-	  return (&matched_pair_error);
+	  return new(matchedPairError)
 	}
 
       /* If we hit the end of a line and are reading the contents of a here
