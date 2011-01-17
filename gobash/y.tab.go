@@ -3872,7 +3872,7 @@ eof_error:
         if (STREQN (ret + tind, heredelim, hdlen)) {
           tflags &= ^(LEX_STRIPDOC|LEX_INHEREDOC);
 /*itrace("gps.parse_comsub:%d: found here doc end `%s'", gps.line_number, ret + tind);*/
-          heredelim = 0;
+          heredelim = ""
           lex_firstind = -1;
         } else {
           lex_firstind = retind + 1;
@@ -3882,10 +3882,10 @@ eof_error:
 
     /* XXX -- possibly allow here doc to be delimited by ending right
        paren. */
-    if ((tflags & LEX_INHEREDOC) && ch == cloze && count == 1) {
+    if ((tflags & LEX_INHEREDOC != 0) && ch == cloze && count == 1) {
 /*itrace("gps.parse_comsub: in here doc, ch == cloze, retind - firstind = %d hdlen = %d retind = %d", retind-lex_firstind, hdlen, retind);*/
       tind := lex_firstind;
-      for (tflags & LEX_STRIPDOC) && ret[tind] == '\t' {
+      for (tflags & LEX_STRIPDOC != 0) && ret[tind] == '\t' {
         tind++;
       }
       if (retind-tind == hdlen && STREQN (ret + tind, heredelim, hdlen)) {
@@ -3901,7 +3901,7 @@ eof_error:
       /* Add this character. */
       ret.Add(ch)
 
-      if ((tflags & LEX_INCOMMENT) && ch == '\n') {
+      if ((tflags & LEX_INCOMMENT != 0) && ch == '\n') {
 /*itrace("gps.parse_comsub:%d: lex_incomment -> 0 ch = `%c'", gps.line_number, ch);*/
         tflags &= ^LEX_INCOMMENT;
       }
