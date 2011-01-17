@@ -189,6 +189,19 @@ type word_list struct {
   word *word_desc
 }
 
+func (list *word_list) String() string {
+    if list == nil {
+      return "nil"
+    }
+	cur := list
+    b := new(bytes.Buffer)
+	for cur != nil {
+		fmt.Fprintf(b, "%v ", cur.word)
+		cur = cur.next
+	}
+	return string(b.Bytes())
+}
+
 func (list *word_list) Join(sep string) *StringBuilder {
   sb := NewStringBuilder()
   cur := list
@@ -281,8 +294,14 @@ func (redir *Redirect) String() string {
   if redir == nil {
     return "nil"
   }
-  return fmt.Sprintf("redirector:{%v}\nrflags:%d\nflags:%d\ninstruction:%v\nredirectee:{%v}",
-                     redir.redirector, redir.rflags, redir.flags, redir.instruction, redir.redirectee)
+  cur := redir
+  b := new(bytes.Buffer)
+  for cur != nil {
+    fmt.Fprintf(b, "{redirector:{%v}\nrflags:%d\nflags:%d\ninstruction:%v\nredirectee:{%v}}\n",
+                     cur.redirector, cur.rflags, cur.flags, cur.instruction, cur.redirectee)
+	cur = cur.next
+  }
+  return b.String()
 }
 
 /* An element used in parsing.  A single word or a single redirection.
@@ -408,12 +427,32 @@ type PatternList struct {
   flags int
 }
 
+func (list *PatternList) String() string {
+  if list == nil {
+    return "nil"
+  }
+  b := new(bytes.Buffer)
+  cur := list
+  for cur != nil {
+    fmt.Fprintf(b, "{patterns:%v\naction:%v\nflags:%d}\n", cur.patterns, cur.action, cur.flags)
+    cur = cur.next
+  }
+  return b.String()
+}
+
 /* The CASE command. */
 type CaseCom struct {
   flags int /* See description of CMD flags. */
   line int /* line number the `case' keyword appears on */
   word *word_desc /* The thing to test. */
   clauses *PatternList /* The clauses to test against, or NULL. */
+}
+
+func (cmd *CaseCom) String() string {
+  if cmd == nil {
+    return "nil"
+  }
+  return fmt.Sprintf("flags:%d line:%d word:%v clauses:{%v}", cmd.flags, cmd.line, cmd.word, cmd.clauses)
 }
 
 /* FOR command. */
@@ -516,20 +555,7 @@ func (cmd *SimpleCom) String() string {
 	if cmd == nil {
 		return "nil"
 	}
-	b := new(bytes.Buffer)
-        fmt.Fprintf(b, "%d: words:", cmd.line)
-	cur := cmd.words
-	for cur != nil {
-		fmt.Fprintf(b, "%v ", cur.word)
-		cur = cur.next
-	}
-        fmt.Fprintf(b, "redirects:")
-        redir := cmd.redirects
-        for redir != nil {
-                fmt.Fprintf(b, "{%v}\n", redir)
-		redir = redir.next
-        }
-	return string(b.Bytes())
+    return fmt.Sprintf( "%d: words:%vredirects:{%v}", cmd.line, cmd.words, cmd.redirects)
 }
 
 func (cmd *SimpleCom) AddRedirect(r *Redirect) {

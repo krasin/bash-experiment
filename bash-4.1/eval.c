@@ -314,26 +314,66 @@ void KrasinPrintRedirect(REDIRECT *val) {
   fprintf(stderr, "}");
 }
 
+void KrasinPrintWordList(WORD_LIST *list) {
+  if (!list) {
+    fprintf(stderr, "nil");
+    return;
+  }
+  WORD_LIST *cur = list;
+  while (cur) {
+    KrasinPrintWordDesc(cur->word);
+    fprintf(stderr, " ");
+    cur = cur->next;
+  }
+}
+
 void KrasinPrintSimple(SIMPLE_COM *val) {
   if (!val) {
     fprintf(stderr, "nil");
     return;
   }
   fprintf(stderr, "%d: words:", val->line);
-  WORD_LIST *cur = val->words;
-  while (cur) {
-    KrasinPrintWordDesc(cur->word);
-    fprintf(stderr, " ");
-    cur = cur->next;
-  }
-  fprintf(stderr, "redirects:");
+  KrasinPrintWordList(val->words);
+  fprintf(stderr, "redirects:{");
   REDIRECT *redir = val->redirects;
+  if (!redir) {
+    fprintf(stderr, "nil");
+  }
   while (redir) {
     fprintf(stderr, "{");
     KrasinPrintRedirect(redir);
     fprintf(stderr, "}\n");
     redir = redir->next;
   }
+  fprintf(stderr, "}");
+}
+
+void KrasinPrintPatternList(PATTERN_LIST *list) {
+  if (!list) {
+    fprintf(stderr, "nil");
+    return;
+  }
+  PATTERN_LIST *cur = list;
+  while (cur) {
+    fprintf(stderr, "{patterns:");
+    KrasinPrintWordList(cur->patterns);
+    fprintf(stderr, "\naction:");
+    KrasinPrintCommand(cur->action);
+    fprintf(stderr, "\nflags:%d}\n", cur->flags);
+    cur = cur->next;
+  }
+}
+
+void KrasinPrintCase(CASE_COM *cmd) {
+  if (!cmd) {
+    fprintf(stderr, "nil");
+    return;
+  }
+  fprintf(stderr, "flags:%d line:%d word:", cmd->flags, cmd->line);
+  KrasinPrintWordDesc(cmd->word);
+  fprintf(stderr, " clauses:{");
+  KrasinPrintPatternList(cmd->clauses);
+  fprintf(stderr, "}");
 }
 
 void KrasinPrintCommand(COMMAND *cmd) {
@@ -343,9 +383,13 @@ void KrasinPrintCommand(COMMAND *cmd) {
   }
   fprintf(stderr, "{ ");
   switch (cmd->type) {
-    case cm_simple: 
+    case cm_simple:
       fprintf(stderr, "SIMPLE{");
       KrasinPrintSimple(cmd->value.Simple);
+      break;
+    case cm_case:
+      fprintf(stderr, "CASE{");
+      KrasinPrintCase(cmd->value.Case);
       break;
     case cm_connection:
       fprintf(stderr, "CONNECTION{");
