@@ -3818,8 +3818,10 @@ func (gps *ParserState) parse_comsub(qc int, open int, cloze int, flags int) (*S
 
   int count, ch, peekc, tflags, lex_rwlen, lex_wlen, lex_firstind;
   int nestlen, ttranslen, start_lineno;
-  char *nestret, *ttrans, *heredelim;
+  char *heredelim;
   int rflags, hdlen;
+  var ttrans, nestret *StringBuilder
+  var err os.Error
 
 /*itrace("gps.parse_comsub: qc = `%c' open = %c cloze = %c", qc, open, cloze);*/
   count = 1;
