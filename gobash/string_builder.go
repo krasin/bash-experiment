@@ -122,6 +122,10 @@ func (sb *StringBuilder) RangeString(from, to int) string {
     return runesToString(sb.runes[from : to])
 }
 
+func (sb *StringBuilder) Suffix(from int) string {
+  return sb.RangeString(from, sb.Len()-1)
+}
+
 func runesToString(runes []int) string {
     length := 0
 	for _, v := range runes {
