@@ -3980,14 +3980,6 @@ eof_error:
 	{
 	  if (lex_firstind == -1 && shellbreak (ch) == 0)
 	    lex_firstind = retind;
-#if 0
-	  else if (heredelim && (tflags & LEX_PASSNEXT) == 0 && ch == '\n')
-	    {
-	      tflags |= LEX_INHEREDOC;
-	      tflags &= ^LEX_HEREDELIM;
-	      lex_firstind = retind + 1;
-	    }
-#endif
 	  else if (lex_firstind >= 0 && (tflags & LEX_PASSNEXT) == 0 && shellbreak (ch))
 	    {
 	      if (heredelim == 0)
