@@ -3616,8 +3616,6 @@ const LEX_HEREDELIM = 0x100 /* reading here-doc delimiter */
 const LEX_STRIPDOC = 0x200 /* <<- strip tabs from here doc delim */
 const LEX_INWORD = 0x400
 
-//#define COMSUB_META(ch)		((ch) == ';' || (ch) == '&' || (ch) == '|')
-
 func COMSUB_META(ch int) bool {
   return ch == ';' || ch == '&' || ch == '|'
 }
