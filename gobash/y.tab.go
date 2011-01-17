@@ -3788,7 +3788,7 @@ func (gps *ParserState) parse_matched_pair(qc int, open int, cloze int, flags in
       }
       switch {
       case ch == '(':        /* ) */
-        nestret, err = parse_comsub (0, '(', ')', (rflags|P_COMMAND) & ^P_DQUOTE);
+        nestret, err = gps.parse_comsub (0, '(', ')', (rflags|P_COMMAND) & ^P_DQUOTE);
       case ch == '{':        /* } */
         nestret, err = gps.parse_matched_pair (0, '{', '}', P_FIRSTCLOSE|rflags);
       case ch == '[':        /* ] */
@@ -3821,7 +3821,7 @@ func (gps *ParserState) parse_comsub(qc int, open int, cloze int, flags int) (*S
   char *ret, *nestret, *ttrans, *heredelim;
   int retind, retsize, rflags, hdlen;
 
-/*itrace("parse_comsub: qc = `%c' open = %c close = %c", qc, open, close);*/
+/*itrace("gps.parse_comsub: qc = `%c' open = %c close = %c", qc, open, close);*/
   count = 1;
   tflags = LEX_RESWDOK;
 
@@ -3877,7 +3877,7 @@ eof_error:
 	      if (STREQN (ret + tind, heredelim, hdlen))
 		{
 		  tflags &= ^(LEX_STRIPDOC|LEX_INHEREDOC);
-/*itrace("parse_comsub:%d: found here doc end `%s'", gps.line_number, ret + tind);*/
+/*itrace("gps.parse_comsub:%d: found here doc end `%s'", gps.line_number, ret + tind);*/
 		  heredelim = 0;
 		  lex_firstind = -1;
 		}
@@ -3891,14 +3891,14 @@ eof_error:
       if ((tflags & LEX_INHEREDOC) && ch == close && count == 1)
 	{
 	  int tind;
-/*itrace("parse_comsub: in here doc, ch == close, retind - firstind = %d hdlen = %d retind = %d", retind-lex_firstind, hdlen, retind);*/
+/*itrace("gps.parse_comsub: in here doc, ch == close, retind - firstind = %d hdlen = %d retind = %d", retind-lex_firstind, hdlen, retind);*/
 	  tind = lex_firstind;
 	  while ((tflags & LEX_STRIPDOC) && ret[tind] == '\t')
 	    tind++;
 	  if (retind-tind == hdlen && STREQN (ret + tind, heredelim, hdlen))
 	    {
 	      tflags &= ^(LEX_STRIPDOC|LEX_INHEREDOC);
-/*itrace("parse_comsub:%d: found here doc end `%s'", gps.line_number, ret + tind);*/
+/*itrace("gps.parse_comsub:%d: found here doc end `%s'", gps.line_number, ret + tind);*/
 	      heredelim = 0;
 	      lex_firstind = -1;
 	    }
@@ -3913,7 +3913,7 @@ eof_error:
 
 	  if ((tflags & LEX_INCOMMENT) && ch == '\n')
 {
-/*itrace("parse_comsub:%d: lex_incomment -> 0 ch = `%c'", gps.line_number, ch);*/
+/*itrace("gps.parse_comsub:%d: lex_incomment -> 0 ch = `%c'", gps.line_number, ch);*/
 	    tflags &= ^LEX_INCOMMENT;
 }
 
@@ -3922,7 +3922,7 @@ eof_error:
 
       if (tflags & LEX_PASSNEXT)		/* last char was backslash */
 	{
-/*itrace("parse_comsub:%d: lex_passnext -> 0 ch = `%c' (%d)", gps.line_number, ch, __LINE__);*/
+/*itrace("gps.parse_comsub:%d: lex_passnext -> 0 ch = `%c' (%d)", gps.line_number, ch, __LINE__);*/
 	  tflags &= ^LEX_PASSNEXT;
 	  if (qc != '\'' && ch == '\n')	/* double-quoted \<newline> disappears. */
 	    {
@@ -3943,18 +3943,18 @@ eof_error:
       if (shellbreak (ch))
 	{
 	  tflags &= ^LEX_INWORD;
-/*itrace("parse_comsub:%d: lex_inword -> 0 ch = `%c' (%d)", gps.line_number, ch, __LINE__);*/
+/*itrace("gps.parse_comsub:%d: lex_inword -> 0 ch = `%c' (%d)", gps.line_number, ch, __LINE__);*/
 	}
       else
 	{
 	  if (tflags & LEX_INWORD)
 	    {
 	      lex_wlen++;
-/*itrace("parse_comsub:%d: lex_inword == 1 ch = `%c' lex_wlen = %d (%d)", gps.line_number, ch, lex_wlen, __LINE__);*/
+/*itrace("gps.parse_comsub:%d: lex_inword == 1 ch = `%c' lex_wlen = %d (%d)", gps.line_number, ch, lex_wlen, __LINE__);*/
 	    }	
 	  else
 	    {
-/*itrace("parse_comsub:%d: lex_inword -> 1 ch = `%c' (%d)", gps.line_number, ch, __LINE__);*/
+/*itrace("gps.parse_comsub:%d: lex_inword -> 1 ch = `%c' (%d)", gps.line_number, ch, __LINE__);*/
 	      tflags |= LEX_INWORD;
 	      lex_wlen = 0;
 	    }
@@ -3995,7 +3995,7 @@ eof_error:
 		  nestret = substring (ret, lex_firstind, retind);
 		  heredelim = string_quote_removal (nestret, 0);
 		  hdlen = STRLEN(heredelim);
-/*itrace("parse_comsub:%d: found here doc delimiter `%s' (%d)", gps.line_number, heredelim, hdlen);*/
+/*itrace("gps.parse_comsub:%d: found here doc delimiter `%s' (%d)", gps.line_number, heredelim, hdlen);*/
 		}
 	      if (ch == '\n')
 		{
@@ -4019,7 +4019,7 @@ eof_error:
 	    {
 	      RESIZE_MALLOCED_BUFFER (ret, retind, 1, retsize, 64);
 	      ret[retind++] = peekc;
-/*itrace("parse_comsub:%d: set lex_reswordok = 1, ch = `%c'", gps.line_number, ch);*/
+/*itrace("gps.parse_comsub:%d: set lex_reswordok = 1, ch = `%c'", gps.line_number, ch);*/
 	      tflags |= LEX_RESWDOK;
 	      lex_rwlen = 0;
 	      continue;
@@ -4027,7 +4027,7 @@ eof_error:
 	  else if (ch == '\n' || COMSUB_META(ch))
 	    {
 	      gps.shell_ungetc (peekc);
-/*itrace("parse_comsub:%d: set lex_reswordok = 1, ch = `%c'", gps.line_number, ch);*/
+/*itrace("gps.parse_comsub:%d: set lex_reswordok = 1, ch = `%c'", gps.line_number, ch);*/
 	      tflags |= LEX_RESWDOK;
 	      lex_rwlen = 0;
 	      continue;
@@ -4058,12 +4058,12 @@ eof_error:
 	      if (STREQN (ret + retind - 4, "case", 4))
 {
 		tflags |= LEX_INCASE;
-/*itrace("parse_comsub:%d: found `case', lex_incase -> 1 lex_reswdok -> 0", gps.line_number);*/
+/*itrace("gps.parse_comsub:%d: found `case', lex_incase -> 1 lex_reswdok -> 0", gps.line_number);*/
 }
 	      else if (STREQN (ret + retind - 4, "esac", 4))
 {
 		tflags &= ^LEX_INCASE;
-/*itrace("parse_comsub:%d: found `esac', lex_incase -> 0 lex_reswdok -> 0", gps.line_number);*/
+/*itrace("gps.parse_comsub:%d: found `esac', lex_incase -> 0 lex_reswdok -> 0", gps.line_number);*/
 }	
 	      tflags &= ^LEX_RESWDOK;
 	    }
@@ -4077,12 +4077,12 @@ eof_error:
 	       turn off LEX_RESWDOK, since we're going to read a pattern list. */
 {
 	    tflags &= ^LEX_RESWDOK;
-/*itrace("parse_comsub:%d: lex_incase == 1 found `%c', lex_reswordok -> 0", gps.line_number, ch);*/
+/*itrace("gps.parse_comsub:%d: lex_incase == 1 found `%c', lex_reswordok -> 0", gps.line_number, ch);*/
 }
 	  else if (shellbreak (ch) == 0)
 {
 	    tflags &= ^LEX_RESWDOK;
-/*itrace("parse_comsub:%d: found `%c', lex_reswordok -> 0", gps.line_number, ch);*/
+/*itrace("gps.parse_comsub:%d: found `%c', lex_reswordok -> 0", gps.line_number, ch);*/
 }
 	}
 
@@ -4122,7 +4122,7 @@ eof_error:
 	}
       else if ((tflags & LEX_CKCOMMENT) && (tflags & LEX_INCOMMENT) == 0 && ch == '#' && (((tflags & LEX_RESWDOK) && lex_rwlen == 0) || ((tflags & LEX_INWORD) && lex_wlen == 0)))
 {
-/*itrace("parse_comsub:%d: lex_incomment -> 1 (%d)", gps.line_number, __LINE__);*/
+/*itrace("gps.parse_comsub:%d: lex_incomment -> 1 (%d)", gps.line_number, __LINE__);*/
 	tflags |= LEX_INCOMMENT;
 }
 
@@ -4136,12 +4136,12 @@ eof_error:
       else if (ch == close && (tflags & LEX_INCASE) == 0)		/* ending delimiter */
 {
 	count--;
-/*itrace("parse_comsub:%d: found close: count = %d", gps.line_number, count);*/
+/*itrace("gps.parse_comsub:%d: found close: count = %d", gps.line_number, count);*/
 }
       else if (((flags & P_FIRSTCLOSE) == 0) && (tflags & LEX_INCASE) == 0 && ch == open)	/* nested begin */
 {
 	count++;
-/*itrace("parse_comsub:%d: found open: count = %d", gps.line_number, count);*/
+/*itrace("gps.parse_comsub:%d: found open: count = %d", gps.line_number, count);*/
 }
 
       /* Add this character. */
@@ -4201,7 +4201,7 @@ eof_error:
 	  if ((tflags & LEX_INCASE) == 0 && open == ch)	/* undo previous increment */
 	    count--;
 	  if (ch == '(')		/* ) */
-	    nestret = parse_comsub (0, '(', ')', &nestlen, (rflags|P_COMMAND) & ^P_DQUOTE);
+	    nestret = gps.parse_comsub (0, '(', ')', &nestlen, (rflags|P_COMMAND) & ^P_DQUOTE);
 	  else if (ch == '{')		/* } */
 	    nestret = gps.parse_matched_pair (0, '{', '}', &nestlen, P_FIRSTCLOSE|rflags);
 	  else if (ch == '[')		/* ] */
@@ -4220,7 +4220,7 @@ eof_error:
   ret[retind] = '\0';
   if (lenp)
     *lenp = retind;
-/*itrace("parse_comsub:%d: returning `%s'", gps.line_number, ret);*/
+/*itrace("gps.parse_comsub:%d: returning `%s'", gps.line_number, ret);*/
   return ret;
 }
 
@@ -4751,7 +4751,7 @@ func (wts *wordTokenizerState) handleShellExp() readTokenWordState {
            history literally rather than causing a possibly-
            incorrect `;' to be added. ) */
         wts.gps.push_delimiter (wts.peek_char);
-        wts.ttok, err = parse_comsub (wts.cd, '(', ')', P_COMMAND);
+        wts.ttok, err = gps.parse_comsub (wts.cd, '(', ')', P_COMMAND);
         wts.gps.pop_delimiter()
       default:
         wts.ttok, err = wts.gps.parse_matched_pair (wts.cd, '[', ']', 0);
