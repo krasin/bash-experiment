@@ -3850,7 +3850,7 @@ comsub_readchar:
 eof_error:
       gps.parser_error (start_lineno, ("unexpected EOF while looking for matching `%c'"), cloze);
       gps.EOF_Reached = true;    /* XXX */
-      return new(matchedPairError)
+      return nil, new(matchedPairError)
     }
 
     /* If we hit the end of a line and are reading the contents of a here
@@ -3860,7 +3860,7 @@ eof_error:
        of a line. */
     if ch == '\n' {
       switch {
-      case (tflags & LEX_HEREDELIM != 0) && heredelim:
+      case (tflags & LEX_HEREDELIM != 0) && heredelim != "":
         tflags &= ^LEX_HEREDELIM;
         tflags |= LEX_INHEREDOC;
         lex_firstind = retind + 1;
@@ -4012,149 +4012,149 @@ eof_error:
         lex_rwlen++;
         continue;
       }
-      else if (lex_rwlen == 4 && shellbreak (ch)) {
-        if (STREQN (ret + retind - 4, "case", 4)) {
+      switch {
+      case lex_rwlen == 4 && shellbreak (ch):
+        switch {
+        case STREQN (ret + retind - 4, "case", 4):
           tflags |= LEX_INCASE;
 /*itrace("gps.parse_comsub:%d: found `case', lex_incase -> 1 lex_reswdok -> 0", gps.line_number);*/
-        }
-        else if (STREQN (ret + retind - 4, "esac", 4)) {
+        case STREQN (ret + retind - 4, "esac", 4):
           tflags &= ^LEX_INCASE;
 /*itrace("gps.parse_comsub:%d: found `esac', lex_incase -> 0 lex_reswdok -> 0", gps.line_number);*/
-}    
-          tflags &= ^LEX_RESWDOK;
-      }
-      else if ((tflags & LEX_CKCOMMENT) && ch == '#' && (lex_rwlen == 0 || ((tflags & LEX_INWORD) && lex_wlen == 0)))
+        }
+        tflags &= ^LEX_RESWDOK;
+      case (tflags & LEX_CKCOMMENT) && ch == '#' && (lex_rwlen == 0 || ((tflags & LEX_INWORD) && lex_wlen == 0)):
         ;    /* don't modify LEX_RESWDOK if we're starting a comment */
-      else if ((tflags & LEX_INCASE) && ch != '\n')
+      case (tflags & LEX_INCASE != 0) && ch != '\n':
         /* If we can read a reserved word and we're in case, we're at the
            point where we can read a new pattern list or an esac.  We
            handle the esac case above.  If we read a newline, we want to
            leave LEX_RESWDOK alone.  If we read anything else, we want to
            turn off LEX_RESWDOK, since we're going to read a pattern list. */
-{
         tflags &= ^LEX_RESWDOK;
 /*itrace("gps.parse_comsub:%d: lex_incase == 1 found `%c', lex_reswordok -> 0", gps.line_number, ch);*/
-}
-      else if (shellbreak (ch) == 0) {
+      case shellbreak (ch) == 0:
         tflags &= ^LEX_RESWDOK;
 /*itrace("gps.parse_comsub:%d: found `%c', lex_reswordok -> 0", gps.line_number, ch);*/
-}
+      }
     }
 
-      /* Might be the start of a here-doc delimiter */
-      if ((tflags & LEX_INCOMMENT) == 0 && (tflags & LEX_CKCASE) && ch == '<') {
+    /* Might be the start of a here-doc delimiter */
+    switch {
+    case (tflags & LEX_INCOMMENT) == 0 && (tflags & LEX_CKCASE != 0) && ch == '<':
       /* Add this character. */
       ret.Add(ch)
       peekc = gps.shell_getc (1);
-      if (peekc == EOF)
+      if peekc == EOF {
         goto eof_error;
+      }
       if (peekc == ch) {
-          ret.Add(peekc)
-          peekc = gps.shell_getc (1);
-          if (peekc == EOF)
-        goto eof_error;
-          if (peekc == '-') {
+        ret.Add(peekc)
+        peekc = gps.shell_getc (1);
+        if peekc == EOF {
+          goto eof_error;
+        }
+        if (peekc == '-') {
           ret.Add(peekc)
           tflags |= LEX_STRIPDOC;
+        } else {
+          gps.shell_ungetc (peekc);
         }
-          else
-        gps.shell_ungetc (peekc);
-          if (peekc != '<') {
+        if (peekc != '<') {
           tflags |= LEX_HEREDELIM;
           lex_firstind = -1;
         }
           continue;
-        }
-      else
+      } else {
         ch = peekc;        /* fall through and continue XXX */
-    }
-      else if ((tflags & LEX_CKCOMMENT) && (tflags & LEX_INCOMMENT) == 0 && ch == '#' && (((tflags & LEX_RESWDOK) && lex_rwlen == 0) || ((tflags & LEX_INWORD) && lex_wlen == 0))) {
+      }
+    case (tflags & LEX_CKCOMMENT) && (tflags & LEX_INCOMMENT) == 0 && ch == '#' && (((tflags & LEX_RESWDOK) && lex_rwlen == 0) || ((tflags & LEX_INWORD) && lex_wlen == 0)):
 /*itrace("gps.parse_comsub:%d: lex_incomment -> 1 (%d)", gps.line_number, __LINE__);*/
-    tflags |= LEX_INCOMMENT;
-}
+      tflags |= LEX_INCOMMENT;
+    }
 
-      if (ch == CTLESC || ch == CTLNUL) { /* special shell escapes */
+    switch {
+    case ch == CTLESC || ch == CTLNUL: /* special shell escapes */
       ret.Add(CTLESC)
       ret.Add(ch)
       continue;
-    }
-      else if (ch == cloze && (tflags & LEX_INCASE) == 0) { /* ending delimiter */
-    count--;
+    case ch == cloze && (tflags & LEX_INCASE) == 0: /* ending delimiter */
+      count--;
 /*itrace("gps.parse_comsub:%d: found cloze: count = %d", gps.line_number, count);*/
-}
-      else if (((flags & P_FIRSTCLOSE) == 0) && (tflags & LEX_INCASE) == 0 && ch == open) { /* nested begin */
-    count++;
+    case ((flags & P_FIRSTCLOSE) == 0) && (tflags & LEX_INCASE) == 0 && ch == open: /* nested begin */
+      count++;
 /*itrace("gps.parse_comsub:%d: found open: count = %d", gps.line_number, count);*/
-}
+    }
 
-      /* Add this character. */
-      ret.Add(ch)
+    /* Add this character. */
+    ret.Add(ch)
 
       /* If we just read the ending character, don't bother continuing. */
-      if (count == 0)
-    break;
+    if count == 0 {
+      break;
+    }
 
-      if (ch == '\\')            /* backslashes */
-    tflags |= LEX_PASSNEXT;
+    if ch == '\\' {            /* backslashes */
+      tflags |= LEX_PASSNEXT;
+    }
 
-      if (shellquote (ch)) {
-          /* '', ``, or "" inside $(...). */
-          push_delimiter (dstack, ch);
-          if ((tflags & LEX_WASDOL) && ch == '\'')    /* $'...' inside group */
+    switch {
+    case shellquote (ch):
+      /* '', ``, or "" inside $(...). */
+      push_delimiter (dstack, ch);
+      if (tflags & LEX_WASDOL) && ch == '\'' {    /* $'...' inside group */
         nestret = gps.parse_matched_pair (ch, ch, ch, &nestlen, P_ALLOWESC|rflags);
-      else
+      } else {
         nestret = gps.parse_matched_pair (ch, ch, ch, &nestlen, rflags);
+      }
       pop_delimiter (dstack);
       CHECK_NESTRET_ERROR ();
 
-      if ((tflags & LEX_WASDOL) && ch == '\'' && (gps.extended_quote || (rflags & P_DQUOTE) == 0)) {
-          /* Translate $'...' here. */
-          ttrans = ansiexpand (nestret, 0, nestlen - 1, &ttranslen);
+      switch {
+      case (tflags & LEX_WASDOL) && ch == '\'' && (gps.extended_quote || (rflags & P_DQUOTE) == 0):
+        /* Translate $'...' here. */
+        ttrans = ansiexpand (nestret, 0, nestlen - 1, &ttranslen);
 
-          if ((rflags & P_DQUOTE) == 0) {
+        if ((rflags & P_DQUOTE) == 0) {
           nestret = sh_single_quote (ttrans);
           nestlen = strlen (nestret);
-        }
-          else
-        {
+        } else {
           nestret = ttrans;
           nestlen = ttranslen;
         }
-          ret.Backspace(2);        /* back up before the $' */
-        }
-      else if ((tflags & LEX_WASDOL) && ch == '"' && (gps.extended_quote || (rflags & P_DQUOTE) == 0)) {
-          /* Locale expand $"..." here. */
-          ttrans = localeexpand (nestret, 0, nestlen - 1, start_lineno, &ttranslen);
+        ret.Backspace(2);        /* back up before the $' */
+      case (tflags & LEX_WASDOL) && ch == '"' && (gps.extended_quote || (rflags & P_DQUOTE) == 0):
+        /* Locale expand $"..." here. */
+        ttrans = localeexpand (nestret, 0, nestlen - 1, start_lineno, &ttranslen);
 
-          nestret = sh_mkdoublequoted (ttrans, ttranslen, 0);
-          nestlen = ttranslen + 2;
-          ret.Backspace(2)        /* back up before the $" */
-        }
+        nestret = sh_mkdoublequoted (ttrans, ttranslen, 0);
+        nestlen = ttranslen + 2;
+        ret.Backspace(2)        /* back up before the $" */
+      }
 
       APPEND_NESTRET ();
-    }
-  else if ((tflags & LEX_WASDOL) && (ch == '(' || ch == '{' || ch == '['))    /* ) } ] */
+    case (tflags & LEX_WASDOL) && (ch == '(' || ch == '{' || ch == '['):    /* ) } ] */
     /* check for $(), $[], or ${} inside command substitution. */
-    {
-    if (tflags & LEX_INCASE) == 0 && open == ch {  /* undo previous increment */
-      count--;
-    }
-    switch {
-    case ch == '(':        /* ) */
-      nestret = gps.parse_comsub (0, '(', ')', &nestlen, (rflags|P_COMMAND) & ^P_DQUOTE);
-    case ch == '{':        /* } */
-      nestret = gps.parse_matched_pair (0, '{', '}', &nestlen, P_FIRSTCLOSE|rflags);
-    case ch == '[':        /* ] */
-      nestret = gps.parse_matched_pair (0, '[', ']', &nestlen, rflags);
-    }
+      if (tflags & LEX_INCASE) == 0 && open == ch {  /* undo previous increment */
+        count--;
+      }
+      switch {
+      case ch == '(':        /* ) */
+        nestret = gps.parse_comsub (0, '(', ')', &nestlen, (rflags|P_COMMAND) & ^P_DQUOTE);
+      case ch == '{':        /* } */
+        nestret = gps.parse_matched_pair (0, '{', '}', &nestlen, P_FIRSTCLOSE|rflags);
+      case ch == '[':        /* ] */
+        nestret = gps.parse_matched_pair (0, '[', ']', &nestlen, rflags);
+      }
 
-    CHECK_NESTRET_ERROR ();
-    APPEND_NESTRET ();
-  }
-  if (ch == '$') {
-    tflags |= LEX_WASDOL;
-  } else {
-    tflags &= ^LEX_WASDOL;
+      CHECK_NESTRET_ERROR ();
+      APPEND_NESTRET ();
+    }
+    if (ch == '$') {
+      tflags |= LEX_WASDOL;
+    } else {
+      tflags &= ^LEX_WASDOL;
+    }
   }
 
 /*itrace("gps.parse_comsub:%d: returning `%s'", gps.line_number, ret);*/
