@@ -1,3 +1,4 @@
+package gobash
 /* eval.c -- reading and evaluating commands. */
 
 /* Copyright (C) 1996-2009 Free Software Foundation, Inc.
@@ -12,45 +13,6 @@
 
    You should have received a copy of the GNU General Public License along with Bash.  If not, see
    <http://www.gnu.org/licenses/>. */
-
-#include "config.h"
-
-#if defined (HAVE_UNISTD_H)
-#  ifdef _MINIX
-#    include <sys/types.h>
-#  endif
-#  include <unistd.h>
-#endif
-
-#include "bashansi.h"
-#include <stdio.h>
-
-#include "bashintl.h"
-
-#include "shell.h"
-#include "flags.h"
-#include "trap.h"
-
-#include "builtins/common.h"
-
-#include "input.h"
-#include "execute_cmd.h"
-
-#if defined (HISTORY)
-#  include "bashhist.h"
-#endif
-
-extern int EOF_reached;
-extern int indirection_level;
-extern int posixly_correct;
-extern int subshell_environment, running_under_emacs;
-extern int last_command_exit_value, stdin_redir;
-extern int need_here_doc;
-extern int current_command_number, current_command_line_count, line_number;
-extern int expand_aliases;
-
-static void send_pwd_to_eterm __P((void));
-static sighandler alrm_catcher __P((int));
 
 /* Read and execute commands until EOF is reached.  This assumes that the input source has already been initialized. */
 int reader_loop() {
@@ -68,9 +30,6 @@ int reader_loop() {
 
 		code = setjmp(top_level);
 
-#if defined (PROCESS_SUBSTITUTION)
-		unlink_fifo_list();
-#endif /* PROCESS_SUBSTITUTION */
 
 		if (interactive_shell && signal_is_ignored(SIGINT) == 0)
 			set_signal_handler(SIGINT, sigint_sighandler);
@@ -115,10 +74,6 @@ int reader_loop() {
 		if (temporary_env)
 			dispose_used_env_vars();
 
-#if (defined (ultrix) && defined (mips)) || defined (C_ALLOCA)
-		/* Attempt to reclaim memory allocated with alloca (). */
-		(void)alloca(0);
-#endif
 
 		if (read_command() == 0) {
 			if (interactive_shell == 0 && read_but_dont_execute) {
@@ -153,26 +108,6 @@ int reader_loop() {
 	return (last_command_exit_value);
 }
 
-static sighandler alrm_catcher(i)
-	 int i;
-{
-	printf(_("\007timed out waiting for input: auto-logout\n"));
-	fflush(stdout);
-	bash_logout();				/* run ~/.bash_logout if this is a login shell */
-	jump_to_top_level(EXITPROG);
-	SIGRETURN(0);
-}
-
-/* Send an escape sequence to emacs term mode to tell it the current working directory. */
-static void send_pwd_to_eterm() {
-	char *pwd;
-
-	pwd = get_string_value("PWD");
-	if (pwd == 0)
-		pwd = get_working_directory("eterm");
-	fprintf(stderr, "\032/%s\n", pwd);
-}
-
 /* Call the YACC-generated parser and return the status of the parse. Input is read from the current input stream (bash_input).
    yyparse leaves the parsed command in the global variable GLOBAL_COMMAND. This is where PROMPT_COMMAND is executed. */
 int parse_command() {
@@ -201,193 +136,6 @@ int parse_command() {
 
 	return (r);
 }
-
-// NOTE(Krasin): begin
-
-void KrasinPrintCommand(COMMAND * cmd);
-void KrasinPrintWordDesc(WORD_DESC * val);
-
-void KrasinPrintCondCom(COND_COM * val) {
-	if (!val) {
-		fprintf(stderr, "nil");
-		return;
-	}
-	fprintf(stderr, "%d: flags:%d\ntyp:%d\nop:", val->line, val->flags, val->type);
-	KrasinPrintWordDesc(val->op);
-	fprintf(stderr, "\nleft:{");
-	KrasinPrintCondCom(val->left);
-	fprintf(stderr, "}\nright:{");
-	KrasinPrintCondCom(val->right);
-	fprintf(stderr, "}");
-}
-
-void KrasinPrintIfCom(IF_COM * val) {
-	if (!val) {
-		fprintf(stderr, "nil");
-		return;
-	}
-	fprintf(stderr, "flags:%d\ntest:", val->flags);
-	KrasinPrintCommand(val->test);
-	fprintf(stderr, "\ntrue_case:");
-	KrasinPrintCommand(val->true_case);
-	fprintf(stderr, "\nfalse_case:");
-	KrasinPrintCommand(val->false_case);
-}
-
-void KrasinPrintConnection(CONNECTION * val) {
-	if (!val) {
-		fprintf(stderr, "nil");
-		return;
-	}
-	fprintf(stderr, "connector:%d\nfirst: ", val->connector);
-	KrasinPrintCommand(val->first);
-	fprintf(stderr, "\nsecond: ");
-	KrasinPrintCommand(val->second);
-}
-
-void KrasinPrintSubshell(SUBSHELL_COM * val) {
-	if (!val) {
-		fprintf(stderr, "nil");
-		return;
-	}
-	fprintf(stderr, "flags:%d\ncommand: ", val->flags);
-	KrasinPrintCommand(val->command);
-}
-
-void KrasinPrintWordDesc(WORD_DESC * word) {
-	if (!word || word == (WORD_DESC *) 1) {
-		fprintf(stderr, "{nil}");
-		return;
-	}
-	fprintf(stderr, "{flags:%d, {%s}}", word->flags, word->word);
-}
-
-void KrasinPrintRedirectee(REDIRECTEE val) {
-	int v = val.dest;
-	if (val.dest > 100) {
-		v = 0;
-	}
-	fprintf(stderr, "dest:%d", v);
-}
-
-void KrasinPrintRedirect(REDIRECT * val) {
-	if (!val) {
-		fprintf(stderr, "nil");
-		return;
-	}
-	fprintf(stderr, "redirector:{");
-	KrasinPrintRedirectee(val->redirector);
-	fprintf(stderr, "}\nrflags:%d\nflags:%d\ninstruction:%d\nredirectee:{", val->rflags, val->flags, val->instruction);
-	KrasinPrintRedirectee(val->redirectee);
-	fprintf(stderr, "}");
-}
-
-void KrasinPrintWordList(WORD_LIST * list) {
-	if (!list) {
-		fprintf(stderr, "nil");
-		return;
-	}
-	WORD_LIST *cur = list;
-	while (cur) {
-		KrasinPrintWordDesc(cur->word);
-		fprintf(stderr, " ");
-		cur = cur->next;
-	}
-}
-
-void KrasinPrintSimple(SIMPLE_COM * val) {
-	if (!val) {
-		fprintf(stderr, "nil");
-		return;
-	}
-	fprintf(stderr, "%d: words:", val->line);
-	KrasinPrintWordList(val->words);
-	fprintf(stderr, "redirects:{");
-	REDIRECT *redir = val->redirects;
-	if (!redir) {
-		fprintf(stderr, "nil");
-	}
-	while (redir) {
-		fprintf(stderr, "{");
-		KrasinPrintRedirect(redir);
-		fprintf(stderr, "}\n");
-		redir = redir->next;
-	}
-	fprintf(stderr, "}");
-}
-
-void KrasinPrintPatternList(PATTERN_LIST * list) {
-	if (!list) {
-		fprintf(stderr, "nil");
-		return;
-	}
-	PATTERN_LIST *cur = list;
-	while (cur) {
-		fprintf(stderr, "{patterns:");
-		KrasinPrintWordList(cur->patterns);
-		fprintf(stderr, "\naction:");
-		KrasinPrintCommand(cur->action);
-		fprintf(stderr, "\nflags:%d}\n", cur->flags);
-		cur = cur->next;
-	}
-}
-
-void KrasinPrintCase(CASE_COM * cmd) {
-	if (!cmd) {
-		fprintf(stderr, "nil");
-		return;
-	}
-	fprintf(stderr, "flags:%d line:%d word:", cmd->flags, cmd->line);
-	KrasinPrintWordDesc(cmd->word);
-	fprintf(stderr, " clauses:{");
-	KrasinPrintPatternList(cmd->clauses);
-	fprintf(stderr, "}");
-}
-
-void KrasinPrintCommand(COMMAND * cmd) {
-	if (!cmd) {
-		fprintf(stderr, "nil");
-		return;
-	}
-	fprintf(stderr, "{ ");
-	switch (cmd->type) {
-	case cm_simple:
-		fprintf(stderr, "SIMPLE{");
-		KrasinPrintSimple(cmd->value.Simple);
-		break;
-	case cm_case:
-		fprintf(stderr, "CASE{");
-		KrasinPrintCase(cmd->value.Case);
-		break;
-	case cm_connection:
-		fprintf(stderr, "CONNECTION{");
-		KrasinPrintConnection(cmd->value.Connection);
-		break;
-	case cm_subshell:
-		fprintf(stderr, "SUBSHELL{");
-		KrasinPrintSubshell(cmd->value.Subshell);
-		break;
-	case cm_if:
-		fprintf(stderr, "IF{");
-		KrasinPrintIfCom(cmd->value.If);
-		break;
-	case cm_cond:
-		fprintf(stderr, "COND{");
-		KrasinPrintCondCom(cmd->value.Cond);
-		break;
-	default:
-		fprintf(stderr, "%d {", cmd->type);
-	}
-	fprintf(stderr, "}}");
-}
-
-void KrasinPrintGlobalCommand() {
-	fprintf(stderr, "global_command: ");
-	KrasinPrintCommand(global_command);
-	fprintf(stderr, "\n");
-}
-
-// NOTE(Krasin): end
 
 /* Read and parse a command, returning the status of the parse.  The command is left in the globval variable GLOBAL_COMMAND for
    use by reader_loop. This is where the shell timeout code is executed. */
@@ -420,10 +168,6 @@ int read_command() {
 
 	current_command_line_count = 0;
 	result = parse_command();
-
-	// NOTE(krasin): debug output start
-	KrasinPrintGlobalCommand();
-	// NOTE(krasin): end of debug outout
 
 	if (interactive && tmout_var && (tmout_len > 0)) {
 		alarm(0);
