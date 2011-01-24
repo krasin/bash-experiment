@@ -199,230 +199,9 @@ extern int variable_context;
 extern char *dollar_vars[];
 extern char **export_env;
 
-extern void initialize_shell_variables __P((char **, int));
-extern SHELL_VAR *set_if_not __P((char *, char *));
-
-extern void sh_set_lines_and_columns __P((int, int));
-extern void set_pwd __P((void));
-extern void set_ppid __P((void));
-extern void make_funcname_visible __P((int));
-
-extern SHELL_VAR *var_lookup __P((const char *, VAR_CONTEXT *));
-
-extern SHELL_VAR *find_function __P((const char *));
-extern FUNCTION_DEF *find_function_def __P((const char *));
-extern SHELL_VAR *find_variable __P((const char *));
-extern SHELL_VAR *find_variable_internal __P((const char *, int));
-extern SHELL_VAR *find_tempenv_variable __P((const char *));
-extern SHELL_VAR *copy_variable __P((SHELL_VAR *));
-extern SHELL_VAR *make_local_variable __P((const char *));
-extern SHELL_VAR *bind_variable __P((const char *, char *, int));
-extern SHELL_VAR *bind_function __P((const char *, COMMAND *));
-
-extern void bind_function_def __P((const char *, FUNCTION_DEF *));
-
-extern SHELL_VAR **map_over __P((sh_var_map_func_t *, VAR_CONTEXT *));
-SHELL_VAR **map_over_funcs __P((sh_var_map_func_t *));
-
-extern SHELL_VAR **all_shell_variables __P((void));
-extern SHELL_VAR **all_shell_functions __P((void));
-extern SHELL_VAR **all_visible_variables __P((void));
-extern SHELL_VAR **all_visible_functions __P((void));
-extern SHELL_VAR **all_exported_variables __P((void));
-extern SHELL_VAR **local_exported_variables __P((void));
-extern SHELL_VAR **all_local_variables __P((void));
-#if defined (ARRAY_VARS)
-extern SHELL_VAR **all_array_variables __P((void));
-#endif
-extern char **all_variables_matching_prefix __P((const char *));
-
-extern char **make_var_array __P((HASH_TABLE *));
-extern char **add_or_supercede_exported_var __P((char *, int));
-
-extern char *get_variable_value __P((SHELL_VAR *));
-extern char *get_string_value __P((const char *));
-extern char *sh_get_env_value __P((const char *));
-extern char *make_variable_value __P((SHELL_VAR *, char *, int));
-
-extern SHELL_VAR *bind_variable_value __P((SHELL_VAR *, char *, int));
-extern SHELL_VAR *bind_int_variable __P((char *, char *));
-extern SHELL_VAR *bind_var_to_int __P((char *, intmax_t));
-
-extern int assign_in_env __P((WORD_DESC *));
-
-extern int unbind_variable __P((const char *));
-extern int unbind_func __P((const char *));
-extern int unbind_function_def __P((const char *));
-extern int makunbound __P((const char *, VAR_CONTEXT *));
-extern int kill_local_variable __P((const char *));
-extern void delete_all_variables __P((HASH_TABLE *));
-extern void delete_all_contexts __P((VAR_CONTEXT *));
-
-extern VAR_CONTEXT *new_var_context __P((char *, int));
-extern void dispose_var_context __P((VAR_CONTEXT *));
-extern VAR_CONTEXT *push_var_context __P((char *, int, HASH_TABLE *));
-extern void pop_var_context __P((void));
-extern VAR_CONTEXT *push_scope __P((int, HASH_TABLE *));
-extern void pop_scope __P((int));
-
-extern void push_context __P((char *, int, HASH_TABLE *));
-extern void pop_context __P((void));
-extern void push_dollar_vars __P((void));
-extern void pop_dollar_vars __P((void));
-extern void dispose_saved_dollar_vars __P((void));
-
-extern void push_args __P((WORD_LIST *));
-extern void pop_args __P((void));
-
-extern void adjust_shell_level __P((int));
-extern void non_unsettable __P((char *));
-extern void dispose_variable __P((SHELL_VAR *));
-extern void dispose_used_env_vars __P((void));
-extern void dispose_function_env __P((void));
-extern void dispose_builtin_env __P((void));
-extern void merge_temporary_env __P((void));
-extern void merge_builtin_env __P((void));
-extern void kill_all_local_variables __P((void));
-
-extern void set_var_read_only __P((char *));
-extern void set_func_read_only __P((const char *));
-extern void set_var_auto_export __P((char *));
-extern void set_func_auto_export __P((const char *));
-
-extern void sort_variables __P((SHELL_VAR **));
-
-extern void maybe_make_export_env __P((void));
-extern void update_export_env_inplace __P((char *, int, char *));
-extern void put_command_name_into_env __P((char *));
-extern void put_gnu_argv_flags_into_env __P((intmax_t, char *));
-
-extern void print_var_list __P((SHELL_VAR **));
-extern void print_func_list __P((SHELL_VAR **));
-extern void print_assignment __P((SHELL_VAR *));
-extern void print_var_value __P((SHELL_VAR *, int));
-extern void print_var_function __P((SHELL_VAR *));
-
-#if defined (ARRAY_VARS)
-extern SHELL_VAR *make_new_array_variable __P((char *));
-extern SHELL_VAR *make_local_array_variable __P((char *));
-
-extern SHELL_VAR *make_new_assoc_variable __P((char *));
-extern SHELL_VAR *make_local_assoc_variable __P((char *));
-
-extern void set_pipestatus_array __P((int *, int));
-#endif
-
-extern void set_pipestatus_from_exit __P((int));
-
-/* The variable in NAME has just had its state changed.  Check to see if it is one of the special ones where something special
-   happens. */
-extern void stupidly_hack_special_variables __P((char *));
-
-/* Reinitialize some special variables that have external effects upon unset when the shell reinitializes itself. */
-extern void reinit_special_variables __P((void));
-
-extern int get_random_number __P((void));
-
-/* The `special variable' functions that get called when a particular variable is set. */
-extern void sv_ifs __P((char *));
-extern void sv_path __P((char *));
-extern void sv_mail __P((char *));
-extern void sv_globignore __P((char *));
-extern void sv_ignoreeof __P((char *));
-extern void sv_strict_posix __P((char *));
-extern void sv_optind __P((char *));
-extern void sv_opterr __P((char *));
-extern void sv_locale __P((char *));
-extern void sv_xtracefd __P((char *));
-
-#if defined (READLINE)
-extern void sv_comp_wordbreaks __P((char *));
-extern void sv_terminal __P((char *));
-extern void sv_hostfile __P((char *));
-extern void sv_winsize __P((char *));
-#endif
-
-#if defined (__CYGWIN__)
-extern void sv_home __P((char *));
-#endif
-
-#if defined (HISTORY)
-extern void sv_histsize __P((char *));
-extern void sv_histignore __P((char *));
-extern void sv_history_control __P((char *));
-#  if defined (BANG_HISTORY)
-extern void sv_histchars __P((char *));
-#  endif
-extern void sv_histtimefmt __P((char *));
-#endif /* HISTORY */
-
-#if defined (HAVE_TZSET) && defined (PROMPT_STRING_DECODE)
-extern void sv_tz __P((char *));
-#endif
-
-#
-#include "config.h"
-
-#include "bashtypes.h"
-#include "posixstat.h"
-#include "posixtime.h"
-
-#if defined (__QNX__)
-#  if defined (__QNXNTO__)
-#    include <sys/netmgr.h>
-#  else
-#    include <sys/vc.h>
-#  endif /* !__QNXNTO__ */
-#endif /* __QNX__ */
-
-#if defined (HAVE_UNISTD_H)
-#  include <unistd.h>
-#endif
-
-#include <stdio.h>
-#include "chartypes.h"
-#if defined (HAVE_PWD_H)
-#  include <pwd.h>
-#endif
-#include "bashansi.h"
-#include "bashintl.h"
-
-#define NEED_XTRACE_SET_DECL
-
-#include "shell.h"
-#include "flags.h"
-#include "execute_cmd.h"
-#include "findcmd.h"
-#include "mailcheck.h"
-#include "input.h"
-#include "hashcmd.h"
-#include "pathexp.h"
-#include "alias.h"
-
-#include "builtins/getopt.h"
-#include "builtins/common.h"
-
-#if defined (READLINE)
-#  include "bashline.h"
-#  include <readline/readline.h>
-#else
-#  include <tilde/tilde.h>
-#endif
-
-#if defined (HISTORY)
-#  include "bashhist.h"
-#  include <readline/history.h>
-#endif /* HISTORY */
-
-#if defined (PROGRAMMABLE_COMPLETION)
-#  include "pcomplete.h"
-#endif
-
 #define TEMPENV_HASH_BUCKETS	4	/* must be power of two */
 
 #define ifsname(s)	((s)[0] == 'I' && (s)[1] == 'F' && (s)[2] == 'S' && (s)[3] == '\0')
-
-extern char **environ;
 
 /* Variables used here and defined in other files. */
 extern int posixly_correct;
@@ -489,132 +268,6 @@ int shell_level = 0;
 char **export_env = (char **)NULL;
 static int export_env_index;
 static int export_env_size;
-
-#if defined (READLINE)
-static int winsize_assignment;	/* currently assigning to LINES or COLUMNS */
-static int winsize_assigned;	/* assigned to LINES or COLUMNS */
-#endif
-
-/* Some forward declarations. */
-static void create_variable_tables __P((void));
-
-static void set_machine_vars __P((void));
-static void set_home_var __P((void));
-static void set_shell_var __P((void));
-static char *get_bash_name __P((void));
-static void initialize_shell_level __P((void));
-static void uidset __P((void));
-#if defined (ARRAY_VARS)
-static void make_vers_array __P((void));
-#endif
-
-static SHELL_VAR *null_assign __P((SHELL_VAR *, char *, arrayind_t, char *));
-#if defined (ARRAY_VARS)
-static SHELL_VAR *null_array_assign __P((SHELL_VAR *, char *, arrayind_t, char *));
-#endif
-static SHELL_VAR *get_self __P((SHELL_VAR *));
-
-#if defined (ARRAY_VARS)
-static SHELL_VAR *init_dynamic_array_var __P((char *, sh_var_value_func_t *, sh_var_assign_func_t *, int));
-static SHELL_VAR *init_dynamic_assoc_var __P((char *, sh_var_value_func_t *, sh_var_assign_func_t *, int));
-#endif
-
-static SHELL_VAR *assign_seconds __P((SHELL_VAR *, char *, arrayind_t, char *));
-static SHELL_VAR *get_seconds __P((SHELL_VAR *));
-static SHELL_VAR *init_seconds_var __P((void));
-
-static int brand __P((void));
-static void sbrand __P((unsigned long));	/* set bash random number generator. */
-static void seedrand __P((void));	/* seed generator randomly */
-static SHELL_VAR *assign_random __P((SHELL_VAR *, char *, arrayind_t, char *));
-static SHELL_VAR *get_random __P((SHELL_VAR *));
-
-static SHELL_VAR *assign_lineno __P((SHELL_VAR *, char *, arrayind_t, char *));
-static SHELL_VAR *get_lineno __P((SHELL_VAR *));
-
-static SHELL_VAR *assign_subshell __P((SHELL_VAR *, char *, arrayind_t, char *));
-static SHELL_VAR *get_subshell __P((SHELL_VAR *));
-
-static SHELL_VAR *get_bashpid __P((SHELL_VAR *));
-
-#if defined (HISTORY)
-static SHELL_VAR *get_histcmd __P((SHELL_VAR *));
-#endif
-
-#if defined (READLINE)
-static SHELL_VAR *get_comp_wordbreaks __P((SHELL_VAR *));
-static SHELL_VAR *assign_comp_wordbreaks __P((SHELL_VAR *, char *, arrayind_t, char *));
-#endif
-
-#if defined (PUSHD_AND_POPD) && defined (ARRAY_VARS)
-static SHELL_VAR *assign_dirstack __P((SHELL_VAR *, char *, arrayind_t, char *));
-static SHELL_VAR *get_dirstack __P((SHELL_VAR *));
-#endif
-
-#if defined (ARRAY_VARS)
-static SHELL_VAR *get_groupset __P((SHELL_VAR *));
-
-static SHELL_VAR *build_hashcmd __P((SHELL_VAR *));
-static SHELL_VAR *get_hashcmd __P((SHELL_VAR *));
-static SHELL_VAR *assign_hashcmd __P((SHELL_VAR *, char *, arrayind_t, char *));
-#  if defined (ALIAS)
-static SHELL_VAR *build_aliasvar __P((SHELL_VAR *));
-static SHELL_VAR *get_aliasvar __P((SHELL_VAR *));
-static SHELL_VAR *assign_aliasvar __P((SHELL_VAR *, char *, arrayind_t, char *));
-#  endif
-#endif
-
-static SHELL_VAR *get_funcname __P((SHELL_VAR *));
-static SHELL_VAR *init_funcname_var __P((void));
-
-static void initialize_dynamic_variables __P((void));
-
-static SHELL_VAR *hash_lookup __P((const char *, HASH_TABLE *));
-static SHELL_VAR *new_shell_variable __P((const char *));
-static SHELL_VAR *make_new_variable __P((const char *, HASH_TABLE *));
-static SHELL_VAR *bind_variable_internal __P((const char *, char *, HASH_TABLE *, int, int));
-
-static void dispose_variable_value __P((SHELL_VAR *));
-static void free_variable_hash_data __P((PTR_T));
-
-static VARLIST *vlist_alloc __P((int));
-static VARLIST *vlist_realloc __P((VARLIST *, int));
-static void vlist_add __P((VARLIST *, SHELL_VAR *, int));
-
-static void flatten __P((HASH_TABLE *, sh_var_map_func_t *, VARLIST *, int));
-
-static int qsort_var_comp __P((SHELL_VAR **, SHELL_VAR **));
-
-static SHELL_VAR **vapply __P((sh_var_map_func_t *));
-static SHELL_VAR **fapply __P((sh_var_map_func_t *));
-
-static int visible_var __P((SHELL_VAR *));
-static int visible_and_exported __P((SHELL_VAR *));
-static int export_environment_candidate __P((SHELL_VAR *));
-static int local_and_exported __P((SHELL_VAR *));
-static int variable_in_context __P((SHELL_VAR *));
-#if defined (ARRAY_VARS)
-static int visible_array_vars __P((SHELL_VAR *));
-#endif
-
-static SHELL_VAR *bind_tempenv_variable __P((const char *, char *));
-static void push_temp_var __P((PTR_T));
-static void propagate_temp_var __P((PTR_T));
-static void dispose_temporary_env __P((sh_free_func_t *));
-
-static inline char *mk_env_string __P((const char *, const char *));
-static char **make_env_array_from_var_list __P((SHELL_VAR **));
-static char **make_var_export_array __P((VAR_CONTEXT *));
-static char **make_func_export_array __P((void));
-static void add_temp_array_to_env __P((char **, int, int));
-
-static int n_shell_variables __P((void));
-static int set_context __P((SHELL_VAR *));
-
-static void push_func_var __P((PTR_T));
-static void push_exported_var __P((PTR_T));
-
-static inline int find_special_var __P((const char *));
 
 static void create_variable_tables() {
 	if (shell_variables == 0) {
@@ -686,24 +339,7 @@ void initialize_shell_variables(env, privmode)
 			if (name[char_index - 1] == ')' && name[char_index - 2] == '\0')
 				name[char_index - 2] = '(';	/* ) */
 		}
-#if defined (ARRAY_VARS)
-#  if 0
-		/* Array variables may not yet be exported. */
-		else if (*string == '(' && string[1] == '[' && string[strlen(string) - 1] == ')') {
-			string_length = 1;
-			temp_string = extract_array_assignment_list(string, &string_length);
-			temp_var = assign_array_from_string(name, temp_string);
-			FREE(temp_string);
-			VSETATTR(temp_var, (att_exported | att_imported));
-			array_needs_making = 1;
-		}
-#  endif
-#endif
-#if 0
-		else if (legal_identifier(name))
-#else
 		else
-#endif
 		{
 			temp_var = bind_variable(name, string, 0);
 			if (legal_identifier(name))
@@ -731,28 +367,9 @@ void initialize_shell_variables(env, privmode)
 
 	/* Now make our own defaults in case the vars that we think are important are missing. */
 	temp_var = set_if_not("PATH", DEFAULT_PATH_VALUE);
-#if 0
-	set_auto_export(temp_var);	/* XXX */
-#endif
 
 	temp_var = set_if_not("TERM", "dumb");
-#if 0
-	set_auto_export(temp_var);	/* XXX */
-#endif
 
-#if defined (__QNX__)
-	/* set node id -- don't import it from the environment */
-	{
-		char node_name[22];
-#  if defined (__QNXNTO__)
-		netmgr_ndtostr(ND2S_LOCAL_STR, ND_LOCAL_NODE, node_name, sizeof(node_name));
-#  else
-		qnx_nidtostr(getnid(), node_name, sizeof(node_name));
-#  endif
-		temp_var = bind_variable("NODE", node_name, 0);
-		set_auto_export(temp_var);
-	}
-#endif
 
 	/* set up the prompts. */
 	if (interactive_shell) {
@@ -863,29 +480,6 @@ void initialize_shell_variables(env, privmode)
 		rl_prefer_env_winsize = 1;
 #endif /* READLINE && STRICT_POSIX */
 
-	/* 
-	 * 24 October 2001
-	 *
-	 * I'm tired of the arguing and bug reports.  Bash now leaves SSH_CLIENT
-	 * and SSH2_CLIENT alone.  I'm going to rely on the shell_level check in
-	 * isnetconn() to avoid running the startup files more often than wanted.
-	 * That will, of course, only work if the user's login shell is bash, so
-	 * I've made that behavior conditional on SSH_SOURCE_BASHRC being defined
-	 * in config-top.h.
-	 */
-#if 0
-	temp_var = find_variable("SSH_CLIENT");
-	if (temp_var && imported_p(temp_var)) {
-		VUNSETATTR(temp_var, att_exported);
-		array_needs_making = 1;
-	}
-	temp_var = find_variable("SSH2_CLIENT");
-	if (temp_var && imported_p(temp_var)) {
-		VUNSETATTR(temp_var, att_exported);
-		array_needs_making = 1;
-	}
-#endif
-
 	/* Get the user's real and effective user ids. */
 	uidset();
 
@@ -924,9 +518,6 @@ static void set_home_var() {
 	temp_var = find_variable("HOME");
 	if (temp_var == 0)
 		temp_var = bind_variable("HOME", sh_get_home_dir(), 0);
-#if 0
-	VSETATTR(temp_var, att_exported);
-#endif
 }
 
 /* Set $SHELL to the user's login shell if it is not already set.  Call get_current_user_info if we haven't already fetched the
@@ -940,9 +531,6 @@ static void set_shell_var() {
 			get_current_user_info();
 		temp_var = bind_variable("SHELL", current_user.shell, 0);
 	}
-#if 0
-	VSETATTR(temp_var, att_exported);
-#endif
 }
 
 static char *get_bash_name() {
@@ -1146,12 +734,6 @@ void sh_set_lines_and_columns(lines, cols)
 {
 	char val[INT_STRLEN_BOUND(int) + 1], *v;
 
-#if defined (READLINE)
-	/* If we are currently assigning to LINES or COLUMNS, don't do anything. */
-	if (winsize_assignment)
-		return;
-#endif
-
 	v = inttostr(lines, val, sizeof(val));
 	bind_variable("LINES", v, 0);
 
@@ -1204,12 +786,10 @@ void print_assignment(var)
 		print_var_function(var);
 		printf("\n");
 	}
-#if defined (ARRAY_VARS)
 	else if (array_p(var))
 		print_array_assignment(var, 0);
 	else if (assoc_p(var))
 		print_assoc_assignment(var, 0);
-#endif /* ARRAY_VARS */
 	else {
 		printf("%s=", var->name);
 		print_var_value(var, 1);
