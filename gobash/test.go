@@ -530,41 +530,15 @@ func test_binop(op string) bool {
  return ok
 }
 
+var unaryOperations = listToMap([]string {
+  "-a", "-b", "-c", "-d", "-e", "-f", "-g", "-h", "-k", "-n", "-o", "-p", "-r", "-s", "-t",
+  "-u", "-w", "-x", "-z", "-G", "-L", "-O", "-S", "N",
+})
+
 /* Return non-zero if OP is one of the test command's unary operators. */
 func test_unop(op string) bool {
-    if op[0] != '-' || len(op) != 2 {
-      return false
-    }
-
-	switch op[1] {
-	case 'a': fallthrough
-	case 'b': fallthrough
-	case 'c': fallthrough
-	case 'd': fallthrough
-	case 'e': fallthrough
-	case 'f': fallthrough
-	case 'g': fallthrough
-	case 'h': fallthrough
-	case 'k': fallthrough
-	case 'n': fallthrough
-	case 'o': fallthrough
-	case 'p': fallthrough
-	case 'r': fallthrough
-	case 's': fallthrough
-	case 't': fallthrough
-	case 'u': fallthrough
-	case 'w': fallthrough
-	case 'x': fallthrough
-	case 'z': fallthrough
-	case 'G': fallthrough
-	case 'L': fallthrough
-	case 'O': fallthrough
-	case 'S': fallthrough
-	case 'N':
-		return true
-	}
-
-	return false
+  _, ok := binaryOperations[op]
+  return ok
 }
 
 //static int two_arguments() {
