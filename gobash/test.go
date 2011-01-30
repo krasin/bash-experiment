@@ -512,54 +512,22 @@ const EF = 2
 //	return (FALSE);
 //}
 
-// TODO(krasin): switch to usual map.
+func listToMap(names []string) ( res map[string]string) {
+  res = make(map[string]string)
+  for _, name := range names {
+    res[name] = name
+  }
+  return
+}
+
+var binaryOperations = listToMap([]string {
+  "=", "<", ">", "==", "!=", "=~", "!~", "-nt", "-ot", "-lt", "-gt", "-eq", "-ef", "-ne", "-ge", "-le",
+})
+
 /* Return TRUE if OP is one of the test command's binary operators. */
 func test_binop(op string) bool {
-  switch {
-  case op == "=":
-		return true				/* '=' */
-  case op == "<" || op == ">": /* string <, > */
-		return true
-  case op == "==" || op == "!=":
-		return true				/* `==' and `!=' */
-  case op == "=~" || op == "!~":
-		return true
-  case op[0] != '-' || len(op) != 2:
-		return false
-  default:
-    switch {
-	case op[2] == 't':
-			switch (op[1]) {
-			case 'n': fallthrough /* -nt */
-			case 'o': fallthrough /* -ot */
-			case 'l': fallthrough /* -lt */
-			case 'g':  /* -gt */
-				return true
-			default:
-				return false
-            }
-	case op[1] == 'e':
-			switch (op[2]) {
-			case 'q': fallthrough/* -eq */
-			case 'f':			/* -ef */
-				return true
-			default:
-				return false
-            }
-	case op[2] == 'e':
-			switch (op[1]) {
-			case 'n': fallthrough		/* -ne */
-			case 'g': fallthrough		/* -ge */
-			case 'l':			/* -le */
-				return true
-			default:
-				return false
-            }
-	default:
-	  return false
-    }
-  }
-  return false
+ _, ok := binaryOperations[op]
+ return ok
 }
 
 /* Return non-zero if OP is one of the test command's unary operators. */
