@@ -320,7 +320,6 @@ const CMD_NO_FUNCTIONS = 0x10 /* Ignore functions during command lookup. */
 const CMD_INHIBIT_EXPANSION = 0x20 /* Do not expand the command words. */
 const CMD_TIME_PIPELINE = 0x80 /* Time a pipeline */
 const CMD_TIME_POSIX = 0x100 /* time -p; use POSIX.2 time output spec. */
-const CMD_AMPERSAND = 0x200 /* command & */
 const CMD_STDIN_REDIR = 0x400 /* async command needs implicit </dev/null */
 
 type CommandValue struct {
