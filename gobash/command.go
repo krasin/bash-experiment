@@ -323,7 +323,6 @@ const CMD_TIME_PIPELINE = 0x80 /* Time a pipeline */
 const CMD_TIME_POSIX = 0x100 /* time -p; use POSIX.2 time output spec. */
 const CMD_AMPERSAND = 0x200 /* command & */
 const CMD_STDIN_REDIR = 0x400 /* async command needs implicit </dev/null */
-const CMD_COMMAND_BUILTIN = 0x0800 /* command executed by `command' builtin */
 
 type CommandValue struct {
     For *ForCom
