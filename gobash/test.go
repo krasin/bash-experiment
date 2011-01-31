@@ -532,7 +532,7 @@ func test_binop(op string) bool {
 
 var unaryOperations = listToMap([]string {
   "-a", "-b", "-c", "-d", "-e", "-f", "-g", "-h", "-k", "-n", "-o", "-p", "-r", "-s", "-t",
-  "-u", "-w", "-x", "-z", "-G", "-L", "-O", "-S", "N",
+  "-u", "-w", "-x", "-z", "-G", "-L", "-O", "-S", "-N",
 })
 
 /* Return non-zero if OP is one of the test command's unary operators. */
