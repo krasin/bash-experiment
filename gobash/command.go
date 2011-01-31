@@ -324,7 +324,6 @@ const CMD_TIME_POSIX = 0x100 /* time -p; use POSIX.2 time output spec. */
 const CMD_AMPERSAND = 0x200 /* command & */
 const CMD_STDIN_REDIR = 0x400 /* async command needs implicit </dev/null */
 const CMD_COMMAND_BUILTIN = 0x0800 /* command executed by `command' builtin */
-const CMD_COPROC_SUBSHELL = 0x1000
 
 type CommandValue struct {
     For *ForCom

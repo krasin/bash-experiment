@@ -1766,7 +1766,7 @@ case yyreduce:
 // #line 939 "/Users/chet/src/bash/src/parse.y"
     {
 			  (yyval.command) = gps.make_coproc_command ("COPROC", (yyvs.PeekN((2) - (2)).command));
-			  (yyval.command).flags |= CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
+			  (yyval.command).flags |= CMD_WANT_SUBSHELL
 			}
     break;
 
@@ -1785,7 +1785,7 @@ case yyreduce:
 			    tc.redirects = (yyvs.PeekN((3) - (3)).redirect);
 			  }
 			  (yyval.command) = gps.make_coproc_command ("COPROC", (yyvs.PeekN((2) - (3)).command));
-			  (yyval.command).flags |= CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
+			  (yyval.command).flags |= CMD_WANT_SUBSHELL
 			}
     break;
 
@@ -1793,7 +1793,7 @@ case yyreduce:
 // #line 961 "/Users/chet/src/bash/src/parse.y"
     {
 			  (yyval.command) = gps.make_coproc_command ((yyvs.PeekN((2) - (3)).word).word, (yyvs.PeekN((3) - (3)).command));
-			  (yyval.command).flags |= CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
+			  (yyval.command).flags |= CMD_WANT_SUBSHELL
 			}
     break;
 
@@ -1812,7 +1812,7 @@ case yyreduce:
 			    tc.redirects = (yyvs.PeekN((4) - (4)).redirect);
 				}
 			  (yyval.command) = gps.make_coproc_command ((yyvs.PeekN((2) - (4)).word).word, (yyvs.PeekN((3) - (4)).command));
-			  (yyval.command).flags |= CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
+			  (yyval.command).flags |= CMD_WANT_SUBSHELL
 			}
     break;
 
@@ -1820,7 +1820,7 @@ case yyreduce:
 // #line 983 "/Users/chet/src/bash/src/parse.y"
     {
 			  (yyval.command) = gps.make_coproc_command ("COPROC", gps.clean_simple_command ((yyvs.PeekN((2) - (2)).command)));
-			  (yyval.command).flags |= CMD_WANT_SUBSHELL|CMD_COPROC_SUBSHELL;
+			  (yyval.command).flags |= CMD_WANT_SUBSHELL
 			}
     break;
 
