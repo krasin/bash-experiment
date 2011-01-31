@@ -44,10 +44,8 @@
 
 #define ALIAS_HASH_BUCKETS	16	/* must be power of two */
 
-typedef int sh_alias_map_func_t __P((alias_t *));
 
 static void free_alias_data __P((PTR_T));
-static alias_t **map_over_aliases __P((sh_alias_map_func_t *));
 static void sort_aliases __P((alias_t **));
 static int qsort_alias_compare __P((alias_t **, alias_t **));
 
@@ -203,8 +201,7 @@ delete_all_aliases ()
 /* Return an array of aliases that satisfy the conditions tested by FUNCTION.
    If FUNCTION is NULL, return all aliases. */
 static alias_t **
-map_over_aliases (function)
-     sh_alias_map_func_t *function;
+map_over_aliases ()
 {
   register int i;
   register BUCKET_CONTENTS *tlist;
@@ -222,11 +219,8 @@ map_over_aliases (function)
 	{
 	  alias = (alias_t *)tlist->data;
 
-	  if (!function || (*function) (alias))
-	    {
-	      list[list_index++] = alias;
-	      list[list_index] = (alias_t *)NULL;
-	    }
+      list[list_index++] = alias;
+      list[list_index] = (alias_t *)NULL;
 	}
     }
   return (list);
@@ -260,7 +254,7 @@ all_aliases ()
   if (aliases == 0 || HASH_ENTRIES (aliases) == 0)
     return ((alias_t **)NULL);
 
-  list = map_over_aliases ((sh_alias_map_func_t *)NULL);
+  list = map_over_aliases ();
   if (list)
     sort_aliases (list);
   return (list);
