@@ -35,7 +35,6 @@ typedef struct var_context {
   char *name;		/* empty or NULL means global context */
   int scope;		/* 0 means global context */
   int flags;
-  struct var_context *up;	/* previous function calls */
   struct var_context *down;	/* down towards global context */
   HASH_TABLE *table;		/* variables at this scope */
 } VAR_CONTEXT;

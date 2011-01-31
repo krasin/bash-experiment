@@ -3741,7 +3741,7 @@ new_var_context (name, flags)
   vc->scope = variable_context;
   vc->flags = flags;
 
-  vc->up = vc->down = (VAR_CONTEXT *)NULL;
+  vc->down = (VAR_CONTEXT *)NULL;
   vc->table = (HASH_TABLE *)NULL;
 
   return vc;
@@ -3793,7 +3793,6 @@ push_var_context (name, flags, tempvars)
       vc->flags |= VC_HASTMPVAR;
     }
   vc->down = shell_variables;
-  shell_variables->up = vc;
 
   return (shell_variables = vc);
 }
@@ -3838,7 +3837,6 @@ pop_var_context ()
 
   if (ret = vcxt->down)
     {
-      ret->up = (VAR_CONTEXT *)NULL;
       shell_variables = ret;
       if (vcxt->table)
 	hash_flush (vcxt->table, push_func_var);
@@ -3924,8 +3922,6 @@ pop_scope (is_special)
     }
 
   ret = vcxt->down;
-  if (ret)
-    ret->up = (VAR_CONTEXT *)NULL;
 
   shell_variables = ret;
 
